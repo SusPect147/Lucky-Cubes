@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cube Game</title>
     <link rel="stylesheet" href="styles.css">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 </head>
@@ -15,7 +14,7 @@
         <div class="loading-center">
             <div id="loading-cube" class="lottie-cube-loading"></div>
         </div>
-        <div class="loading-text" id="loading-text">0/12 loaded</div>
+        <div class="loading-text" id="loading-text">0/8 loaded</div>
     </div>
 
     <div id="game-content" style="display: none;">
@@ -58,7 +57,7 @@
             <div class="rainbow-progress-bar-container">
                 <div class="rainbow-progress-bar-fill" id="rainbow-progress-fill"></div>
             </div>
-            <div class="rainbow-text" id="rainbow-text">0/10 rolls to Rainbow Mode</div>
+            <div class="rainbow-text" id="rainbow-text">0/7 rolls to Rainbow Mode</div>
         </div>
 
         <nav class="bottom-menu">
@@ -111,6 +110,7 @@
         </nav>
     </div>
 
+    <script src="config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
