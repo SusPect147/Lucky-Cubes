@@ -146,7 +146,7 @@
                 else break;
             }
             lvl = Math.min(lvl, CONFIG.levels.length);
-            const cur = CONFIG.levels[lvl - 1] || CONFIG.levels[CONFIG.levels.length - 1];
+        const cur = CONFIG.levels[lvl - 1] || CONFIG.levels[CONFIG.levels.length - 1];
             const next = CONFIG.levels[lvl] || cur;
 
             if (lvl >= CONFIG.levels.length) {
