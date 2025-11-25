@@ -1,7 +1,3 @@
-// Глобальные переменные: CONFIG, Quests, updateLevel, updateUI, hideQuestMenu, showQuestMenu доступны
-// pako и lottie доступны глобально из index.html
-
-// 1. Функция загрузки TGS (используется только здесь и в preload)
 const animationCache = {}; 
 let loadedCount = 0; 
 
@@ -20,7 +16,6 @@ async function loadTGS(path) {
 }
 
 
-// 2. Логика экрана загрузки и Preload
 const loadingScreen = document.getElementById('loading-screen');
 const loadingText = document.getElementById('loading-text');
 const gameContent = document.getElementById('game-content');
@@ -61,7 +56,6 @@ async function preload() {
 }
 
 
-// 3. Основная логика игры (IIFE)
 const Game = (function () {
     let totalXP = 0;
     let coinCount = 0;
@@ -90,7 +84,6 @@ const Game = (function () {
 
     function addXP(amount) {
         totalXP += amount;
-        // updateLevel доступен глобально из ui.js
         updateLevel(totalXP);
     }
 
@@ -112,8 +105,7 @@ const Game = (function () {
     function rollCube() {
         if (isRolling) return;
         isRolling = true;
-        
-        // Quests доступен глобально из ui.js
+
         Quests.updateProgress('roll', 1);
 
         const roll = Math.floor(Math.random() * 6) + 1;
@@ -169,23 +161,21 @@ const Game = (function () {
                 showIdleCube();
             }
 
-            // updateUI доступен глобально из ui.js
             updateUI(coinCount, currentMin);
             isRolling = false;
         });
     }
 
     function claimQuest(id) {
-        // Quests доступен глобально из ui.js
+
         const quest = Quests.data.find(q => q.id === id);
         if (!quest || !quest.completed || quest.claimed) return;
-        
-        // addXP is internal
+
         addXP(quest.xp);
         quest.claimed = true;
         
         const questEl = document.querySelector(`.quest-item[data-id="${id}"]`);
-        // hideQuestMenu доступна глобально из ui.js
+
         const questOverlayEl = document.getElementById('quest-menu-overlay');
 
         if (!questEl) return;
@@ -243,8 +233,7 @@ const Game = (function () {
         
         Quests.render();
     }
-    
-    // 4. Инициализация игры и экспорты
+
     return {
         init: function () {
             totalXP = 0;
@@ -263,12 +252,10 @@ const Game = (function () {
 })();
 
 
-// 5. Обработчики событий (используя экспортированные функции Game и UI)
 document.querySelector('.center-gif').addEventListener('click', Game.rollCube);
 document.getElementById('top-menu').addEventListener('click', showQuestMenu);
 document.getElementById('quest-menu-close-btn').addEventListener('click', hideQuestMenu);
 
-// Обработчик клика по оверлею
 document.getElementById('quest-menu-overlay').addEventListener('click', function(e) {
     if (e.target === document.getElementById('quest-menu-overlay')) {
         hideQuestMenu();
