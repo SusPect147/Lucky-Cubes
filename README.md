@@ -1,35 +1,47 @@
-# 🌟 Cube Game: The Ultimate Dice Roller
+# 🎲 **Lucky Cubes**
 
-## 🚀 What is this Game?
+**Cube Game** is a cozy little idle clicker built around one incredibly simple — yet ridiculously satisfying — action: **click the cube and see what you get**.  
+It’s designed as a small passion project: lightweight, relaxing, and surprisingly addictive. The perfect game to open for a few minutes… and stay for an hour.
 
-**Cube Game** is an engaging and relaxing idle-clicker built entirely around the simple, yet thrilling, mechanic of dice rolling. It offers a perfect blend of luck, simple strategy, and satisfying progression, making it an ideal project for a quick, fun experience.
+Your mission? Easy: **roll the cube, earn XP, level up, and claim the legendary title of “GOAT” — Greatest Of All Time!**
 
-Your goal is straightforward: **roll the cube, accumulate Experience Points (XP), and achieve the coveted title of "The GOAT" (Greatest of All Time)!**
+---
 
-### ✨ Core Gameplay and Mechanics
+## 🚀 **How the Game Works**
 
-The entire game revolves around clicking the cube to initiate a roll and reveal your luck!
+The core gameplay is as clean as it gets: tap the cube, watch it roll, enjoy the rewards. Beneath that simplicity sits a smooth progression system that constantly gives you something to look forward to.
 
-#### 🏆 Progression System (XP and Levels)
+### 🏅 **XP & Level Progression**
 
-Every cube roll rewards you with **Experience Points (XP)**. Accumulating XP allows you to climb the ranks and earn new, prestigious titles, moving from "Roller Newbie" up to the legendary **"Dice Deity"** and beyond.
+Every roll grants you **Experience Points (XP)**.  
+As your XP grows, you rise through ranks — from humble *Roller Newbie* to the divine **Dice Deity** and beyond.
 
-* **Rewards:** Leveling up unlocks access to new features, such as new cube skins and visual elements.
+Leveling up also unlocks new visual elements, cube skins, and other cosmetic perks that make your progress feel tangible and fun.
 
-#### 💰 Game Economy
+### 💰 **Game Economy**
 
-* **Coins:** You earn Coins with every roll. Coins serve as the in-game currency for future use, such as purchasing customizations and unique items.
+Each roll also rewards you with **Coins**, the main in-game currency.  
+Coins will eventually be used for customization, upgrades, and special items that let you flex your style or optimize your progress.
 
-#### 🎯 Quests
+### 🎯 **Quests**
 
-To keep the excitement going, the Quest system offers daily and long-term objectives that reward you with extra XP and Coins upon completion. Keep an eye on goals like:
-* Making a set number of rolls.
-* Achieving the Rainbow Mode a specific number of times.
+To keep things spicy, the game includes a Quest system with both daily and long-term goals. Completing them grants bonus XP and Coins.
 
-#### 🌈 The Rainbow Mode
+Expect quests like:
+- Roll the cube a certain number of times  
+- Trigger Rainbow Mode several times  
+- Reach specific level milestones  
 
-This is a **rare and high-stakes random event**! When the **Rainbow Mode** is activated, your XP rewards are multiplied significantly for a limited number of rolls. This is your chance to make a massive leap forward in your progression!
+Quests help give structure to your play sessions while rewarding consistent progress.
 
-### 🎨 Visual Design
+### 🌈 **Rainbow Mode**
 
-The game features a stylish and clean, minimalistic design. The cube rolls are enhanced with high-quality vector animations (TGS), ensuring a smooth, visually pleasing, and satisfying experience with every click.
+Every once in a while, you’ll trigger the rare **Rainbow Mode** — a flashy, exciting moment where all XP gains get multiplied for a short streak of rolls.  
+If you’re lucky enough to hit this mode, your progress skyrockets. It’s your chance to break through multiple levels in minutes.
+
+---
+
+## 🎨 **Visual Style**
+
+Cube Game sticks to a clean, minimalistic look that’s easy on the eyes.  
+Smooth TGS vector animations make every roll feel crisp and satisfying, while subtle effects and color transitions keep the experience pleasant and relaxing.
