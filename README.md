@@ -20,7 +20,7 @@ Every cube roll rewards you with **Experience Points (XP)**. Accumulating XP all
 
 * **Coins:** You earn Coins with every roll. Coins serve as the in-game currency for future use, such as purchasing customizations and unique items.
 
-#### 🎯 Daily Quests
+#### 🎯 Quests
 
 To keep the excitement going, the Quest system offers daily and long-term objectives that reward you with extra XP and Coins upon completion. Keep an eye on goals like:
 * Making a set number of rolls.
