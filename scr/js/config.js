@@ -1,0 +1,63 @@
+const CONFIG = {
+    assetsPath: 'assets/UI/cubics/classic_skins/',
+    assets: [
+        'first-cubic.tgs',
+        'super-first-cubic.tgs',
+        '1-cubic.tgs',
+        '2-cubic.tgs',
+        '3-cubic.tgs',
+        '4-cubic.tgs',
+        '5-cubic.tgs',
+        '6-cubic.tgs'
+    ],
+    levels: [
+        
+        { name: "Roller Newbie", xp: 4100 },
+        { name: "Dice Flicker", xp: 4300 },
+        { name: "Street Roller", xp: 4600 },
+        { name: "Lucky Rookie", xp: 5000 },
+        { name: "Dice Toss Apprentice", xp: 5500 },
+        { name: "Backalley Gambler", xp: 6100 },
+        { name: "Risk Taker", xp: 6800 },
+        { name: "Combo Beginner", xp: 7600 },
+        { name: "Game Player", xp: 8500 },
+        { name: "Fortune's Favorite", xp: 9500 },
+        { name: "High Stakes Novice", xp: 10700 },
+        { name: "Lucky One", xp: 12000 },
+        { name: "Dice Flow Master", xp: 13500 },
+        { name: "Combo Master", xp: 15200 },
+        { name: "High Roller", xp: 17200 },
+        { name: "Ace in the Hole", xp: 19500 },
+        { name: "Ace Thrower", xp: 22000 },
+        { name: "Dice Whisperer", xp: 25000 },
+        { name: "Dice Mage", xp: 28500 },
+        { name: "Lord of the Roll", xp: 32500 },
+        { name: "Casino Phantom", xp: 37000 },
+        { name: "Luck Overlord", xp: 42000 },
+        { name: "Dice Demigod", xp: 47500 },
+        { name: "God of Sixes", xp: 54000 },
+        { name: "Rainbow Ruler", xp: 62000 },
+        { name: "Eternal Roller", xp: 71000 },
+        { name: "Legend of Luck", xp: 82000 },
+        { name: "Dice Deity", xp: 94000 },
+        { name: "Untouchable", xp: 109000 },
+        { name: "THE GOAT", xp: 127456 }
+    ],
+    xpPerRoll: 0.5,
+    baseLambda: 0.001,
+    rainbowLambda: 0.0005,
+    rainbowRollsMin: 5,
+    rainbowRollsMax: 10,
+    particleCount: 120,
+
+    
+    QUESTS: [
+        { id: 'roll_10', type: 'roll', name: 'Make {target} Rolls', xp: 500, target: 10, current: 0, completed: false, claimed: false, social: false, icon: 'dice' },
+        { id: 'rainbow_1', type: 'rainbow', name: 'Achieve Rainbow Mode {target} Time', xp: 900, target: 1, current: 0, completed: false, claimed: false, social: false, icon: 'star' },
+        
+        { id: 'subscribe_lucky', type: 'social', name: 'Subscribe to Lucky Cubes!', xp: 700, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'user' }, 
+        { id: 'subscribe_rayan', type: 'social', name: 'Subscribe to Rayan\'s Channel!', xp: 700, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'user' }, 
+        { id: 'donate_100', type: 'social', name: 'Donate 100 Stars', xp: 1200, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'heart' },
+
+    ],
+};
