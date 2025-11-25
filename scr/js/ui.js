@@ -1,8 +1,5 @@
-// Глобальные переменные: CONFIG, format, Game (будет доступен после загрузки game.js), hideQuestMenu доступны
-// Переменные состояния UI
 let displayedProgress = 0;
 
-// Ссылки на DOM-элементы (сделаны глобальными)
 const rankEl = document.getElementById('rank-text');
 const xpEl = document.getElementById('xp-text');
 const progressEl = document.getElementById('progress-fill');
@@ -13,7 +10,6 @@ const topMenuEl = document.getElementById('top-menu');
 const questOverlayEl = document.getElementById('quest-menu-overlay');
 const questCloseBtn = document.getElementById('quest-menu-close-btn');
 
-// Функции обновления UI (сделаны глобальными, принимают данные от объекта Game)
 function animateProgressBar(target) {
     const step = () => {
         const diff = target - displayedProgress;
@@ -29,7 +25,7 @@ function animateProgressBar(target) {
     step();
 }
 
-function updateLevel(totalXP) { // Принимает XP от объекта Game
+function updateLevel(totalXP) { 
     let passed = 0;
     for (let i = 0; i < CONFIG.levels.length; i++) {
         if (totalXP >= CONFIG.levels[i].xp) passed++;
@@ -53,17 +49,14 @@ function updateLevel(totalXP) { // Принимает XP от объекта Gam
     animateProgressBar((have / need) * 100);
 }
 
-function updateUI(coinCount, currentMin) { // Принимает состояние от объекта Game
-    // format доступен глобально из utils.js
+function updateUI(coinCount, currentMin) {
     coinEl.textContent = format(coinCount);
     const str = currentMin === 0 ? '0' : currentMin.toFixed(5).replace(/\.?0+$/, '');
     minEl.textContent = str;
 }
 
 
-// Логика квестов (Quests)
 const Quests = {
-    // Копирование данных для сохранения состояния квестов
     data: JSON.parse(JSON.stringify(CONFIG.QUESTS)), 
     listEl: document.getElementById('quest-list'),
     
@@ -95,8 +88,7 @@ const Quests = {
             item.dataset.id = q.id;
             if (q.completed && !q.claimed) {
                 item.classList.add('completed');
-                
-                // Обработчик вызывает Game.claimQuest, который будет определен в game.js
+
                 item.addEventListener('click', (e) => {
                     if (e.currentTarget === item) {
                         if (typeof Game !== 'undefined' && Game.claimQuest) {
@@ -161,8 +153,7 @@ const Quests = {
             }, 0); 
         }
     },
-    
-    // updateProgress вызывается из Game.rollCube
+
     updateProgress: function(type, amount = 1) {
         let didUpdate = false;
         this.data.forEach(q => {
@@ -179,7 +170,6 @@ const Quests = {
     },
 };
 
-// Функции для меню квестов
 function showQuestMenu() {
     Quests.render(); 
     questOverlayEl.classList.add('visible');
@@ -189,7 +179,6 @@ function hideQuestMenu() {
     questOverlayEl.classList.remove('visible');
 }
 
-// Анимация космической пыли
 const dust = document.querySelector('.cosmic-dust-layer');
 function dustCycle() {
     dust.classList.add('active');
