@@ -1,6 +1,3 @@
-// Глобальные переменные: CONFIG доступен из config.js
-
-// 1. Предотвращение взаимодействия с браузером (Anti-cheat/Browser control listeners)
 document.addEventListener('keydown', e => {
     if (e.ctrlKey && (e.key === '=' || e.key === '-' || e.key === '0')) e.preventDefault();
     if (e.ctrlKey && e.shiftKey && e.key === 'I') e.preventDefault();
@@ -10,7 +7,6 @@ document.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, 
     document.addEventListener(evt, e => e.preventDefault(), { passive: false })
 );
 
-// 2. Функция форматирования чисел (сделана глобальной)
 function format(n) {
     if (n >= 1e12) return (n / 1e12).toFixed(2) + 't';
     if (n >= 1e9) return (n / 1e9).toFixed(2) + 'b';
@@ -19,8 +15,6 @@ function format(n) {
     return n.toFixed(2).replace(/\.?0+$/, '');
 }
 
-
-// 3. Система частиц (Particle System)
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 let w = canvas.width = innerWidth;
@@ -72,7 +66,6 @@ class Particle {
 }
 for (let i = 0; i < CONFIG.particleCount; i++) particles.push(new Particle());
 
-// Глобальная функция для запуска цикла частиц
 function startParticleLoop() {
     (function loop() {
         ctx.clearRect(0, 0, w, h);
