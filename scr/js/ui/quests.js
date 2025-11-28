@@ -1,61 +1,3 @@
-let displayedProgress = 0;
-
-const rankEl = document.getElementById('rank-text');
-const xpEl = document.getElementById('xp-text');
-const progressEl = document.getElementById('progress-fill');
-const coinEl = document.getElementById('coin-count');
-const minEl = document.getElementById('min-number');
-
-const topMenuEl = document.getElementById('top-menu');
-const questOverlayEl = document.getElementById('quest-menu-overlay');
-const questCloseBtn = document.getElementById('quest-menu-close-btn');
-
-function animateProgressBar(target) {
-    const step = () => {
-        const diff = target - displayedProgress;
-        if (Math.abs(diff) > 0.1) {
-            displayedProgress += diff * 0.15;
-            progressEl.style.width = displayedProgress + '%';
-            requestAnimationFrame(step);
-        } else {
-            displayedProgress = target;
-            progressEl.style.width = target + '%';
-        }
-    };
-    step();
-}
-
-function updateLevel(totalXP) { 
-    let passed = 0;
-    for (let i = 0; i < CONFIG.levels.length; i++) {
-        if (totalXP >= CONFIG.levels[i].xp) passed++;
-        else break;
-    }
-
-    if (passed >= CONFIG.levels.length) {
-        rankEl.textContent = CONFIG.levels[CONFIG.levels.length - 1].name;
-        xpEl.textContent = 'MAX LEVEL';
-        animateProgressBar(100);
-        return;
-    }
-
-    const current = CONFIG.levels[passed];
-    const prevXP = passed === 0 ? 0 : CONFIG.levels[passed - 1].xp;
-    const have = totalXP - prevXP;
-    const need = current.xp - prevXP;
-
-    rankEl.textContent = current.name;
-    xpEl.textContent = `${have.toFixed(1)}/${need} XP`;
-    animateProgressBar((have / need) * 100);
-}
-
-function updateUI(coinCount, currentMin) {
-    coinEl.textContent = format(coinCount);
-    const str = currentMin === 0 ? '0' : currentMin.toFixed(5).replace(/\.?0+$/, '');
-    minEl.textContent = str;
-}
-
-
 const Quests = {
     data: JSON.parse(JSON.stringify(CONFIG.QUESTS)), 
     listEl: document.getElementById('quest-list'),
@@ -155,10 +97,19 @@ const Quests = {
     },
 
     updateProgress: function(type, amount = 1) {
+        let actualAmount = amount;
+        if (typeof Game !== 'undefined' && Game.getActiveBoosts) {
+            const activeBoosts = Game.getActiveBoosts();
+            const timeFreezeBoost = activeBoosts.find(b => b.id === 'time_freeze');
+            if (timeFreezeBoost) {
+                actualAmount = 0;
+            }
+        }
+        
         let didUpdate = false;
         this.data.forEach(q => {
             if (q.type === type && !q.claimed) {
-                q.current += amount;
+                q.current += actualAmount;
                 if (q.current >= q.target && !q.completed) {
                     q.completed = true;
                     didUpdate = true;
@@ -170,22 +121,3 @@ const Quests = {
     },
 };
 
-function showQuestMenu() {
-    Quests.render(); 
-    questOverlayEl.classList.add('visible');
-}
-
-function hideQuestMenu() {
-    questOverlayEl.classList.remove('visible');
-}
-
-const dust = document.querySelector('.cosmic-dust-layer');
-function dustCycle() {
-    dust.classList.add('active');
-    const dur = 28000 + Math.random() * 15000;
-    setTimeout(() => {
-        dust.classList.remove('active');
-        setTimeout(dustCycle, 5000 + Math.random() * 8000);
-    }, dur);
-}
-dustCycle();

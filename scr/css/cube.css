@@ -1,0 +1,17 @@
+.center-gif {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    width: 180px;
+    height: 180px;
+    pointer-events: auto;
+    cursor: pointer;
+}
+.lottie-cube {
+    width: 180px;
+    height: 180px;
+    pointer-events: none;
+}
+

@@ -1,20 +1,3 @@
-document.addEventListener('keydown', e => {
-    if (e.ctrlKey && (e.key === '=' || e.key === '-' || e.key === '0')) e.preventDefault();
-    if (e.ctrlKey && e.shiftKey && e.key === 'I') e.preventDefault();
-});
-document.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
-['gesturestart', 'gesturechange', 'gestureend'].forEach(evt =>
-    document.addEventListener(evt, e => e.preventDefault(), { passive: false })
-);
-
-function format(n) {
-    if (n >= 1e12) return (n / 1e12).toFixed(2) + 't';
-    if (n >= 1e9) return (n / 1e9).toFixed(2) + 'b';
-    if (n >= 1e6) return (n / 1e6).toFixed(2) + 'm';
-    if (n >= 1e3) return (n / 1e3).toFixed(2) + 'k';
-    return n.toFixed(2).replace(/\.?0+$/, '');
-}
-
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 let w = canvas.width = innerWidth;
@@ -74,3 +57,4 @@ function startParticleLoop() {
     })();
 }
 startParticleLoop();
+

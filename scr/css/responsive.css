@@ -1,0 +1,37 @@
+@media (min-width: 800px) {
+    .top-menu {
+        top: 30px;
+        left: calc(50% - 400px);
+        right: auto;
+        width: 420px;
+        height: 96px;
+        padding: 0 24px;
+    }
+    .avatar-placeholder { width: 68px; height: 68px; }
+    .icon-profile { width: 40px; height: 40px; }
+    .progress-section { font-size: 1.1rem; gap: 6px; }
+    .progress-bar-container { height: 12px; }
+
+    .coins-container {
+        top: 30px;
+        left: calc(50% + 400px);
+        right: auto;
+        transform: none;
+        text-align: right;
+        padding-right: 0;
+    }
+    .coins-display { font-size: 2.7rem; gap: 12px; }
+    #coin-count { font-size: 3.1rem; }
+    .coin-label { font-size: 2.3rem; }
+    .min-number-display { font-size: 1.55rem; margin-top: 6px; }
+
+    .rainbow-progress-container {
+        left: 50%;
+        width: 520px;
+        transform: translateX(-50%);
+        bottom: 140px;
+    }
+    .rainbow-progress-bar-container { height: 20px; }
+    .rainbow-text { font-size: 1.3rem; }
+}
+

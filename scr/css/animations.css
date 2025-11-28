@@ -1,0 +1,10 @@
+@keyframes dustPulse {
+    0%,100% { opacity: 0; }
+    12%,88% { opacity: 0.38; }
+}
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-50% - 7.5px)); }
+}
+
