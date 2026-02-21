@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cube Game</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="scr/css/base.css">
     <link rel="stylesheet" href="scr/css/animations.css">
     <link rel="stylesheet" href="scr/css/background.css">
@@ -16,6 +19,7 @@
     <link rel="stylesheet" href="scr/css/loading.css">
     <link rel="stylesheet" href="scr/css/responsive.css">
     <link rel="stylesheet" href="scr/css/boost-timers.css">
+    <link rel="stylesheet" href="scr/css/leaderboard.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 </head>
@@ -229,14 +233,137 @@
             <div class="rainbow-text" id="rainbow-text">0/7 rolls to Rainbow Mode</div>
         </div>
 
-        <div class="bottom-menu">
-            <div class="menu-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/><path d="M12 10v2"/><path d="M12 14h.01"/></svg>
+        <div class="leaderboard-screen" id="leaderboard-screen">
+            <div class="leaderboard-content">
+                <div class="leaderboard-header">
+                    <span class="leaderboard-title">Leaderboard:</span>
+                    <span class="leaderboard-total" id="leaderboard-total">4</span>
+                </div>
+                <div class="leaderboard-filter-btns">
+                    <button type="button" class="leaderboard-filter-btn active" data-sort="coins">By $LUCU</button>
+                    <button type="button" class="leaderboard-filter-btn" data-sort="number">By MIN Number</button>
+                </div>
+                <div class="leaderboard-filter-dash-row"></div>
+                <div class="leaderboard-your-place">
+                    <div class="leaderboard-your-bar">
+                        <div class="leaderboard-avatar"></div>
+                        <div class="leaderboard-your-info">
+                            <span class="leaderboard-your-label">You</span>
+                            <span class="leaderboard-your-score" id="leaderboard-your-score">0 $LUCU</span>
+                        </div>
+                        <button type="button" class="leaderboard-farm-more" id="leaderboard-farm-more">
+                            Farm more!
+                            <svg class="leaderboard-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="leaderboard-list" id="leaderboard-list">
+                    <div class="leaderboard-row" data-rank="1">
+                        <div class="leaderboard-place-cell">
+                            <div class="leaderboard-place-cube rank-1"><img class="leaderboard-place-img" src="assets/UI/images/1-last.png" alt="1"></div>
+                        </div>
+                        <div class="leaderboard-row-bar">
+                            <div class="leaderboard-avatar"></div>
+                            <span class="leaderboard-nickname">—</span>
+                            <span class="leaderboard-value" data-coins="125000" data-number="0.00123">125,000</span>
+                        </div>
+                    </div>
+                    <div class="leaderboard-row" data-rank="2">
+                        <div class="leaderboard-place-cell">
+                            <div class="leaderboard-place-cube rank-2"><img class="leaderboard-place-img" src="assets/UI/images/2-last.png" alt="2"></div>
+                        </div>
+                        <div class="leaderboard-row-bar">
+                            <div class="leaderboard-avatar"></div>
+                            <span class="leaderboard-nickname">—</span>
+                            <span class="leaderboard-value" data-coins="98000" data-number="0.00098">98,000</span>
+                        </div>
+                    </div>
+                    <div class="leaderboard-row" data-rank="3">
+                        <div class="leaderboard-place-cell">
+                            <div class="leaderboard-place-cube rank-3"><img class="leaderboard-place-img" src="assets/UI/images/3-last.png" alt="3"></div>
+                        </div>
+                        <div class="leaderboard-row-bar">
+                            <div class="leaderboard-avatar"></div>
+                            <span class="leaderboard-nickname">—</span>
+                            <span class="leaderboard-value" data-coins="72000" data-number="0.00072">72,000</span>
+                        </div>
+                    </div>
+                    <div class="leaderboard-row" data-rank="4">
+                        <div class="leaderboard-place-cell">
+                            <div class="leaderboard-place-badge">
+                                <img class="leaderboard-badge-img" src="assets/UI/images/badge-n.webp" alt="">
+                                <span class="leaderboard-badge-num">4</span>
+                            </div>
+                        </div>
+                        <div class="leaderboard-row-bar">
+                            <div class="leaderboard-avatar"></div>
+                            <span class="leaderboard-nickname">—</span>
+                            <span class="leaderboard-value" data-coins="51000" data-number="0.00051">51,000</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="menu-item">
+        </div>
+
+        <div class="profile-screen" id="profile-screen">
+            <div class="profile-content">
+                <div class="profile-balance-section">
+                    <div class="profile-balance-label">Game balance:</div>
+                    <div class="leaderboard-balance" id="profile-balance">0 $LUCU</div>
+                    <div class="profile-top-up-buttons">
+                        <button type="button" class="profile-top-up-btn">
+                            <svg class="profile-top-up-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M14.6817 5.56589C13.5404 5.2799 12.323 5.29637 11.1668 5.06113C10.8569 4.99258 10.6076 4.81476 10.445 4.55059C9.90682 3.6537 9.52714 2.64664 9.00479 1.7464C8.9006 1.57259 8.77945 1.40077 8.62717 1.26524C8.22916 0.896688 7.65323 0.917608 7.27034 1.29439C7.00813 1.54276 6.82745 1.9378 6.65204 2.28387C6.43563 2.73343 6.27029 3.14249 6.03969 3.58359C5.919 3.82462 5.79237 4.07655 5.67145 4.3178C5.46581 4.74065 5.34284 4.9552 4.92972 5.07582C4.76415 5.12812 4.58965 5.15438 4.41767 5.17775C4.15318 5.21247 3.89716 5.2483 3.61136 5.28925C2.98642 5.39185 2.37567 5.48844 1.74432 5.57434C1.44845 5.61908 1.13037 5.67494 0.886482 5.84897C0.530156 6.092 0.411305 6.55581 0.567254 6.94572C0.688625 7.26487 0.905489 7.49721 1.14731 7.7605C1.39921 8.02623 1.66966 8.29062 1.9653 8.51006C2.3072 8.77357 2.69857 8.87817 3.12267 8.91422C3.6519 8.96229 4.21134 8.93136 4.73667 8.88418C5.71634 8.79983 6.68295 8.60754 7.63857 8.393C7.85269 8.34915 8.08421 8.28862 8.29993 8.27571C8.70572 8.26036 8.37412 8.466 8.19459 8.54745C7.44369 8.88952 6.69761 9.24761 5.98267 9.64531C5.35017 9.99784 4.73392 10.3958 4.20928 10.8907C3.76479 11.2987 3.43251 11.7649 3.30175 12.3563C3.23168 12.638 3.17947 12.9195 3.1268 13.206C3.07023 13.5373 3.00108 13.901 3.06336 14.2141C3.1371 14.6606 3.58594 15.0271 4.04807 14.9984C4.27982 14.988 4.51683 14.8885 4.7369 14.7863C4.92239 14.7002 5.10788 14.6041 5.28834 14.5084C5.96114 14.1516 6.59112 13.8147 7.26828 13.4701C7.6017 13.2963 7.96902 13.1227 8.34939 13.2529C8.4742 13.2905 8.59694 13.3493 8.7151 13.4078C9.53401 13.824 10.3646 14.2206 11.1837 14.6363C11.4203 14.7574 11.666 14.8791 11.9328 14.9159C12.6525 15.0158 13.1637 14.4149 13.0588 13.7374C13.0318 13.4966 12.972 13.2474 12.9301 13.011C12.8669 12.6772 12.8193 12.3449 12.7531 12.0117C12.6624 11.5464 12.5591 11.0832 12.4865 10.6159C12.4432 10.3466 12.4405 10.0624 12.5919 9.82469C12.7441 9.57699 12.9853 9.38381 13.1882 9.17394C13.3769 8.98544 13.5701 8.7956 13.7643 8.60932C14.2253 8.15798 14.7493 7.75961 15.1677 7.27177C15.7374 6.607 15.5732 5.83139 14.6856 5.56811L14.6813 5.56678L14.6817 5.56589Z"/></svg>
+                            Top up with Stars
+                        </button>
+                        <button type="button" class="profile-top-up-btn">
+                            <svg class="profile-top-up-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M12.7238 1.00488H3.27565C1.53846 1.00488 0.437395 2.87874 1.31137 4.39358L7.14243 14.5002C7.52294 15.1601 8.47652 15.1601 8.85703 14.5002L14.6893 4.39358C15.5621 2.88116 14.461 1.00488 12.725 1.00488H12.7238ZM7.13769 11.4694L5.86778 9.01168L2.80363 3.53153C2.60149 3.18078 2.85116 2.7313 3.27446 2.7313H7.1365V11.4705L7.13769 11.4694ZM13.1935 3.53035L10.1305 9.01287L8.86059 11.4694V2.73011H12.7226C13.1459 2.73011 13.3956 3.17959 13.1935 3.53035Z"/></svg>
+                            Top up with TON
+                        </button>
+                    </div>
+                    <div class="profile-min-section">
+                        <div class="profile-min-label">Minimum number:</div>
+                        <div class="profile-min-value" id="profile-min-number">0</div>
+                    </div>
+                </div>
+                <div class="leaderboard-card leaderboard-invite-block">
+                    <span class="card-shimmer card-shimmer-green"></span>
+                    <div class="leaderboard-invite-text">
+                        Got friends who game? Cash in <span class="leaderboard-badge">10%</span> of their commissions. Let them grind — you shine.
+                    </div>
+                    <div class="leaderboard-invite-actions">
+                        <button type="button" class="leaderboard-btn leaderboard-btn-invite">Invite friends</button>
+                        <button type="button" class="leaderboard-btn-copy" title="Copy link" aria-label="Copy link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="leaderboard-card leaderboard-credit-block">
+                    <span class="card-shimmer card-shimmer-blue"></span>
+                    <div class="leaderboard-credit-amount" id="leaderboard-ton-amount">0 TON</div>
+                    <div class="leaderboard-credit-label">waiting to be claimed</div>
+                    <div class="leaderboard-credit-cards">
+                        <div class="leaderboard-mini-card">
+                            <span class="leaderboard-mini-value" id="leaderboard-referrals-count">0</span>
+                            <span class="leaderboard-mini-label">Your referrals</span>
+                        </div>
+                        <div class="leaderboard-mini-card">
+                            <span class="leaderboard-mini-value" id="leaderboard-credited-total">0</span>
+                            <span class="leaderboard-mini-label">Total credited</span>
+                        </div>
+                    </div>
+                    <button type="button" class="leaderboard-btn leaderboard-btn-credit">Credit</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-menu">
+            <div class="menu-item" id="leaderboard-menu-btn" title="Leaderboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47 1-1 1H8"/><path d="M14 14.66V17c0 .55.47 1 1 1h1"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/><path d="M12 22v-4"/></svg>
+            </div>
+            <div class="menu-item" id="profile-menu-btn" title="Profile">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
-            <div class="menu-item">
+            <div class="menu-item" id="game-return-btn" title="Back to game">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </div>
             <div class="menu-item" id="shop-menu-btn">

@@ -14,8 +14,8 @@
 
     .coins-container {
         top: 30px;
-        left: calc(50% + 400px);
-        right: auto;
+        left: auto;
+        right: calc(50% - 400px);
         transform: none;
         text-align: right;
         padding-right: 0;

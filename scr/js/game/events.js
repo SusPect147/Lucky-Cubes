@@ -30,6 +30,39 @@ document.getElementById('quest-menu-overlay').addEventListener('click', function
     }
 });
 
+document.getElementById('leaderboard-menu-btn').addEventListener('click', toggleLeaderboardScreen);
+document.getElementById('profile-menu-btn').addEventListener('click', toggleProfileScreen);
+
+function initLeaderboardFilters() {
+    var list = document.getElementById('leaderboard-list');
+    var btns = document.querySelectorAll('.leaderboard-filter-btn');
+    if (!list || !btns.length) return;
+    function formatCoins(n) {
+        var s = String(Math.floor(Number(n)));
+        return s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    function formatNumber(n) {
+        return Number(n).toFixed(5);
+    }
+    function updateValues(sort) {
+        var isCoins = sort === 'coins';
+        list.querySelectorAll('.leaderboard-value').forEach(function(el) {
+            var raw = isCoins ? el.getAttribute('data-coins') : el.getAttribute('data-number');
+            el.textContent = isCoins ? formatCoins(raw) : formatNumber(raw);
+        });
+    }
+    btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            btns.forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            updateValues(this.getAttribute('data-sort'));
+            if (typeof updateLeaderboardYourScore === 'function') updateLeaderboardYourScore();
+        });
+    });
+    updateValues(document.querySelector('.leaderboard-filter-btn.active').getAttribute('data-sort'));
+}
+initLeaderboardFilters();
+document.getElementById('game-return-btn').addEventListener('click', returnToGame);
 document.getElementById('shop-menu-btn').addEventListener('click', showShopMenu);
 document.getElementById('shop-menu-close-btn').addEventListener('click', hideShopMenu);
 
@@ -50,6 +83,32 @@ document.getElementById('inventory-menu-overlay').addEventListener('click', func
 
 initShopTabs();
 initInventoryTabs();
+
+var profileCopyBtn = document.querySelector('#profile-screen .leaderboard-btn-copy');
+if (profileCopyBtn) {
+    profileCopyBtn.addEventListener('click', function() {
+        var url = window.location.href;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function() {
+                if (typeof window.showToast === 'function') window.showToast('Link copied');
+            }).catch(function() { fallbackCopy(url); });
+        } else {
+            fallbackCopy(url);
+        }
+    });
+}
+function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+        document.execCommand('copy');
+    } catch (e) {}
+    document.body.removeChild(ta);
+}
 
 function initCheatsMenu() {
     if (window.innerWidth >= 1100) {
