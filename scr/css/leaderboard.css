@@ -262,14 +262,24 @@
 
 .wallet-donate-panel {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     padding-top: 10px;
     margin-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
+    width: 100%;
+}
+
+.donate-ton-icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: -2px;
+    margin-left: 2px;
 }
 
 .wallet-donate-btn {
-    flex: 1;
+    flex: 1 1 calc(25% - 6px);
+    min-width: 0;
     padding: 8px 4px;
     border-radius: 10px;
     border: 1px solid rgba(220, 53, 69, 0.4);
@@ -280,6 +290,10 @@
     font-family: 'Inter', sans-serif;
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
 }
 
 .wallet-donate-btn:hover {
@@ -288,6 +302,41 @@
 
 .wallet-donate-btn:active {
     transform: scale(0.95);
+}
+
+.wallet-donate-custom {
+    flex: 1 1 100%;
+    display: flex;
+    gap: 8px;
+}
+
+.wallet-donate-input {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-size: 0.82rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.wallet-donate-input::-webkit-outer-spin-button,
+.wallet-donate-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.wallet-donate-input:focus {
+    border-color: rgba(220, 53, 69, 0.5);
+}
+
+.wallet-donate-custom-btn {
+    flex: 0 0 auto;
+    padding: 8px 16px;
 }
 
 .leaderboard-header {

@@ -162,6 +162,18 @@
                 if (amount > 0) sendDonation(amount);
             });
         });
+
+        var customDonateBtn = document.getElementById('wallet-donate-custom-btn');
+        var customDonateInput = document.getElementById('wallet-donate-input');
+        if (customDonateBtn && customDonateInput) {
+            customDonateBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var amount = parseFloat(customDonateInput.value);
+                if (amount > 0) {
+                    sendDonation(amount);
+                }
+            });
+        }
     }
 
     if (document.readyState === 'loading') {
