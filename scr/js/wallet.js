@@ -154,7 +154,7 @@
             });
         }
 
-        var donateBtns = document.querySelectorAll('.wallet-donate-btn');
+        var donateBtns = document.querySelectorAll('.wallet-donate-btn:not(.wallet-donate-custom-btn)');
         donateBtns.forEach(function (btn) {
             btn.addEventListener('click', function (e) {
                 e.stopPropagation();
@@ -163,15 +163,46 @@
             });
         });
 
-        var customDonateBtn = document.getElementById('wallet-donate-custom-btn');
-        var customDonateInput = document.getElementById('wallet-donate-input');
-        if (customDonateBtn && customDonateInput) {
-            customDonateBtn.addEventListener('click', function (e) {
+        var customBtn = document.getElementById('wallet-donate-custom-btn');
+        var customText = document.getElementById('donate-custom-text');
+        var customInput = document.getElementById('donate-custom-input');
+        var editBadge = document.getElementById('donate-edit-badge');
+        var customWrap = document.getElementById('wallet-donate-custom-wrap');
+
+        if (editBadge && customInput && customWrap && customText) {
+            editBadge.addEventListener('click', function (e) {
                 e.stopPropagation();
-                var amount = parseFloat(customDonateInput.value);
-                if (amount > 0) {
-                    sendDonation(amount);
+                e.preventDefault();
+                customWrap.classList.add('editing');
+                customInput.style.display = 'block';
+                customInput.focus();
+                setTimeout(function () { customWrap.classList.remove('editing'); }, 400);
+            });
+
+            customInput.addEventListener('blur', function () {
+                var val = parseFloat(customInput.value);
+                if (val > 0) {
+                    customText.textContent = val;
+                } else {
+                    customText.textContent = '...';
+                    customInput.value = '';
                 }
+                customInput.style.display = 'none';
+            });
+
+            customInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    customInput.blur();
+                }
+            });
+        }
+
+        if (customBtn && customText) {
+            customBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var text = customText.textContent.trim();
+                var amount = text === '...' ? 100 : parseFloat(text);
+                if (amount > 0) sendDonation(amount);
             });
         }
     }

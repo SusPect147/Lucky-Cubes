@@ -294,15 +294,21 @@
                                     <path
                                         d="M12.7238 1.00488H3.27565C1.53846 1.00488 0.437395 2.87874 1.31137 4.39358L7.14243 14.5002C7.52294 15.1601 8.47652 15.1601 8.85703 14.5002L14.6893 4.39358C15.5621 2.88116 14.461 1.00488 12.725 1.00488H12.7238ZM7.13769 11.4694L5.86778 9.01168L2.80363 3.53153C2.60149 3.18078 2.85116 2.7313 3.27446 2.7313H7.1365V11.4705L7.13769 11.4694ZM13.1935 3.53035L10.1305 9.01287L8.86059 11.4694V2.73011H12.7226C13.1459 2.73011 13.3956 3.17959 13.1935 3.53035Z" />
                                 </svg></button>
-                            <div class="wallet-donate-custom">
-                                <input type="number" class="wallet-donate-input" id="wallet-donate-input"
-                                    placeholder="..." min="0.01" step="0.01">
+                            <div class="wallet-donate-custom-wrap" id="wallet-donate-custom-wrap">
                                 <button type="button" class="wallet-donate-btn wallet-donate-custom-btn"
-                                    id="wallet-donate-custom-btn"><svg class="donate-ton-icon" viewBox="0 0 16 16"
-                                        fill="currentColor">
+                                    id="wallet-donate-custom-btn"><span class="donate-custom-text"
+                                        id="donate-custom-text">...</span> <svg class="donate-ton-icon"
+                                        viewBox="0 0 16 16" fill="currentColor">
                                         <path
                                             d="M12.7238 1.00488H3.27565C1.53846 1.00488 0.437395 2.87874 1.31137 4.39358L7.14243 14.5002C7.52294 15.1601 8.47652 15.1601 8.85703 14.5002L14.6893 4.39358C15.5621 2.88116 14.461 1.00488 12.725 1.00488H12.7238ZM7.13769 11.4694L5.86778 9.01168L2.80363 3.53153C2.60149 3.18078 2.85116 2.7313 3.27446 2.7313H7.1365V11.4705L7.13769 11.4694ZM13.1935 3.53035L10.1305 9.01287L8.86059 11.4694V2.73011H12.7226C13.1459 2.73011 13.3956 3.17959 13.1935 3.53035Z" />
                                     </svg></button>
+                                <input type="number" class="donate-custom-input" id="donate-custom-input" min="0.01"
+                                    step="0.01" style="display:none;">
+                                <span class="donate-edit-badge" id="donate-edit-badge"><svg viewBox="0 0 16 16"
+                                        fill="#fff" width="10" height="10">
+                                        <path
+                                            d="M12.146.854a.5.5 0 0 1 .708 0l2.292 2.292a.5.5 0 0 1 0 .708L5.854 13.146a.5.5 0 0 1-.233.131l-3.5 1a.5.5 0 0 1-.616-.616l1-3.5a.5.5 0 0 1 .131-.233L12.146.854z" />
+                                    </svg></span>
                             </div>
                         </div>
                     </div>
