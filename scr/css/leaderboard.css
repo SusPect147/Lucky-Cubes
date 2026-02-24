@@ -639,14 +639,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    object-fit: cover;
 }
 
-.leaderboard-avatar::after {
+/* Placeholder icon only for div avatars (no image) */
+div.leaderboard-avatar::after {
     content: '';
     width: 16px;
     height: 14px;
     background: rgba(255, 255, 255, 0.7);
     border-radius: 2px;
+}
+
+img.leaderboard-avatar {
+    object-fit: cover;
 }
 
 .leaderboard-nickname {

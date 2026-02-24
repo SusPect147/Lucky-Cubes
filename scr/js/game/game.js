@@ -199,54 +199,69 @@ const Game = (function () {
 
         isRolling = true;
 
-        // Ask server for the roll result
+        // Optimistic: pick a local random roll and start animation IMMEDIATELY
+        const localRoll = Math.floor(Math.random() * 6) + 1;
+        const animData = animationCache[localRoll + '-cubic'];
+        if (!animData) {
+            isRolling = false;
+            return;
+        }
+
+        // Fire server API call in parallel (don't wait for it)
         const boostIds = activeBoosts.map(b => b.id);
-        apiCall('/api/roll', {
+        let serverResult = null;
+        let serverError = false;
+        const serverPromise = apiCall('/api/roll', {
             initData: getInitData(),
             isRainbow: isRainbow,
             activeBoosts: boostIds,
-        }).then(serverResult => {
-            if (!serverResult || serverResult.error) {
-                console.error('Server roll failed:', serverResult);
-                isRolling = false;
+        }).then(result => {
+            if (!result || result.error) {
+                console.error('Server roll failed:', result);
+                serverError = true;
                 return;
             }
+            serverResult = result;
+        }).catch(err => {
+            console.error('Roll API error:', err);
+            serverError = true;
+        });
 
-            const roll = serverResult.roll;
-            const animData = animationCache[roll + '-cubic'];
-            if (!animData) {
+        const safetyTimeout = setTimeout(() => {
+            if (isRolling) {
+                console.warn('RollCube timeout - resetting state');
                 isRolling = false;
-                return;
             }
+        }, 10000);
 
-            const safetyTimeout = setTimeout(() => {
-                if (isRolling) {
-                    console.warn('RollCube timeout - resetting state');
+        const animationSpeed = hypertapBoost ? 2.0 : 1.0;
+
+        if (currentAnim) currentAnim.destroy();
+        currentAnim = lottie.loadAnimation({
+            container: document.getElementById('cube-animation'),
+            renderer: 'svg',
+            loop: false,
+            autoplay: true,
+            animationData: animData,
+            rendererSettings: {
+                preserveAspectRatio: 'xMidYMid meet'
+            }
+        });
+
+        if (currentAnim && animationSpeed !== 1.0) {
+            currentAnim.setSpeed(animationSpeed);
+        }
+
+        currentAnim.addEventListener('complete', function handler() {
+            currentAnim.removeEventListener('complete', handler);
+            clearTimeout(safetyTimeout);
+
+            // Wait for server if it hasn't responded yet
+            const applyResult = () => {
+                if (serverError) {
                     isRolling = false;
+                    return;
                 }
-            }, 10000);
-
-            const animationSpeed = hypertapBoost ? 2.0 : 1.0;
-
-            if (currentAnim) currentAnim.destroy();
-            currentAnim = lottie.loadAnimation({
-                container: document.getElementById('cube-animation'),
-                renderer: 'svg',
-                loop: false,
-                autoplay: true,
-                animationData: animData,
-                rendererSettings: {
-                    preserveAspectRatio: 'xMidYMid meet'
-                }
-            });
-
-            if (currentAnim && animationSpeed !== 1.0) {
-                currentAnim.setSpeed(animationSpeed);
-            }
-
-            currentAnim.addEventListener('complete', function handler() {
-                currentAnim.removeEventListener('complete', handler);
-                clearTimeout(safetyTimeout);
 
                 const rainbowFill = document.getElementById('rainbow-progress-fill');
                 const rainbowText = document.getElementById('rainbow-text');
@@ -287,15 +302,20 @@ const Game = (function () {
                 }
 
                 updateUI(coinCount, currentMin);
-                // Sync quest progress from server
                 if (serverResult.quests) {
                     syncQuestsFromServer(serverResult.quests);
                 }
                 isRolling = false;
-            });
-        }).catch(err => {
-            console.error('Roll API error:', err);
-            isRolling = false;
+            };
+
+            if (serverResult) {
+                applyResult();
+            } else if (serverError) {
+                isRolling = false;
+            } else {
+                // Server hasn't responded yet — wait for it
+                serverPromise.then(() => applyResult());
+            }
         });
     }
 
@@ -385,11 +405,26 @@ const Game = (function () {
             const initData = getInitData();
             apiCall('/api/state?initData=' + encodeURIComponent(initData)).then(state => {
                 if (state && !state.error) {
-                    coinCount = state.coins || 0;
-                    currentMin = state.min || 0;
-                    totalXP = state.xp || 0;
+                    coinCount = state.totalCoins || 0;
+                    currentMin = state.currentMin || 0;
+                    totalXP = state.totalXP || 0;
                     rollsToRainbow = state.rollsToRainbow || 0;
                     targetRainbow = state.targetRainbow || 7;
+
+                    // Restore rainbow mode
+                    if (state.isRainbow) {
+                        isRainbow = true;
+                        isRainbowFromBoost = false;
+                        const rainbowOverlay = document.getElementById('rainbow-overlay');
+                        if (rainbowOverlay) rainbowOverlay.classList.add('active');
+                        const rf = document.getElementById('rainbow-progress-fill');
+                        if (rf) {
+                            rf.style.width = '100%';
+                            rf.classList.add('rainbow-active');
+                        }
+                        const rainbowText = document.getElementById('rainbow-text');
+                        if (rainbowText) rainbowText.textContent = 'Rainbow Mode Active!';
+                    }
                 } else {
                     totalXP = 0;
                     coinCount = 0;
@@ -399,18 +434,24 @@ const Game = (function () {
                 updateLevel(totalXP);
                 showIdleCube();
                 updateUI(coinCount, currentMin);
-                // Update rainbow progress bar
-                const rainbowFill = document.getElementById('rainbow-progress-fill');
-                const rainbowText = document.getElementById('rainbow-text');
-                if (rainbowFill && rainbowText) {
-                    const percent = (rollsToRainbow / targetRainbow) * 100;
-                    rainbowFill.style.width = percent + '%';
-                    rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
+                // Update rainbow progress bar (if not in rainbow mode)
+                if (!isRainbow) {
+                    const rainbowFill = document.getElementById('rainbow-progress-fill');
+                    const rainbowText = document.getElementById('rainbow-text');
+                    if (rainbowFill && rainbowText) {
+                        const percent = (rollsToRainbow / targetRainbow) * 100;
+                        rainbowFill.style.width = percent + '%';
+                        rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
+                    }
                 }
                 // Sync quests and inventory from server
                 syncQuestsFromServer(state.quests);
                 if (typeof Inventory !== 'undefined' && Inventory.loadFromServer) {
                     Inventory.loadFromServer(state.inventory || {});
+                }
+                // Init leaderboard
+                if (typeof Leaderboard !== 'undefined' && Leaderboard.init) {
+                    Leaderboard.init();
                 }
             }).catch(() => {
                 totalXP = 0;

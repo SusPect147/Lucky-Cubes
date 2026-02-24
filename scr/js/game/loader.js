@@ -14,6 +14,7 @@ const SCRIPTS_TO_LOAD = [
     'scr/js/ui/inventory.js',
     'scr/js/ui/menu.js',
     'scr/js/ui/effects.js',
+    'scr/js/ui/leaderboard.js',
     'scr/js/game/game.js',
     'scr/js/game/events.js',
 ];
