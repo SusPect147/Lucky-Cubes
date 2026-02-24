@@ -386,7 +386,11 @@
 }
 
 .wallet-donate-custom-wrap.editing {
-    animation: donate-shake 0.4s ease;
+    animation: donate-shake 0.4s ease infinite;
+}
+
+.wallet-donate-custom-wrap.editing .wallet-donate-custom-btn {
+    display: none;
 }
 
 .leaderboard-header {

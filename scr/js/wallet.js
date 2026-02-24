@@ -174,12 +174,18 @@
                 e.stopPropagation();
                 e.preventDefault();
                 customWrap.classList.add('editing');
+                var currentVal = customText.textContent.trim();
+                if (currentVal !== '...') {
+                    customInput.value = currentVal;
+                } else {
+                    customInput.value = '';
+                }
                 customInput.style.display = 'block';
                 customInput.focus();
-                setTimeout(function () { customWrap.classList.remove('editing'); }, 400);
             });
 
             customInput.addEventListener('blur', function () {
+                customWrap.classList.remove('editing');
                 var val = parseFloat(customInput.value);
                 if (val > 0) {
                     customText.textContent = val;
