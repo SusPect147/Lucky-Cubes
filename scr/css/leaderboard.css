@@ -390,7 +390,7 @@
 }
 
 .wallet-donate-custom-wrap.editing .wallet-donate-custom-btn {
-    display: none;
+    color: transparent;
 }
 
 .leaderboard-header {
