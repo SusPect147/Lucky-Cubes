@@ -273,3 +273,25 @@
     z-index: 2;
     pointer-events: none;
 }
+
+.quest-claim-ready {
+    color: #4cff4c !important;
+    font-weight: 800 !important;
+    font-size: 1.1rem !important;
+    text-shadow: 0 0 8px rgba(76, 255, 76, 0.5);
+    z-index: 3;
+    position: relative;
+    animation: claimPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes claimPulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}

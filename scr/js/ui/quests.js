@@ -1,30 +1,34 @@
 const Quests = {
-    data: JSON.parse(JSON.stringify(CONFIG.QUESTS)), 
+    data: JSON.parse(JSON.stringify(CONFIG.QUESTS)),
     listEl: document.getElementById('quest-list'),
-    
-    getIconSVG: function(iconType) {
+
+    getIconSVG: function (iconType) {
         if (iconType === 'dice') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg>';
         if (iconType === 'star') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
         if (iconType === 'user') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
         if (iconType === 'heart') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>';
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.86 18.14A2 2 0 0 0 3.71 21h16.58a2 2 0 0 0 1.85-2.86L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'; 
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.86 18.14A2 2 0 0 0 3.71 21h16.58a2 2 0 0 0 1.85-2.86L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>';
     },
 
-    render: function() {
+    render: function () {
         this.listEl.innerHTML = '';
-        
-        const activeQuests = this.data.filter(q => !q.claimed || !q.social); 
+
+        const activeQuests = this.data.filter(q => !q.claimed || !q.social);
         const itemsToCheck = [];
-        
+
         activeQuests.forEach(q => {
-            
+
             const currentProgress = q.social ? 0 : q.current;
             const progress = q.social ? (q.completed ? 100 : 0) : Math.min(100, (currentProgress / q.target) * 100);
-            
-            if (progress >= 100 && !q.completed) {
+
+            // Auto-mark as completed if progress reached target
+            if (!q.social && q.current >= q.target && !q.completed && !q.claimed) {
                 q.completed = true;
             }
-            
+            if (progress >= 100 && !q.completed && !q.claimed) {
+                q.completed = true;
+            }
+
             const item = document.createElement('div');
             item.className = 'quest-item';
             item.dataset.id = q.id;
@@ -39,11 +43,11 @@ const Quests = {
                     }
                 });
             }
-            
+
             const nameText = q.name.replace('{target}', q.target);
             const xpText = `(+${q.xp} xp)`;
-            const percentageText = `${progress.toFixed(0)}%`;
-            
+            const percentageText = q.completed && !q.claimed ? 'CLAIM' : `${progress.toFixed(0)}%`;
+
             item.innerHTML = `
                 <div class="quest-icon-placeholder">${this.getIconSVG(q.icon)}</div>
                 <div class="quest-info">
@@ -60,43 +64,43 @@ const Quests = {
                         <div class="quest-progress-bar-fill" style="width: ${progress}%;"></div>
                     </div>
                 </div>
-                <div class="quest-percentage">${percentageText}</div>
+                <div class="quest-percentage${q.completed && !q.claimed ? ' quest-claim-ready' : ''}">${percentageText}</div>
             `;
             this.listEl.appendChild(item);
             itemsToCheck.push(item);
         });
-        
-        
+
+
         if (itemsToCheck.length > 0) {
-            
+
             setTimeout(() => {
                 itemsToCheck.forEach(item => {
                     const marqueeContainer = item.querySelector('.quest-description-marquee');
                     const marqueeWrapper = item.querySelector('.quest-marquee-content-wrapper');
                     const originalTextSpan = item.querySelector('.quest-text:not(.duplicate)');
-                    
+
                     if (!originalTextSpan || !marqueeContainer) return;
-                    
-                    
+
+
                     marqueeWrapper.classList.remove('marquee-active');
-                    
-                    
-                    
+
+
+
                     const textWidth = originalTextSpan.offsetWidth;
                     const containerWidth = marqueeContainer.offsetWidth;
-                    
-                    
+
+
                     if (textWidth > containerWidth) {
-                        
+
                         marqueeWrapper.classList.add('marquee-active');
-                    } 
-                    
+                    }
+
                 });
-            }, 0); 
+            }, 0);
         }
     },
 
-    updateProgress: function(type, amount = 1) {
+    updateProgress: function (type, amount = 1) {
         let actualAmount = amount;
         if (typeof Game !== 'undefined' && Game.getActiveBoosts) {
             const activeBoosts = Game.getActiveBoosts();
@@ -105,7 +109,7 @@ const Quests = {
                 actualAmount = 0;
             }
         }
-        
+
         let didUpdate = false;
         this.data.forEach(q => {
             if (q.type === type && !q.claimed) {
@@ -116,7 +120,7 @@ const Quests = {
                 }
             }
         });
-        
+
         if (didUpdate) this.render();
     },
 };

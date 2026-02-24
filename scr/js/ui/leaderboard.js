@@ -56,7 +56,7 @@ const Leaderboard = {
         }
         return `<div class="leaderboard-place-cell">
             <div class="leaderboard-place-badge">
-                <img class="leaderboard-badge-img" src="assets/UI/images/cubes_cubes.png" alt="">
+                <img class="leaderboard-badge-img" src="assets/UI/images/badge-n.webp" alt="">
                 <span class="leaderboard-badge-num">${rank}</span>
             </div>
         </div>`;
