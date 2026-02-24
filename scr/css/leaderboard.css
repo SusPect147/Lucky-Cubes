@@ -270,6 +270,14 @@
     width: 100%;
 }
 
+.wallet-donate-label {
+    width: 100%;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 2px;
+}
+
 .donate-ton-icon {
     width: 14px;
     height: 14px;
