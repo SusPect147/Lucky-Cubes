@@ -10,19 +10,46 @@ const Game = (function () {
     let currentAnim = null;
     let extraCubes = 0;
     let extraCubeAnims = [];
-    
+
     let activeBoosts = [];
     let autoRollInterval = null;
     let consecutiveRolls = 0;
     let lastRollTime = 0;
-    
+
+    function getInitData() {
+        try {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+                return window.Telegram.WebApp.initData;
+            }
+        } catch (e) { }
+        return 'dev_mode';
+    }
+
+    async function apiCall(endpoint, body) {
+        try {
+            const resp = await fetch(CONFIG.API_URL + endpoint, {
+                method: body ? 'POST' : 'GET',
+                headers: body ? { 'Content-Type': 'application/json' } : {},
+                body: body ? JSON.stringify(body) : undefined,
+            });
+            if (!resp.ok) {
+                console.error('API error:', resp.status);
+                return null;
+            }
+            return await resp.json();
+        } catch (e) {
+            console.error('API call failed:', e);
+            return null;
+        }
+    }
+
     let extraCubesTimer = null;
     let rainbowBoostTimer = null;
     let extraCubesEndTime = 0;
     let rainbowBoostEndTime = 0;
     let lastRolls = [];
-    
-    
+
+
     function newRainbowTarget() {
         const rainbowFill = document.getElementById('rainbow-progress-fill');
         const rainbowText = document.getElementById('rainbow-text');
@@ -36,10 +63,7 @@ const Game = (function () {
         if (rainbowText) rainbowText.textContent = `0/${targetRainbow} rolls to Rainbow Mode`;
     }
 
-    function generateMin() {
-        const lambda = isRainbow ? CONFIG.rainbowLambda : CONFIG.baseLambda;
-        return Math.max(0.00001, -Math.log(1 - Math.random()) / lambda);
-    }
+    // generateMin removed — now computed on server
 
     function addXP(amount) {
         totalXP += amount;
@@ -60,7 +84,7 @@ const Game = (function () {
                 autoplay: false,
                 animationData: mainData
             });
-            currentAnim.addEventListener('DOMLoaded', function() {
+            currentAnim.addEventListener('DOMLoaded', function () {
                 const lastFrame = Math.max(0, (currentAnim.totalFrames || 1) - 1);
                 currentAnim.goToAndStop(lastFrame, true);
             });
@@ -81,7 +105,7 @@ const Game = (function () {
                 animationData: animData
             });
             extraCubeAnims[index].anim = newAnim;
-            newAnim.addEventListener('DOMLoaded', function() {
+            newAnim.addEventListener('DOMLoaded', function () {
                 const lastFrame = Math.max(0, (newAnim.totalFrames || 1) - 1);
                 newAnim.goToAndStop(lastFrame, true);
             });
@@ -149,142 +173,113 @@ const Game = (function () {
     function rollCube() {
         const hypertapBoost = activeBoosts.find(b => b.id === 'hypertap');
         if (isRolling && !hypertapBoost) return;
-        
+
         if (isRolling && hypertapBoost) {
             return;
         }
-        
+
         if (extraCubes > 0) {
             Game.rollExtraCubes();
             return;
         }
-        
+
         isRolling = true;
 
         Quests.updateProgress('roll', 1);
 
-        const roll = Math.floor(Math.random() * 6) + 1;
-        const animData = animationCache[roll + '-cubic'];
-        if (!animData) { 
-            isRolling = false; 
-            return; 
-        }
-        
-        const safetyTimeout = setTimeout(() => {
-            if (isRolling) {
-                console.warn('RollCube timeout - resetting state');
+        // Ask server for the roll result
+        const boostIds = activeBoosts.map(b => b.id);
+        apiCall('/api/roll', {
+            initData: getInitData(),
+            isRainbow: isRainbow,
+            activeBoosts: boostIds,
+        }).then(serverResult => {
+            if (!serverResult || serverResult.error) {
+                console.error('Server roll failed:', serverResult);
                 isRolling = false;
+                return;
             }
-        }, 10000);
 
-        const animationSpeed = hypertapBoost ? 2.0 : 1.0;
-        
-        if (currentAnim) currentAnim.destroy();
-        currentAnim = lottie.loadAnimation({
-            container: document.getElementById('cube-animation'),
-            renderer: 'svg',
-            loop: false,
-            autoplay: true,
-            animationData: animData,
-            rendererSettings: {
-                preserveAspectRatio: 'xMidYMid meet'
+            const roll = serverResult.roll;
+            const animData = animationCache[roll + '-cubic'];
+            if (!animData) {
+                isRolling = false;
+                return;
             }
-        });
-        
-        if (currentAnim && animationSpeed !== 1.0) {
-            currentAnim.setSpeed(animationSpeed);
-        }
 
-        currentAnim.addEventListener('complete', function handler() {
-            currentAnim.removeEventListener('complete', handler);
-            clearTimeout(safetyTimeout);
+            const safetyTimeout = setTimeout(() => {
+                if (isRolling) {
+                    console.warn('RollCube timeout - resetting state');
+                    isRolling = false;
+                }
+            }, 10000);
 
-            const rainbowFill = document.getElementById('rainbow-progress-fill');
-            const rainbowText = document.getElementById('rainbow-text');
-            const rainbowOverlay = document.getElementById('rainbow-overlay');
-            
-            let reward = roll / 10;
-            if (isRainbow) reward *= 2;
-            
-            const coinSurgeBoost = activeBoosts.find(b => b.id === 'coin_surge');
-            if (coinSurgeBoost) {
-                reward *= 2;
+            const animationSpeed = hypertapBoost ? 2.0 : 1.0;
+
+            if (currentAnim) currentAnim.destroy();
+            currentAnim = lottie.loadAnimation({
+                container: document.getElementById('cube-animation'),
+                renderer: 'svg',
+                loop: false,
+                autoplay: true,
+                animationData: animData,
+                rendererSettings: {
+                    preserveAspectRatio: 'xMidYMid meet'
+                }
+            });
+
+            if (currentAnim && animationSpeed !== 1.0) {
+                currentAnim.setSpeed(animationSpeed);
             }
-            
-            const critRollBoost = activeBoosts.find(b => b.id === 'crit_roll');
-            let critMultiplier = 1;
-            if (critRollBoost && Math.random() < 0.1) {
-                critMultiplier = 3 + Math.random() * 7;
-                reward *= critMultiplier;
-            }
-            
-            coinCount += reward;
 
-            
-            const newMin = generateMin();
-            if (newMin < currentMin || currentMin === 0) currentMin = newMin;
+            currentAnim.addEventListener('complete', function handler() {
+                currentAnim.removeEventListener('complete', handler);
+                clearTimeout(safetyTimeout);
 
-            
-            let xpGain = CONFIG.xpPerRoll;
-            
-            if (critRollBoost && critMultiplier > 1) {
-                xpGain *= critMultiplier;
-            }
-            
-            const luckyStreakBoost = activeBoosts.find(b => b.id === 'lucky_streak');
-            if (luckyStreakBoost) {
-                consecutiveRolls++;
-                const streakBonus = Math.min(1 + (consecutiveRolls * 0.1), 3);
-                xpGain *= streakBonus;
-                let baseReward = roll / 10;
-                if (isRainbow) baseReward *= 2;
-                if (coinSurgeBoost) baseReward *= 2;
-                if (critRollBoost && critMultiplier > 1) baseReward *= critMultiplier;
-                baseReward *= streakBonus;
-                coinCount += (baseReward - reward);
-            } else {
-                consecutiveRolls = 0;
-            }
-            
-            addXP(xpGain);
+                const rainbowFill = document.getElementById('rainbow-progress-fill');
+                const rainbowText = document.getElementById('rainbow-text');
+                const rainbowOverlay = document.getElementById('rainbow-overlay');
 
-            
-            if (!isRainbow) {
-                rollsToRainbow++;
-                const percent = (rollsToRainbow / targetRainbow) * 100;
-                rainbowFill.style.width = percent + '%';
-                rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
+                // Apply server-computed values
+                coinCount = serverResult.totalCoins;
+                currentMin = serverResult.currentMin;
+                totalXP = serverResult.totalXP;
+                updateLevel(totalXP);
 
-                if (rollsToRainbow >= targetRainbow) {
+                rollsToRainbow = serverResult.rollsToRainbow;
+                targetRainbow = serverResult.targetRainbow;
+
+                if (serverResult.rainbowTriggered) {
                     isRainbow = true;
                     isRainbowFromBoost = false;
-                    rainbowText.textContent = 'Rainbow Mode Active!';
-                    rainbowOverlay.classList.add('active');
-                    const rainbowFill = document.getElementById('rainbow-progress-fill');
-                    if (rainbowFill) {
-                        rainbowFill.style.width = '100%';
-                        rainbowFill.classList.add('rainbow-active');
+                    if (rainbowText) rainbowText.textContent = 'Rainbow Mode Active!';
+                    if (rainbowOverlay) rainbowOverlay.classList.add('active');
+                    const rf = document.getElementById('rainbow-progress-fill');
+                    if (rf) {
+                        rf.style.width = '100%';
+                        rf.classList.add('rainbow-active');
                     }
                     showIdleCube();
-                    
-                    if (extraCubes > 0) {
-                        this.updateCubeLayout();
-                    }
-                    
+                    if (extraCubes > 0) Game.updateCubeLayout();
                     Quests.updateProgress('rainbow', 1);
-                }
-            } else {
-                if (!isRainbowFromBoost) {
+                } else if (!isRainbow) {
+                    const percent = (rollsToRainbow / targetRainbow) * 100;
+                    if (rainbowFill) rainbowFill.style.width = percent + '%';
+                    if (rainbowText) rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
+                } else if (isRainbow && !isRainbowFromBoost) {
                     isRainbow = false;
-                    rainbowOverlay.classList.remove('active');
-                    const rainbowFill = document.getElementById('rainbow-progress-fill');
-                    if (rainbowFill) rainbowFill.classList.remove('rainbow-active');
+                    if (rainbowOverlay) rainbowOverlay.classList.remove('active');
+                    const rf = document.getElementById('rainbow-progress-fill');
+                    if (rf) rf.classList.remove('rainbow-active');
                     newRainbowTarget();
                     showIdleCube();
                 }
-            }
 
-            updateUI(coinCount, currentMin);
+                updateUI(coinCount, currentMin);
+                isRolling = false;
+            });
+        }).catch(err => {
+            console.error('Roll API error:', err);
             isRolling = false;
         });
     }
@@ -296,17 +291,17 @@ const Game = (function () {
 
         addXP(quest.xp);
         quest.claimed = true;
-        
+
         const questEl = document.querySelector(`.quest-item[data-id="${id}"]`);
 
         const questOverlayEl = document.getElementById('quest-menu-overlay');
 
         if (!questEl) return;
-        
+
         const rect = questEl.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        
+
         for (let i = 0; i < 30; i++) {
             const p = document.createElement('div');
             p.style.position = 'fixed';
@@ -315,55 +310,83 @@ const Game = (function () {
             p.style.width = '5px';
             p.style.height = '5px';
             p.style.borderRadius = '50%';
-            p.style.background = '#4CAF50'; 
+            p.style.background = '#4CAF50';
             p.style.zIndex = '100';
             p.style.transition = 'all 0.8s ease-out';
             p.style.opacity = '1';
-            
+
             document.body.appendChild(p);
 
             setTimeout(() => {
                 p.style.transform = `translate(${(Math.random() - 0.5) * 150}px, ${(Math.random() - 0.5) * 150}px) scale(0)`;
                 p.style.opacity = '0';
             }, 50);
-            
+
             setTimeout(() => p.remove(), 1000);
         }
-        
+
         if (quest.social) {
             questEl.classList.add('claiming');
-            
+
             setTimeout(() => {
                 questEl.remove();
-                
+
                 if (Quests.listEl.children.length === 0) hideQuestMenu();
             }, 500);
         } else {
             quest.current = 0;
-            quest.target *= 2; 
-            quest.completed = false; 
+            quest.target *= 2;
+            quest.completed = false;
             quest.claimed = false;
-            Quests.render(); 
+            Quests.render();
         }
-        
+
         Quests.render();
     }
 
     return {
         init: function () {
-            totalXP = 0;
-            coinCount = 0;
-            currentMin = 0;
-            newRainbowTarget();
-            updateLevel(totalXP);
-            showIdleCube();
-            updateUI(coinCount, currentMin);
-            
+            // Load state from server
+            const initData = getInitData();
+            apiCall('/api/state?initData=' + encodeURIComponent(initData)).then(state => {
+                if (state && !state.error) {
+                    coinCount = state.coins || 0;
+                    currentMin = state.min || 0;
+                    totalXP = state.xp || 0;
+                    rollsToRainbow = state.rollsToRainbow || 0;
+                    targetRainbow = state.targetRainbow || 7;
+                } else {
+                    totalXP = 0;
+                    coinCount = 0;
+                    currentMin = 0;
+                    newRainbowTarget();
+                }
+                updateLevel(totalXP);
+                showIdleCube();
+                updateUI(coinCount, currentMin);
+                // Update rainbow progress bar
+                const rainbowFill = document.getElementById('rainbow-progress-fill');
+                const rainbowText = document.getElementById('rainbow-text');
+                if (rainbowFill && rainbowText) {
+                    const percent = (rollsToRainbow / targetRainbow) * 100;
+                    rainbowFill.style.width = percent + '%';
+                    rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
+                }
+            }).catch(() => {
+                totalXP = 0;
+                coinCount = 0;
+                currentMin = 0;
+                newRainbowTarget();
+                updateLevel(totalXP);
+                showIdleCube();
+                updateUI(coinCount, currentMin);
+            });
+
             Quests.data.forEach(q => q.current = 0);
         },
         claimQuest: claimQuest,
         rollCube: rollCube,
-        resetRollingState: function() {
+        resetRollingState: function () {
             isRolling = false;
             const centerGif = document.querySelector('.center-gif');
             if (centerGif) {
@@ -375,19 +398,19 @@ const Game = (function () {
                 }
             });
         },
-        addCoins: function(amount) {
+        addCoins: function (amount) {
             coinCount += amount;
             updateUI(coinCount, currentMin);
         },
-        addXP: function(amount) {
+        addXP: function (amount) {
             totalXP += amount;
             updateLevel(totalXP);
         },
-        setXP: function(xp) {
+        setXP: function (xp) {
             totalXP = xp;
             updateLevel(totalXP);
         },
-        setRainbowProgress: function(rolls) {
+        setRainbowProgress: function (rolls) {
             rollsToRainbow = rolls;
             const rainbowFill = document.getElementById('rainbow-progress-fill');
             const rainbowText = document.getElementById('rainbow-text');
@@ -395,7 +418,7 @@ const Game = (function () {
             rainbowFill.style.width = percent + '%';
             rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
         },
-        activateRainbowMode: function() {
+        activateRainbowMode: function () {
             isRainbow = true;
             const rainbowOverlay = document.getElementById('rainbow-overlay');
             const rainbowText = document.getElementById('rainbow-text');
@@ -406,12 +429,12 @@ const Game = (function () {
                 this.updateCubeLayout();
             }
         },
-        activateRainbowModeFromBoost: function(duration) {
+        activateRainbowModeFromBoost: function (duration) {
             if (rainbowBoostTimer) {
                 clearTimeout(rainbowBoostTimer);
                 rainbowBoostTimer = null;
             }
-            
+
             isRainbow = true;
             isRainbowFromBoost = true;
             const rainbowOverlay = document.getElementById('rainbow-overlay');
@@ -427,7 +450,7 @@ const Game = (function () {
             if (extraCubes > 0) {
                 this.updateCubeLayout();
             }
-            
+
             if (duration) {
                 rainbowBoostEndTime = Date.now() + duration;
                 rainbowBoostTimer = setTimeout(() => {
@@ -451,17 +474,17 @@ const Game = (function () {
                 this.updateBoostUI();
             }
         },
-        setMinNumber: function(value) {
+        setMinNumber: function (value) {
             currentMin = value;
             updateUI(coinCount, currentMin);
         },
-        getTotalXP: function() {
+        getTotalXP: function () {
             return totalXP;
         },
-        getCoinCount: function() {
+        getCoinCount: function () {
             return coinCount;
         },
-        useBoost: function(boostId) {
+        useBoost: function (boostId) {
             if (boostId === 'rainbow_mode') {
                 const duration = (30 + Math.random() * 70) * 1000;
                 this.activateRainbowModeFromBoost(duration);
@@ -491,10 +514,10 @@ const Game = (function () {
                 this.activateHyperTap(duration);
             }
         },
-        
-        activateBoost: function(boostId, duration) {
+
+        activateBoost: function (boostId, duration) {
             const existingBoost = activeBoosts.find(b => b.id === boostId);
-            
+
             if (existingBoost) {
                 existingBoost.endTime += duration;
                 clearTimeout(existingBoost.timeoutId);
@@ -511,9 +534,9 @@ const Game = (function () {
                     startTime: Date.now(),
                     endTime: Date.now() + duration
                 };
-                
+
                 activeBoosts.push(boost);
-                
+
                 boost.timeoutId = setTimeout(() => {
                     const index = activeBoosts.findIndex(b => b.id === boostId && b.startTime === boost.startTime);
                     if (index !== -1) {
@@ -522,20 +545,20 @@ const Game = (function () {
                     }
                 }, duration);
             }
-            
+
             this.updateBoostUI();
         },
-        
-        activateAutoRoll: function(duration) {
+
+        activateAutoRoll: function (duration) {
             const existingBoost = activeBoosts.find(b => b.id === 'auto_roll');
             const totalDuration = existingBoost ? (existingBoost.endTime - Date.now() + duration) : duration;
-            
+
             if (autoRollInterval) {
                 clearInterval(autoRollInterval);
             }
-            
+
             this.activateBoost('auto_roll', duration);
-            
+
             autoRollInterval = setInterval(() => {
                 if (!isRolling && extraCubes === 0) {
                     rollCube();
@@ -543,12 +566,12 @@ const Game = (function () {
                     this.rollExtraCubes();
                 }
             }, 1000);
-            
+
             const boost = activeBoosts.find(b => b.id === 'auto_roll');
             if (boost && boost.timeoutId) {
                 clearTimeout(boost.timeoutId);
             }
-            
+
             const timeoutId = setTimeout(() => {
                 if (autoRollInterval) {
                     clearInterval(autoRollInterval);
@@ -560,17 +583,17 @@ const Game = (function () {
                     this.updateBoostUI();
                 }
             }, totalDuration);
-            
+
             if (boost) {
                 boost.timeoutId = timeoutId;
             }
         },
-        
-        activateHyperTap: function(duration) {
+
+        activateHyperTap: function (duration) {
             this.activateBoost('hypertap', duration);
         },
-        
-        updateBoostUI: function() {
+
+        updateBoostUI: function () {
             const rainbowFill = document.getElementById('rainbow-progress-fill');
             if (rainbowFill && isRainbow) {
                 rainbowFill.style.width = '100%';
@@ -578,28 +601,28 @@ const Game = (function () {
                     rainbowFill.classList.add('rainbow-active');
                 }
             }
-            
+
             let boostList = document.getElementById('boost-timers-list');
             if (!boostList) return;
-            
+
             boostList.innerHTML = '';
-            
+
             let hasActiveBoosts = false;
-            
+
             activeBoosts.forEach(boost => {
                 const remaining = Math.ceil((boost.endTime - Date.now()) / 1000);
                 if (remaining <= 0) return;
-                
+
                 hasActiveBoosts = true;
                 const minutes = Math.floor(remaining / 60);
                 const seconds = remaining % 60;
                 const timeText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                
+
                 const boostData = Shop.boosts.find(b => b.id === boost.id);
                 if (!boostData) return;
-                
+
                 const iconSVG = typeof Shop !== 'undefined' && Shop.getIconSVG ? Shop.getIconSVG(boostData.icon) : '';
-                
+
                 const boostEl = document.createElement('div');
                 boostEl.className = 'boost-timer-item';
                 boostEl.innerHTML = `
@@ -611,10 +634,10 @@ const Game = (function () {
                         <div class="boost-timer-time">${timeText}</div>
                     </div>
                 `;
-                
+
                 boostList.appendChild(boostEl);
             });
-            
+
             if (extraCubes > 0 && extraCubesEndTime > Date.now()) {
                 const remaining = Math.ceil((extraCubesEndTime - Date.now()) / 1000);
                 if (remaining > 0) {
@@ -623,9 +646,9 @@ const Game = (function () {
                     const seconds = remaining % 60;
                     const timeText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
                     const boostName = extraCubes === 1 ? 'Extra Cube' : '+2 Cubes';
-                    
+
                     const iconSVG = typeof Shop !== 'undefined' && Shop.getIconSVG ? Shop.getIconSVG('dice') : '';
-                    
+
                     const boostEl = document.createElement('div');
                     boostEl.className = 'boost-timer-item';
                     boostEl.innerHTML = `
@@ -637,11 +660,11 @@ const Game = (function () {
                             <div class="boost-timer-time">${timeText}</div>
                         </div>
                     `;
-                    
+
                     boostList.appendChild(boostEl);
                 }
             }
-            
+
             if (isRainbowFromBoost && rainbowBoostEndTime > Date.now()) {
                 const remaining = Math.ceil((rainbowBoostEndTime - Date.now()) / 1000);
                 if (remaining > 0) {
@@ -649,9 +672,9 @@ const Game = (function () {
                     const minutes = Math.floor(remaining / 60);
                     const seconds = remaining % 60;
                     const timeText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                    
+
                     const iconSVG = typeof Shop !== 'undefined' && Shop.getIconSVG ? Shop.getIconSVG('star') : '';
-                    
+
                     const boostEl = document.createElement('div');
                     boostEl.className = 'boost-timer-item';
                     boostEl.innerHTML = `
@@ -663,29 +686,29 @@ const Game = (function () {
                             <div class="boost-timer-time">${timeText}</div>
                         </div>
                     `;
-                    
+
                     boostList.appendChild(boostEl);
                 }
             }
-            
+
             if (!hasActiveBoosts) {
                 const emptyEl = document.createElement('div');
                 emptyEl.className = 'boost-timers-empty';
                 emptyEl.textContent = 'Haha, activate a boost to be cooler';
                 boostList.appendChild(emptyEl);
             }
-            
+
             const panel = document.getElementById('boost-timers-panel');
             if (panel && panel.classList.contains('visible')) {
                 setTimeout(() => this.updateBoostUI(), 1000);
             }
         },
-        
-        toggleBoostPanel: function() {
+
+        toggleBoostPanel: function () {
             const panel = document.getElementById('boost-timers-panel');
             const button = document.getElementById('boost-timer-button');
             if (!panel || !button) return;
-            
+
             if (panel.classList.contains('visible')) {
                 panel.classList.remove('visible');
                 button.classList.remove('active');
@@ -702,16 +725,16 @@ const Game = (function () {
                 }, 1000);
             }
         },
-        
-        getActiveBoosts: function() {
+
+        getActiveBoosts: function () {
             return activeBoosts;
         },
-        addExtraCube: function(count, duration) {
+        addExtraCube: function (count, duration) {
             if (extraCubesTimer) {
                 clearTimeout(extraCubesTimer);
                 extraCubesTimer = null;
             }
-            
+
             extraCubes = count;
             if (duration) {
                 extraCubesEndTime = Date.now() + duration;
@@ -719,7 +742,7 @@ const Game = (function () {
             showIdleCube();
             this.updateCubeLayout();
             this.updateBoostUI();
-            
+
             if (duration) {
                 extraCubesTimer = setTimeout(() => {
                     if (extraCubes === count) {
@@ -729,11 +752,11 @@ const Game = (function () {
                 }, duration);
             }
         },
-        
-        updateCubeLayout: function() {
+
+        updateCubeLayout: function () {
             const centerGif = document.querySelector('.center-gif');
             if (!centerGif) return;
-            
+
             extraCubeAnims.forEach(({ anim, element }) => {
                 if (anim) anim.destroy();
                 if (element && element.parentNode) {
@@ -741,7 +764,7 @@ const Game = (function () {
                 }
             });
             extraCubeAnims = [];
-            
+
             const leftCube = document.getElementById('extra-cube-left');
             const rightCube = document.getElementById('extra-cube-right');
             if (leftCube && leftCube.parentNode) {
@@ -758,12 +781,12 @@ const Game = (function () {
                 }
                 rightCube.remove();
             }
-            
+
             centerGif.style.position = 'absolute';
             centerGif.style.top = '50%';
             centerGif.style.transform = 'translate(-50%, -50%)';
             centerGif.style.pointerEvents = 'auto';
-            
+
             if (extraCubes === 1) {
                 centerGif.style.left = 'calc(50% + 90px)';
                 this.createExtraCube('left');
@@ -775,8 +798,8 @@ const Game = (function () {
                 centerGif.style.left = '50%';
             }
         },
-        
-        updateOrCreateExtraCube: function(position) {
+
+        updateOrCreateExtraCube: function (position) {
             const existing = document.getElementById(`extra-cube-${position}`);
             if (existing) {
                 const animContainer = existing.querySelector('.lottie-cube');
@@ -785,13 +808,13 @@ const Game = (function () {
                     if (animIndex !== -1 && extraCubeAnims[animIndex].anim) {
                         extraCubeAnims[animIndex].anim.destroy();
                     }
-                    
+
                     if (animContainer._lottie) {
                         animContainer._lottie.destroy();
                     }
-                    
+
                     animContainer.innerHTML = '';
-                    
+
                     const name = isRainbow ? 'super-first-cubic' : 'first-cubic';
                     const data = animationCache[name];
                     if (data) {
@@ -814,7 +837,7 @@ const Game = (function () {
                 this.createExtraCube(position);
             }
         },
-        createExtraCube: function(position) {
+        createExtraCube: function (position) {
             const existing = document.getElementById(`extra-cube-${position}`);
             if (existing) {
                 const animIndex = extraCubeAnims.findIndex(item => item.element === existing);
@@ -826,7 +849,7 @@ const Game = (function () {
                 }
                 existing.remove();
             }
-            
+
             const centerGif = document.querySelector('.center-gif');
             const cube = document.createElement('div');
             cube.id = `extra-cube-${position}`;
@@ -840,21 +863,21 @@ const Game = (function () {
             cube.style.pointerEvents = 'auto';
             cube.style.transition = 'all 0.3s ease';
             cube.style.cursor = 'pointer';
-            
+
             if (position === 'left') {
                 cube.style.left = 'calc(50% - 140px)';
             } else {
                 cube.style.left = 'calc(50% + 140px)';
             }
-            
+
             const animContainer = document.createElement('div');
             animContainer.className = 'lottie-cube';
             animContainer.style.width = '180px';
             animContainer.style.height = '180px';
             cube.appendChild(animContainer);
-            
+
             centerGif.parentElement.appendChild(cube);
-            
+
             const name = isRainbow ? 'super-first-cubic' : 'first-cubic';
             const data = animationCache[name];
             if (data) {
@@ -868,7 +891,7 @@ const Game = (function () {
                 animContainer._lottie = anim;
                 extraCubeAnims.push({ anim, element: cube });
             }
-            
+
             cube.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (typeof Game !== 'undefined' && Game.rollExtraCubes) {
@@ -876,7 +899,7 @@ const Game = (function () {
                 }
             });
         },
-        removeExtraCubes: function() {
+        removeExtraCubes: function () {
             extraCubeAnims.forEach(({ anim, element }) => {
                 if (anim) anim.destroy();
                 if (element) element.remove();
@@ -885,70 +908,56 @@ const Game = (function () {
             extraCubes = 0;
             extraCubesEndTime = 0;
             lastRolls = [];
-            
+
             const centerGif = document.querySelector('.center-gif');
             if (centerGif) {
                 centerGif.style.left = '50%';
                 centerGif.style.transition = 'left 0.5s ease';
             }
-            
+
             this.updateCubeLayout();
             this.updateBoostUI();
         },
-        processExtraCubeRolls: function(rolls) {
+        processExtraCubeRolls: function (rolls, serverResult) {
             const rainbowFill = document.getElementById('rainbow-progress-fill');
             const rainbowText = document.getElementById('rainbow-text');
             const rainbowOverlay = document.getElementById('rainbow-overlay');
-            
-            let totalReward = 0;
-            rolls.forEach(roll => {
-                let reward = roll / 10;
-                if (isRainbow) reward *= 2;
-                totalReward += reward;
-            });
-            
-            coinCount += totalReward;
-            
-            const newMin = generateMin();
-            if (newMin < currentMin || currentMin === 0) currentMin = newMin;
-            
-            addXP(CONFIG.xpPerRoll * rolls.length);
-            
-            if (!isRainbow) {
-                rollsToRainbow += rolls.length;
+
+            // Apply server-computed values
+            coinCount = serverResult.totalCoins;
+            currentMin = serverResult.currentMin;
+            totalXP = serverResult.totalXP;
+            updateLevel(totalXP);
+
+            rollsToRainbow = serverResult.rollsToRainbow;
+            targetRainbow = serverResult.targetRainbow;
+
+            if (serverResult.rainbowTriggered) {
+                isRainbow = true;
+                isRainbowFromBoost = false;
+                if (rainbowText) rainbowText.textContent = 'Rainbow Mode Active!';
+                if (rainbowOverlay) rainbowOverlay.classList.add('active');
+                if (rainbowFill) {
+                    rainbowFill.style.width = '100%';
+                    rainbowFill.classList.add('rainbow-active');
+                }
+                showIdleCube();
+                if (extraCubes > 0) this.updateCubeLayout();
+                Quests.updateProgress('rainbow', 1);
+            } else if (!isRainbow) {
                 const percent = (rollsToRainbow / targetRainbow) * 100;
                 if (rainbowFill) rainbowFill.style.width = percent + '%';
                 if (rainbowText) rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
-                
-                if (rollsToRainbow >= targetRainbow) {
-                    isRainbow = true;
-                    isRainbowFromBoost = false;
-                    if (rainbowText) rainbowText.textContent = 'Rainbow Mode Active!';
-                    if (rainbowOverlay) rainbowOverlay.classList.add('active');
-                    if (rainbowFill) {
-                        rainbowFill.style.width = '100%';
-                        rainbowFill.classList.add('rainbow-active');
-                    }
-                    showIdleCube();
-                    
-                    if (extraCubes > 0) {
-                        this.updateCubeLayout();
-                    }
-                    
-                    Quests.updateProgress('rainbow', 1);
-                }
-            } else {
-                if (!isRainbowFromBoost) {
-                    isRainbow = false;
-                    if (rainbowOverlay) rainbowOverlay.classList.remove('active');
-                    if (rainbowFill) rainbowFill.classList.remove('rainbow-active');
-                    newRainbowTarget();
-                    showIdleCube();
-                }
+            } else if (isRainbow && !isRainbowFromBoost) {
+                isRainbow = false;
+                if (rainbowOverlay) rainbowOverlay.classList.remove('active');
+                if (rainbowFill) rainbowFill.classList.remove('rainbow-active');
+                newRainbowTarget();
+                showIdleCube();
             }
-            
+
             updateUI(coinCount, currentMin);
-            
+
             isRolling = false;
             lastRolls = rolls.slice();
             showIdleCube();
@@ -962,7 +971,7 @@ const Game = (function () {
                 }
             });
         },
-        animateExtraCubesOut: function() {
+        animateExtraCubesOut: function () {
             isRolling = false;
             showIdleCube();
             const centerGif = document.querySelector('.center-gif');
@@ -970,18 +979,18 @@ const Game = (function () {
                 centerGif.style.pointerEvents = 'auto';
             }
         },
-        rollExtraCubes: function() {
+        rollExtraCubes: function () {
             if (isRolling || extraCubes === 0) return;
             isRolling = true;
-            
+
             const centerGif = document.querySelector('.center-gif');
             if (centerGif) {
                 centerGif.style.pointerEvents = 'none';
             }
             extraCubeAnims.forEach(({ element }) => {
-                if (element)                 element.style.pointerEvents = 'none';
+                if (element) element.style.pointerEvents = 'none';
             });
-            
+
             const safetyTimeout = setTimeout(() => {
                 if (isRolling) {
                     console.warn('Roll timeout - resetting state');
@@ -990,164 +999,187 @@ const Game = (function () {
                         centerGif.style.pointerEvents = 'auto';
                     }
                     extraCubeAnims.forEach(({ element }) => {
-                        if (element)                         element.style.pointerEvents = 'auto';
+                        if (element) element.style.pointerEvents = 'auto';
                     });
                 }
             }, 10000);
-            
-            const rolls = [];
-            for (let i = 0; i < extraCubes; i++) {
-                rolls.push(Math.floor(Math.random() * 6) + 1);
-            }
-            
-            const mainRoll = Math.floor(Math.random() * 6) + 1;
-            rolls.push(mainRoll);
-            
+
+            const totalCubes = extraCubes + 1; // extra + main
             Quests.updateProgress('roll', 1);
-            
-            const hypertapBoost = activeBoosts.find(b => b.id === 'hypertap');
-            const animationSpeed = hypertapBoost ? 2.0 : 1.0;
-            
-            const mainAnimData = animationCache[mainRoll + '-cubic'];
-            const cubeAnimationContainer = document.getElementById('cube-animation');
-            
-            if (!mainAnimData || !cubeAnimationContainer) {
-                clearTimeout(safetyTimeout);
-                isRolling = false;
-                if (centerGif) {
-                    centerGif.style.pointerEvents = 'auto';
+
+            // Ask server for multi-roll result
+            apiCall('/api/roll-multi', {
+                initData: getInitData(),
+                isRainbow: isRainbow,
+                cubeCount: totalCubes,
+            }).then(serverResult => {
+                if (!serverResult || serverResult.error) {
+                    console.error('Server multi-roll failed:', serverResult);
+                    clearTimeout(safetyTimeout);
+                    isRolling = false;
+                    if (centerGif) centerGif.style.pointerEvents = 'auto';
+                    extraCubeAnims.forEach(({ element }) => {
+                        if (element) element.style.pointerEvents = 'auto';
+                    });
+                    return;
                 }
-                extraCubeAnims.forEach(({ element }) => {
-                    if (element) element.style.pointerEvents = 'auto';
-                });
-                return;
-            }
-            
-            if (currentAnim) {
-                currentAnim.destroy();
-            }
-            currentAnim = lottie.loadAnimation({
-                container: cubeAnimationContainer,
-                renderer: 'svg',
-                loop: false,
-                autoplay: true,
-                animationData: mainAnimData
-            });
-            if (currentAnim && animationSpeed !== 1.0) {
-                currentAnim.setSpeed(animationSpeed);
-            }
-            
-            const extraCubeUpdates = [];
-            extraCubeAnims.forEach(({ anim, element }, index) => {
-                if (index < rolls.length - 1) {
-                    const roll = rolls[index];
-                    const animData = animationCache[roll + '-cubic'];
-                    if (animData && anim && element) {
-                        const container = element.querySelector('.lottie-cube');
-                        if (container) {
-                            extraCubeUpdates.push({ anim, container, animData, index });
-                        }
+
+                const rolls = serverResult.rolls;
+                const mainRoll = rolls[rolls.length - 1];
+
+                const hypertapBoost = activeBoosts.find(b => b.id === 'hypertap');
+                const animationSpeed = hypertapBoost ? 2.0 : 1.0;
+
+                const mainAnimData = animationCache[mainRoll + '-cubic'];
+                const cubeAnimationContainer = document.getElementById('cube-animation');
+
+                if (!mainAnimData || !cubeAnimationContainer) {
+                    clearTimeout(safetyTimeout);
+                    isRolling = false;
+                    if (centerGif) {
+                        centerGif.style.pointerEvents = 'auto';
                     }
+                    extraCubeAnims.forEach(({ element }) => {
+                        if (element) element.style.pointerEvents = 'auto';
+                    });
+                    return;
                 }
-            });
-            
-            extraCubeUpdates.forEach(({ anim, container, animData, index }) => {
-                if (anim) anim.destroy();
-                const newAnim = lottie.loadAnimation({
-                    container: container,
+
+                if (currentAnim) {
+                    currentAnim.destroy();
+                }
+                currentAnim = lottie.loadAnimation({
+                    container: cubeAnimationContainer,
                     renderer: 'svg',
                     loop: false,
                     autoplay: true,
-                    animationData: animData
+                    animationData: mainAnimData
                 });
-                if (newAnim && animationSpeed !== 1.0) {
-                    newAnim.setSpeed(animationSpeed);
+                if (currentAnim && animationSpeed !== 1.0) {
+                    currentAnim.setSpeed(animationSpeed);
                 }
-                extraCubeAnims[index].anim = newAnim;
-            });
-            
-            let completedCount = 0;
-            const totalAnims = rolls.length;
-            const handlers = [];
-            
-            const checkAllComplete = () => {
-                completedCount++;
-                if (completedCount >= totalAnims) {
-                    handlers.forEach(clear => clear());
-                    clearTimeout(safetyTimeout);
-                    this.processExtraCubeRolls(rolls);
-                }
-            };
-            
-            if (currentAnim) {
-                const handler = () => {
-                    try {
-                        currentAnim.removeEventListener('complete', handler);
-                    } catch(e) {}
-                    checkAllComplete();
+
+                const extraCubeUpdates = [];
+                extraCubeAnims.forEach(({ anim, element }, index) => {
+                    if (index < rolls.length - 1) {
+                        const roll = rolls[index];
+                        const animData = animationCache[roll + '-cubic'];
+                        if (animData && anim && element) {
+                            const container = element.querySelector('.lottie-cube');
+                            if (container) {
+                                extraCubeUpdates.push({ anim, container, animData, index });
+                            }
+                        }
+                    }
+                });
+
+                extraCubeUpdates.forEach(({ anim, container, animData, index }) => {
+                    if (anim) anim.destroy();
+                    const newAnim = lottie.loadAnimation({
+                        container: container,
+                        renderer: 'svg',
+                        loop: false,
+                        autoplay: true,
+                        animationData: animData
+                    });
+                    if (newAnim && animationSpeed !== 1.0) {
+                        newAnim.setSpeed(animationSpeed);
+                    }
+                    extraCubeAnims[index].anim = newAnim;
+                });
+
+                let completedCount = 0;
+                const totalAnims = rolls.length;
+                const handlers = [];
+
+                const checkAllComplete = () => {
+                    completedCount++;
+                    if (completedCount >= totalAnims) {
+                        handlers.forEach(clear => clear());
+                        clearTimeout(safetyTimeout);
+                        this.processExtraCubeRolls(rolls, serverResult);
+                    }
                 };
-                try {
-                    currentAnim.addEventListener('complete', handler);
-                    handlers.push(() => {
+
+                if (currentAnim) {
+                    const handler = () => {
                         try {
                             currentAnim.removeEventListener('complete', handler);
-                        } catch(e) {}
-                    });
-                } catch(e) {
-                    completedCount++;
-                }
-            } else {
-                completedCount++;
-            }
-            
-            extraCubeAnims.forEach(({ anim }, index) => {
-                if (index < rolls.length - 1) {
-                    if (anim) {
-                        const handler = () => {
+                        } catch (e) { }
+                        checkAllComplete();
+                    };
+                    try {
+                        currentAnim.addEventListener('complete', handler);
+                        handlers.push(() => {
                             try {
-                                anim.removeEventListener('complete', handler);
-                            } catch(e) {}
-                            checkAllComplete();
-                        };
-                        try {
-                            anim.addEventListener('complete', handler);
-                            handlers.push(() => {
-                                try {
-                                    anim.removeEventListener('complete', handler);
-                                } catch(e) {}
-                            });
-                        } catch(e) {
-                            completedCount++;
-                        }
-                    } else {
+                                currentAnim.removeEventListener('complete', handler);
+                            } catch (e) { }
+                        });
+                    } catch (e) {
                         completedCount++;
                     }
+                } else {
+                    completedCount++;
                 }
-            });
-            
-            if (completedCount >= totalAnims) {
-                handlers.forEach(clear => {
-                    try {
-                        clear();
-                    } catch(e) {}
-                });
-                clearTimeout(safetyTimeout);
-                this.processExtraCubeRolls(rolls);
-            } else {
-                const fallbackTimeout = setTimeout(() => {
-                    if (isRolling) {
-                        console.warn('Animation fallback - forcing completion');
-                        handlers.forEach(clear => {
+
+                extraCubeAnims.forEach(({ anim }, index) => {
+                    if (index < rolls.length - 1) {
+                        if (anim) {
+                            const handler = () => {
+                                try {
+                                    anim.removeEventListener('complete', handler);
+                                } catch (e) { }
+                                checkAllComplete();
+                            };
                             try {
-                                clear();
-                            } catch(e) {}
-                        });
-                        clearTimeout(safetyTimeout);
-                        this.processExtraCubeRolls(rolls);
+                                anim.addEventListener('complete', handler);
+                                handlers.push(() => {
+                                    try {
+                                        anim.removeEventListener('complete', handler);
+                                    } catch (e) { }
+                                });
+                            } catch (e) {
+                                completedCount++;
+                            }
+                        } else {
+                            completedCount++;
+                        }
                     }
-                }, 5000);
-                handlers.push(() => clearTimeout(fallbackTimeout));
-            }
+                });
+
+                if (completedCount >= totalAnims) {
+                    handlers.forEach(clear => {
+                        try {
+                            clear();
+                        } catch (e) { }
+                    });
+                    clearTimeout(safetyTimeout);
+                    this.processExtraCubeRolls(rolls, serverResult);
+                } else {
+                    const fallbackTimeout = setTimeout(() => {
+                        if (isRolling) {
+                            console.warn('Animation fallback - forcing completion');
+                            handlers.forEach(clear => {
+                                try {
+                                    clear();
+                                } catch (e) { }
+                            });
+                            clearTimeout(safetyTimeout);
+                            this.processExtraCubeRolls(rolls, serverResult);
+                        }
+                    }, 5000);
+                    handlers.push(() => clearTimeout(fallbackTimeout));
+                }
+
+            }).catch(err => {
+                console.error('Multi-roll API error:', err);
+                clearTimeout(safetyTimeout);
+                isRolling = false;
+                if (centerGif) centerGif.style.pointerEvents = 'auto';
+                extraCubeAnims.forEach(({ element }) => {
+                    if (element) element.style.pointerEvents = 'auto';
+                });
+            });
         },
     };
 })();

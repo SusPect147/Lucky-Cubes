@@ -1,4 +1,5 @@
 const CONFIG = {
+    API_URL: 'https://my-cubes-server.onrender.com',
     assetsPath: 'assets/UI/cubics/classic_skins/',
     assets: [
         'first-cubic.tgs',
@@ -11,7 +12,7 @@ const CONFIG = {
         '6-cubic.tgs'
     ],
     levels: [
-        
+
         { name: "Roller Newbie", xp: 4100 },
         { name: "Dice Flicker", xp: 4300 },
         { name: "Street Roller", xp: 4600 },
@@ -50,13 +51,13 @@ const CONFIG = {
     rainbowRollsMax: 10,
     particleCount: 120,
 
-    
+
     QUESTS: [
         { id: 'roll_10', type: 'roll', name: 'Make {target} Rolls', xp: 500, target: 10, current: 0, completed: false, claimed: false, social: false, icon: 'dice' },
         { id: 'rainbow_1', type: 'rainbow', name: 'Achieve Rainbow Mode {target} Time', xp: 900, target: 1, current: 0, completed: false, claimed: false, social: false, icon: 'star' },
-        
-        { id: 'subscribe_lucky', type: 'social', name: 'Subscribe to Lucky Cubes!', xp: 700, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'user' }, 
-        { id: 'subscribe_rayan', type: 'social', name: 'Subscribe to Rayan\'s Channel!', xp: 700, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'user' }, 
+
+        { id: 'subscribe_lucky', type: 'social', name: 'Subscribe to Lucky Cubes!', xp: 700, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'user' },
+        { id: 'subscribe_rayan', type: 'social', name: 'Subscribe to Rayan\'s Channel!', xp: 700, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'user' },
         { id: 'donate_100', type: 'social', name: 'Donate 100 Stars', xp: 1200, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'heart' },
 
     ],
