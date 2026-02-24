@@ -65,7 +65,7 @@ const Shop = {
         }
     ],
 
-    getIconSVG: function(iconType) {
+    getIconSVG: function (iconType) {
         if (iconType === 'dice') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg>';
         if (iconType === 'star') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
         if (iconType === 'coin') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg>';
@@ -77,10 +77,10 @@ const Shop = {
         return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.86 18.14A2 2 0 0 0 3.71 21h16.58a2 2 0 0 0 1.85-2.86L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>';
     },
 
-    switchTab: function(tab) {
+    switchTab: function (tab) {
         const skinsEmpty = document.getElementById('shop-skins-empty');
         const boostsList = document.getElementById('shop-boosts-list');
-        
+
         if (tab === 'skins') {
             if (skinsEmpty) skinsEmpty.style.display = 'flex';
             if (boostsList) boostsList.style.display = 'none';
@@ -93,7 +93,7 @@ const Shop = {
         }
     },
 
-    renderBoosts: function() {
+    renderBoosts: function () {
         const boostsList = document.getElementById('shop-boosts-list');
         if (!boostsList) {
             console.error('shop-boosts-list not found');
@@ -106,50 +106,58 @@ const Shop = {
             const item = document.createElement('div');
             item.className = 'boost-item';
             item.dataset.id = boost.id;
-            
+
+
+            let currentCoins = 0;
+            if (typeof Game !== 'undefined' && Game.getCoinCount) {
+                currentCoins = Game.getCoinCount();
+            }
+            const canAfford = currentCoins >= boost.price;
+            const priceColor = canAfford ? '#00c88c' : '#dc3545';
+
             item.innerHTML = `
                 <div class="boost-image">
                     ${this.getIconSVG(boost.icon)}
                 </div>
                 <div class="boost-info">
                     <div class="boost-description">${boost.description}</div>
-                    <div class="boost-price">
+                    <div class="boost-price" style="color: ${priceColor};">
                         <span class="boost-price-icon">$LUCU</span>
                         <span>${format(boost.price)}</span>
                     </div>
                 </div>
             `;
-            
+
             item.addEventListener('click', () => {
                 this.buyBoost(boost.id);
             });
-            
+
             boostsList.appendChild(item);
         });
     },
 
-    buyBoost: function(boostId) {
+    buyBoost: function (boostId) {
         const boost = this.boosts.find(b => b.id === boostId);
         if (!boost) return;
-        
+
         if (typeof Game === 'undefined' || !Game.getCoinCount) {
             console.error('Game not initialized');
             return;
         }
-        
+
         const currentCoins = Game.getCoinCount();
         if (currentCoins < boost.price) {
             alert('Not enough coins!');
             return;
         }
-        
+
         const item = document.querySelector(`.boost-item[data-id="${boostId}"]`);
         if (!item) return;
-        
+
         const rect = item.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        
+
         for (let i = 0; i < 30; i++) {
             const p = document.createElement('div');
             p.style.position = 'fixed';
@@ -162,19 +170,19 @@ const Shop = {
             p.style.zIndex = '100';
             p.style.transition = 'all 0.8s ease-out';
             p.style.opacity = '1';
-            
+
             document.body.appendChild(p);
-            
+
             setTimeout(() => {
                 p.style.transform = `translate(${(Math.random() - 0.5) * 150}px, ${(Math.random() - 0.5) * 150}px) scale(0)`;
                 p.style.opacity = '0';
             }, 50);
-            
+
             setTimeout(() => p.remove(), 1000);
         }
-        
+
         Game.addCoins(-boost.price);
-        
+
         setTimeout(() => {
             if (typeof Inventory !== 'undefined') {
                 Inventory.addBoost(boostId);
@@ -182,7 +190,7 @@ const Shop = {
         }, 500);
     },
 
-    render: function() {
+    render: function () {
         const activeTab = document.querySelector('.shop-tab-btn.active');
         if (activeTab) {
             this.switchTab(activeTab.dataset.tab);

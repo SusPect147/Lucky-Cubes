@@ -9,14 +9,16 @@
     outline: none;
 }
 
-body, html {
+body,
+html {
     height: 100%;
     overflow: hidden;
     background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     touch-action: none;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
-

@@ -110,29 +110,6 @@ function fallbackCopy(text) {
     document.body.removeChild(ta);
 }
 
-function initCheatsMenu() {
-    if (window.innerWidth >= 1100) {
-        if (typeof Cheats !== 'undefined' && !Cheats.initialized) {
-            try {
-                Cheats.init();
-                Cheats.initialized = true;
-            } catch (e) {
-                console.error('Error initializing cheats:', e);
-            }
-        }
-    }
-}
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(initCheatsMenu, 100);
-    });
-} else {
-    setTimeout(initCheatsMenu, 100);
-}
-
-window.addEventListener('resize', initCheatsMenu);
-
 function initBoostTimerButton() {
     const button = document.getElementById('boost-timer-button');
     const panel = document.getElementById('boost-timers-panel');

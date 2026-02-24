@@ -4,34 +4,37 @@
     left: 4%;
     right: 4%;
     height: 80px;
-    background: rgba(20,20,25,0.35);
+    background: rgba(20, 20, 25, 0.35);
     backdrop-filter: blur(18px);
     border-radius: 22px;
     display: flex;
     align-items: center;
     padding: 0 18px;
     z-index: 10;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.45);
-    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     gap: 16px;
     cursor: pointer;
 }
+
 .avatar-placeholder {
     width: 56px;
     height: 56px;
-    background: rgba(50,50,60,0.5);
+    background: rgba(50, 50, 60, 0.5);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    border: 1.5px solid rgba(100,100,120,0.6);
+    border: 1.5px solid rgba(100, 100, 120, 0.6);
 }
+
 .icon-profile {
     width: 32px;
     height: 32px;
     stroke: #e0e0e0;
 }
+
 .progress-section {
     flex: 1;
     display: flex;
@@ -41,40 +44,45 @@
     font-size: 0.9rem;
 }
 
-.rank-header { 
+.rank-header {
     display: flex;
     justify-content: space-between;
-    align-items: baseline; 
+    align-items: baseline;
     width: 100%;
     margin-bottom: 2px;
 }
+
 .rank-text {
     font-weight: 600;
     opacity: 0.92;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-    flex-shrink: 0; 
-}
-.quest-hint-text {
-    font-size: 0.75rem;
-    opacity: 0.6; 
-    text-align: right;
-    font-weight: 400; 
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
     flex-shrink: 0;
 }
+
+.quest-hint-text {
+    font-size: 0.75rem;
+    opacity: 0.6;
+    text-align: right;
+    font-weight: 400;
+    flex-shrink: 0;
+}
+
 .progress-bar-container {
     height: 10px;
-    background: rgba(255,255,255,0.14);
+    background: rgba(255, 255, 255, 0.14);
     border-radius: 6px;
     overflow: hidden;
 }
+
 .progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #8a8a8a, #eaeaea);
+    background: linear-gradient(90deg, #8a8a8a, #ffffff);
     border-radius: 6px;
     width: 0%;
-    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
-    box-shadow: 0 0 6px rgba(255,255,255,0.3);
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
 }
+
 .xp-text {
     font-size: 0.8rem;
     opacity: 0.75;
@@ -89,23 +97,37 @@
     top: calc(2% + 90px);
     transition: all 0.35s ease;
 }
+
 .coins-display {
     font-size: 2.2rem;
     font-weight: 800;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: baseline;
     justify-content: flex-end;
     gap: 10px;
 }
-#coin-count { font-size: 2.4rem; font-weight: 900; }
-.coin-label { font-size: 1.8rem; opacity: 0.95; }
+
+#coin-count {
+    font-size: 2.4rem;
+    font-weight: 900;
+}
+
+.coin-label {
+    font-size: 1.8rem;
+    opacity: 0.95;
+}
+
 .min-number-display {
     font-size: 1.3rem;
     font-weight: 600;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
-#min-number { color: #ff4444; font-weight: 700; }
+
+#min-number {
+    color: #ff4444;
+    font-weight: 700;
+}
 
 .rainbow-progress-container {
     position: absolute;
@@ -118,31 +140,34 @@
     align-items: center;
     gap: 12px;
 }
+
 .rainbow-progress-bar-container {
     width: 100%;
     height: 16px;
-    background: rgba(40,40,40,0.6);
+    background: rgba(40, 40, 40, 0.6);
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
+
 .rainbow-progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #6b6b6b, #c0c0c0);
+    background: linear-gradient(90deg, #8a8a8a, #ffffff);
     border-radius: 12px;
     width: 0%;
-    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .rainbow-progress-bar-fill.rainbow-active {
     width: 100% !important;
-    background: linear-gradient(90deg, #6b6b6b, #c0c0c0);
+    background: linear-gradient(90deg, #8a8a8a, #ffffff);
 }
+
 .rainbow-text {
     color: #fff;
     font-size: 1rem;
     font-weight: 600;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
 }
 
 .bottom-menu {
@@ -153,7 +178,7 @@
     width: 92%;
     max-width: 380px;
     height: 56px;
-    background: rgba(20,20,25,0.22);
+    background: rgba(20, 20, 25, 0.22);
     backdrop-filter: blur(14px);
     border-radius: 28px;
     display: flex;
@@ -161,9 +186,10 @@
     justify-content: space-evenly;
     padding: 0 12px;
     z-index: 10;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
+
 .bottom-menu .menu-item {
     width: 48px;
     height: 48px;
@@ -173,15 +199,19 @@
     border-radius: 50%;
     transition: all 0.2s ease;
 }
+
 .bottom-menu .menu-item:hover {
-    background: rgba(255,255,255,0.08);
-    
+    background: rgba(255, 255, 255, 0.08);
+
 }
+
 .bottom-menu .menu-item svg {
     width: 26px;
     height: 26px;
     stroke: #e0e0e0;
     transition: stroke 0.2s;
 }
-.bottom-menu .menu-item:hover svg { stroke: #ffffff; }
 
+.bottom-menu .menu-item:hover svg {
+    stroke: #ffffff;
+}

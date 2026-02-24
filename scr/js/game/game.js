@@ -20,6 +20,7 @@ const Game = (function () {
     let rainbowBoostTimer = null;
     let extraCubesEndTime = 0;
     let rainbowBoostEndTime = 0;
+    let lastRolls = [];
     
     
     function newRainbowTarget() {
@@ -45,7 +46,92 @@ const Game = (function () {
         updateLevel(totalXP);
     }
 
+    function showLastFrameCubes(rolls) {
+        if (!rolls || rolls.length === 0) return;
+        const mainRoll = rolls[rolls.length - 1];
+        const mainData = animationCache[mainRoll + '-cubic'];
+        const cubeAnimationContainer = document.getElementById('cube-animation');
+        if (mainData && cubeAnimationContainer) {
+            if (currentAnim) currentAnim.destroy();
+            currentAnim = lottie.loadAnimation({
+                container: cubeAnimationContainer,
+                renderer: 'svg',
+                loop: false,
+                autoplay: false,
+                animationData: mainData
+            });
+            currentAnim.addEventListener('DOMLoaded', function() {
+                const lastFrame = Math.max(0, (currentAnim.totalFrames || 1) - 1);
+                currentAnim.goToAndStop(lastFrame, true);
+            });
+            if (currentAnim.totalFrames) currentAnim.goToAndStop(Math.max(0, currentAnim.totalFrames - 1), true);
+        }
+        extraCubeAnims.forEach(({ anim, element }, index) => {
+            if (index >= rolls.length - 1) return;
+            const roll = rolls[index];
+            const animData = animationCache[roll + '-cubic'];
+            const container = element && element.querySelector('.lottie-cube');
+            if (!animData || !container) return;
+            if (anim) anim.destroy();
+            const newAnim = lottie.loadAnimation({
+                container: container,
+                renderer: 'svg',
+                loop: false,
+                autoplay: false,
+                animationData: animData
+            });
+            extraCubeAnims[index].anim = newAnim;
+            newAnim.addEventListener('DOMLoaded', function() {
+                const lastFrame = Math.max(0, (newAnim.totalFrames || 1) - 1);
+                newAnim.goToAndStop(lastFrame, true);
+            });
+            if (newAnim.totalFrames) newAnim.goToAndStop(Math.max(0, newAnim.totalFrames - 1), true);
+        });
+    }
+
     function showIdleCube() {
+        if (extraCubes > 0) {
+            const name = isRainbow ? 'super-first-cubic' : 'first-cubic';
+            const data = animationCache[name];
+            const cubeAnimationContainer = document.getElementById('cube-animation');
+            if (isRainbow && data && cubeAnimationContainer) {
+                if (currentAnim) currentAnim.destroy();
+                currentAnim = lottie.loadAnimation({
+                    container: cubeAnimationContainer,
+                    renderer: 'svg',
+                    loop: true,
+                    autoplay: true,
+                    animationData: data
+                });
+                extraCubeAnims.forEach(({ anim, element }, index) => {
+                    const container = element && element.querySelector('.lottie-cube');
+                    if (!data || !container) return;
+                    if (anim) anim.destroy();
+                    const newAnim = lottie.loadAnimation({
+                        container: container,
+                        renderer: 'svg',
+                        loop: true,
+                        autoplay: true,
+                        animationData: data
+                    });
+                    extraCubeAnims[index].anim = newAnim;
+                });
+            } else if (!isRainbow && lastRolls && lastRolls.length > 0) {
+                showLastFrameCubes(lastRolls);
+            } else {
+                if (data && cubeAnimationContainer) {
+                    if (currentAnim) currentAnim.destroy();
+                    currentAnim = lottie.loadAnimation({
+                        container: cubeAnimationContainer,
+                        renderer: 'svg',
+                        loop: true,
+                        autoplay: true,
+                        animationData: data
+                    });
+                }
+            }
+            return;
+        }
         const name = isRainbow ? 'super-first-cubic' : 'first-cubic';
         const data = animationCache[name];
         if (!data) return;
@@ -627,8 +713,12 @@ const Game = (function () {
             }
             
             extraCubes = count;
+            if (duration) {
+                extraCubesEndTime = Date.now() + duration;
+            }
             showIdleCube();
             this.updateCubeLayout();
+            this.updateBoostUI();
             
             if (duration) {
                 extraCubesTimer = setTimeout(() => {
@@ -713,7 +803,6 @@ const Game = (function () {
                             animationData: data
                         });
                         animContainer._lottie = anim;
-                        
                         if (animIndex !== -1) {
                             extraCubeAnims[animIndex].anim = anim;
                         } else {
@@ -794,6 +883,8 @@ const Game = (function () {
             });
             extraCubeAnims = [];
             extraCubes = 0;
+            extraCubesEndTime = 0;
+            lastRolls = [];
             
             const centerGif = document.querySelector('.center-gif');
             if (centerGif) {
@@ -802,6 +893,7 @@ const Game = (function () {
             }
             
             this.updateCubeLayout();
+            this.updateBoostUI();
         },
         processExtraCubeRolls: function(rolls) {
             const rainbowFill = document.getElementById('rainbow-progress-fill');
@@ -858,6 +950,7 @@ const Game = (function () {
             updateUI(coinCount, currentMin);
             
             isRolling = false;
+            lastRolls = rolls.slice();
             showIdleCube();
             const centerGif = document.querySelector('.center-gif');
             if (centerGif) {
