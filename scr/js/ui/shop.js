@@ -182,6 +182,7 @@ const Shop = {
         }
 
         Game.addCoins(-boost.price);
+        this.renderBoosts();
 
         setTimeout(() => {
             if (typeof Inventory !== 'undefined') {
