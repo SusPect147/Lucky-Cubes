@@ -264,10 +264,21 @@
                         </button>
                     </div>
                     <div class="profile-wallet-strip" id="profile-wallet-strip">
-                        <span class="profile-wallet-label">Your wallet: </span>
-                        <span class="profile-wallet-address" id="profile-wallet-address">—</span>
-                        <button type="button" class="profile-wallet-connect-btn" id="profile-connect-wallet-btn">Connect
-                            TON wallet</button>
+                        <div class="wallet-strip-top">
+                            <span class="profile-wallet-label">Your wallet: </span>
+                            <span class="profile-wallet-address" id="profile-wallet-address">—</span>
+                            <button type="button" class="profile-wallet-connect-btn"
+                                id="profile-connect-wallet-btn">Connect TON wallet</button>
+                            <button type="button" class="wallet-disconnect-btn" id="wallet-disconnect-btn"
+                                style="display:none;">Disconnect</button>
+                            <span class="wallet-donate-toggle" id="wallet-donate-toggle" style="display:none;">▼</span>
+                        </div>
+                        <div class="wallet-donate-panel" id="wallet-donate-panel" style="display:none;">
+                            <button type="button" class="wallet-donate-btn" data-amount="1">1 TON</button>
+                            <button type="button" class="wallet-donate-btn" data-amount="5">5 TON</button>
+                            <button type="button" class="wallet-donate-btn" data-amount="10">10 TON</button>
+                            <button type="button" class="wallet-donate-btn" data-amount="30">30 TON</button>
+                        </div>
                     </div>
                     <div class="profile-min-section">
                         <div class="profile-min-label">Minimum number:</div>

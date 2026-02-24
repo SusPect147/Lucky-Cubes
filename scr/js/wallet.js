@@ -5,6 +5,7 @@
     let isInitialized = false;
 
     const MANIFEST_URL = 'https://suspect147.github.io/Lucky-Cubes/tonconnect-manifest.json';
+    const DONATE_ADDRESS = 'UQBPHPJsnXJut6zzXtrVdUbUwga5F8_KfBn0fK8G4U7D_H_U';
 
     function truncateAddress(address) {
         if (!address) return '—';
@@ -15,15 +16,29 @@
     function updateWalletUI(wallet) {
         const strip = document.getElementById('profile-wallet-strip');
         const addressEl = document.getElementById('profile-wallet-address');
+        const connectBtn = document.getElementById('profile-connect-wallet-btn');
+        const disconnectBtn = document.getElementById('wallet-disconnect-btn');
+        const donateToggle = document.getElementById('wallet-donate-toggle');
+        const donatePanel = document.getElementById('wallet-donate-panel');
         if (!strip) return;
 
         if (wallet && wallet.account) {
             const addr = wallet.account.address || '';
             addressEl.textContent = truncateAddress(addr);
             strip.classList.add('connected');
+            if (connectBtn) connectBtn.style.display = 'none';
+            if (disconnectBtn) disconnectBtn.style.display = 'inline-block';
+            if (donateToggle) donateToggle.style.display = 'inline-block';
         } else {
             addressEl.textContent = '—';
             strip.classList.remove('connected');
+            if (connectBtn) connectBtn.style.display = '';
+            if (disconnectBtn) disconnectBtn.style.display = 'none';
+            if (donateToggle) {
+                donateToggle.style.display = 'none';
+                donateToggle.classList.remove('open');
+            }
+            if (donatePanel) donatePanel.style.display = 'none';
         }
     }
 
@@ -67,7 +82,6 @@
             initTonConnect();
             if (!tonConnectUI) return;
         }
-
         try {
             tonConnectUI.openModal();
         } catch (e) {
@@ -75,8 +89,43 @@
         }
     }
 
-    function bindConnectButton() {
-        const connectBtn = document.getElementById('profile-connect-wallet-btn');
+    function disconnectWallet() {
+        if (!tonConnectUI) return;
+        try {
+            tonConnectUI.disconnect();
+        } catch (e) {
+            console.warn('[Wallet]', e.message);
+        }
+    }
+
+    function sendDonation(amountTON) {
+        if (!tonConnectUI || !tonConnectUI.wallet) {
+            alert('Connect your wallet first');
+            return;
+        }
+
+        var amountNano = BigInt(Math.round(amountTON * 1e9)).toString();
+
+        var transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 600,
+            messages: [
+                {
+                    address: DONATE_ADDRESS,
+                    amount: amountNano
+                }
+            ]
+        };
+
+        tonConnectUI.sendTransaction(transaction).then(function () {
+            alert('Thank you for your donation of ' + amountTON + ' TON!');
+        }).catch(function (e) {
+            if (e && e.message && e.message.indexOf('cancel') !== -1) return;
+            console.warn('[Wallet] Transaction error:', e);
+        });
+    }
+
+    function bindEvents() {
+        var connectBtn = document.getElementById('profile-connect-wallet-btn');
         if (connectBtn) {
             connectBtn.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -84,15 +133,44 @@
                 connectWallet();
             });
         }
+
+        var disconnectBtn = document.getElementById('wallet-disconnect-btn');
+        if (disconnectBtn) {
+            disconnectBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                disconnectWallet();
+            });
+        }
+
+        var donateToggle = document.getElementById('wallet-donate-toggle');
+        var donatePanel = document.getElementById('wallet-donate-panel');
+        if (donateToggle && donatePanel) {
+            donateToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var isOpen = donatePanel.style.display !== 'none';
+                donatePanel.style.display = isOpen ? 'none' : 'flex';
+                donateToggle.classList.toggle('open', !isOpen);
+            });
+        }
+
+        var donateBtns = document.querySelectorAll('.wallet-donate-btn');
+        donateBtns.forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var amount = parseFloat(btn.getAttribute('data-amount'));
+                if (amount > 0) sendDonation(amount);
+            });
+        });
     }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
-            bindConnectButton();
+            bindEvents();
             setTimeout(initTonConnect, 500);
         });
     } else {
-        bindConnectButton();
+        bindEvents();
         setTimeout(initTonConnect, 500);
     }
 })();
