@@ -25,13 +25,27 @@ const Game = (function () {
         return 'dev_mode';
     }
 
+    function generateNonce() {
+        return Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
+    }
+
     async function apiCall(endpoint, body) {
         try {
-            const resp = await fetch(CONFIG.API_URL + endpoint, {
-                method: body ? 'POST' : 'GET',
-                headers: body ? { 'Content-Type': 'application/json' } : {},
-                body: body ? JSON.stringify(body) : undefined,
-            });
+            const nonce = generateNonce();
+            let url = CONFIG.API_URL + endpoint;
+            let options;
+            if (body) {
+                body.nonce = nonce;
+                options = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body),
+                };
+            } else {
+                url += (url.includes('?') ? '&' : '?') + 'nonce=' + nonce;
+                options = { method: 'GET' };
+            }
+            const resp = await fetch(url, options);
             if (!resp.ok) {
                 console.error('API error:', resp.status);
                 return null;
@@ -185,8 +199,6 @@ const Game = (function () {
 
         isRolling = true;
 
-        Quests.updateProgress('roll', 1);
-
         // Ask server for the roll result
         const boostIds = activeBoosts.map(b => b.id);
         apiCall('/api/roll', {
@@ -261,7 +273,6 @@ const Game = (function () {
                     }
                     showIdleCube();
                     if (extraCubes > 0) Game.updateCubeLayout();
-                    Quests.updateProgress('rainbow', 1);
                 } else if (!isRainbow) {
                     const percent = (rollsToRainbow / targetRainbow) * 100;
                     if (rainbowFill) rainbowFill.style.width = percent + '%';
@@ -276,6 +287,10 @@ const Game = (function () {
                 }
 
                 updateUI(coinCount, currentMin);
+                // Sync quest progress from server
+                if (serverResult.quests) {
+                    syncQuestsFromServer(serverResult.quests);
+                }
                 isRolling = false;
             });
         }).catch(err => {
@@ -285,62 +300,82 @@ const Game = (function () {
     }
 
     function claimQuest(id) {
-
         const quest = Quests.data.find(q => q.id === id);
         if (!quest || !quest.completed || quest.claimed) return;
 
-        addXP(quest.xp);
-        quest.claimed = true;
+        // Call server to claim quest
+        apiCall('/api/quest-claim', {
+            initData: getInitData(),
+            questId: id,
+        }).then(resp => {
+            if (!resp || resp.error) {
+                console.error('Quest claim failed:', resp);
+                return;
+            }
 
-        const questEl = document.querySelector(`.quest-item[data-id="${id}"]`);
+            // Apply server state
+            coinCount = resp.totalCoins;
+            totalXP = resp.totalXP;
+            updateLevel(totalXP);
+            updateUI(coinCount, currentMin);
 
-        const questOverlayEl = document.getElementById('quest-menu-overlay');
+            quest.claimed = true;
 
-        if (!questEl) return;
+            const questEl = document.querySelector(`.quest-item[data-id="${id}"]`);
+            if (!questEl) return;
 
-        const rect = questEl.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
+            const rect = questEl.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            for (let i = 0; i < 30; i++) {
+                const p = document.createElement('div');
+                p.style.position = 'fixed';
+                p.style.left = `${centerX + (Math.random() - 0.5) * rect.width * 0.4}px`;
+                p.style.top = `${centerY + (Math.random() - 0.5) * rect.height * 0.4}px`;
+                p.style.width = '5px';
+                p.style.height = '5px';
+                p.style.borderRadius = '50%';
+                p.style.background = '#4CAF50';
+                p.style.zIndex = '100';
+                p.style.transition = 'all 0.8s ease-out';
+                p.style.opacity = '1';
+                document.body.appendChild(p);
+                setTimeout(() => {
+                    p.style.transform = `translate(${(Math.random() - 0.5) * 150}px, ${(Math.random() - 0.5) * 150}px) scale(0)`;
+                    p.style.opacity = '0';
+                }, 50);
+                setTimeout(() => p.remove(), 1000);
+            }
 
-        for (let i = 0; i < 30; i++) {
-            const p = document.createElement('div');
-            p.style.position = 'fixed';
-            p.style.left = `${centerX + (Math.random() - 0.5) * rect.width * 0.4}px`;
-            p.style.top = `${centerY + (Math.random() - 0.5) * rect.height * 0.4}px`;
-            p.style.width = '5px';
-            p.style.height = '5px';
-            p.style.borderRadius = '50%';
-            p.style.background = '#4CAF50';
-            p.style.zIndex = '100';
-            p.style.transition = 'all 0.8s ease-out';
-            p.style.opacity = '1';
-
-            document.body.appendChild(p);
-
-            setTimeout(() => {
-                p.style.transform = `translate(${(Math.random() - 0.5) * 150}px, ${(Math.random() - 0.5) * 150}px) scale(0)`;
-                p.style.opacity = '0';
-            }, 50);
-
-            setTimeout(() => p.remove(), 1000);
-        }
-
-        if (quest.social) {
-            questEl.classList.add('claiming');
-
-            setTimeout(() => {
-                questEl.remove();
-
-                if (Quests.listEl.children.length === 0) hideQuestMenu();
-            }, 500);
-        } else {
-            quest.current = 0;
-            quest.target *= 2;
-            quest.completed = false;
-            quest.claimed = false;
+            if (quest.social) {
+                questEl.classList.add('claiming');
+                setTimeout(() => {
+                    questEl.remove();
+                    if (Quests.listEl.children.length === 0) hideQuestMenu();
+                }, 500);
+            } else {
+                quest.current = 0;
+                quest.target *= 2;
+                quest.completed = false;
+                quest.claimed = false;
+                Quests.render();
+            }
             Quests.render();
-        }
+        }).catch(err => {
+            console.error('Quest claim error:', err);
+        });
+    }
 
+    function syncQuestsFromServer(serverQuests) {
+        if (!serverQuests) return;
+        Quests.data.forEach(q => {
+            const sq = serverQuests[q.id];
+            if (sq) {
+                q.current = sq.current || 0;
+                q.completed = sq.completed || false;
+                q.claimed = sq.claimed || false;
+            }
+        });
         Quests.render();
     }
 
@@ -372,6 +407,11 @@ const Game = (function () {
                     rainbowFill.style.width = percent + '%';
                     rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
                 }
+                // Sync quests and inventory from server
+                syncQuestsFromServer(state.quests);
+                if (typeof Inventory !== 'undefined' && Inventory.loadFromServer) {
+                    Inventory.loadFromServer(state.inventory || {});
+                }
             }).catch(() => {
                 totalXP = 0;
                 coinCount = 0;
@@ -382,10 +422,25 @@ const Game = (function () {
                 updateUI(coinCount, currentMin);
             });
 
-            Quests.data.forEach(q => q.current = 0);
         },
         claimQuest: claimQuest,
         rollCube: rollCube,
+        applyServerState: function (resp) {
+            if (resp.totalCoins !== undefined) {
+                coinCount = resp.totalCoins;
+            }
+            if (resp.totalXP !== undefined) {
+                totalXP = resp.totalXP;
+                updateLevel(totalXP);
+            }
+            if (resp.currentMin !== undefined) {
+                currentMin = resp.currentMin;
+            }
+            updateUI(coinCount, currentMin);
+            if (resp.quests) {
+                syncQuestsFromServer(resp.quests);
+            }
+        },
         resetRollingState: function () {
             isRolling = false;
             const centerGif = document.querySelector('.center-gif');

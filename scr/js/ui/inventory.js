@@ -1,22 +1,26 @@
 const Inventory = {
     boosts: {},
-    
-    init: function() {
+
+    init: function () {
         this.render();
     },
-    
-    addBoost: function(boostId) {
+
+    loadFromServer: function (inventoryData) {
+        this.boosts = inventoryData || {};
+        this.render();
+    },
+
+    addBoost: function (boostId) {
         const boost = Shop.boosts.find(b => b.id === boostId);
         if (!boost) return;
-        
         if (!this.boosts[boostId]) {
             this.boosts[boostId] = 0;
         }
         this.boosts[boostId]++;
         this.render();
     },
-    
-    removeBoost: function(boostId) {
+
+    removeBoost: function (boostId) {
         if (this.boosts[boostId]) {
             this.boosts[boostId]--;
             if (this.boosts[boostId] <= 0) {
@@ -25,15 +29,15 @@ const Inventory = {
         }
         this.render();
     },
-    
-    getIconSVG: function(iconType) {
+
+    getIconSVG: function (iconType) {
         return Shop.getIconSVG(iconType);
     },
-    
-    render: function() {
+
+    render: function () {
         const content = document.getElementById('inventory-content');
         const activeTab = document.querySelector('.inventory-tab-btn.active');
-        
+
         if (!activeTab || activeTab.dataset.tab === 'skins') {
             content.innerHTML = `
                 <div class="inventory-empty-state">
@@ -42,7 +46,7 @@ const Inventory = {
             `;
             return;
         }
-        
+
         const boostIds = Object.keys(this.boosts);
         if (boostIds.length === 0) {
             content.innerHTML = `
@@ -52,24 +56,24 @@ const Inventory = {
             `;
             return;
         }
-        
+
         content.innerHTML = '';
         const boostsList = document.createElement('div');
         boostsList.className = 'inventory-boosts-list';
         boostsList.style.display = 'grid';
-        
+
         boostIds.forEach(boostId => {
             const boost = Shop.boosts.find(b => b.id === boostId);
             if (!boost) return;
-            
+
             const count = this.boosts[boostId];
-            
+
             const item = document.createElement('div');
             item.className = 'inventory-boost-item';
             item.dataset.boostId = boostId;
-            
+
             const countDisplay = count > 1 ? `<div class="boost-count">${count}</div>` : '';
-            
+
             item.innerHTML = `
                 <div class="boost-image">
                     ${this.getIconSVG(boost.icon)}
@@ -80,26 +84,48 @@ const Inventory = {
                     <button class="boost-use-btn">Use</button>
                 </div>
             `;
-            
+
             const useBtn = item.querySelector('.boost-use-btn');
             useBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.useBoost(boostId);
             });
-            
+
             boostsList.appendChild(item);
         });
-        
+
         content.appendChild(boostsList);
     },
-    
-    useBoost: function(boostId) {
+
+    useBoost: function (boostId) {
         if (!this.boosts[boostId] || this.boosts[boostId] <= 0) return;
-        
-        if (typeof Game !== 'undefined' && Game.useBoost) {
-            Game.useBoost(boostId);
-            this.removeBoost(boostId);
-        }
+
+        // Call server to use boost
+        const initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || 'dev_mode';
+        fetch(CONFIG.API_URL + '/api/use-boost', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initData: initData, boostId: boostId }),
+        })
+            .then(r => r.json())
+            .then(resp => {
+                if (resp.error) {
+                    console.error('Use boost failed:', resp.error);
+                    return;
+                }
+                // Apply server state
+                if (typeof Game !== 'undefined' && Game.applyServerState) {
+                    Game.applyServerState(resp);
+                }
+                // Activate boost locally
+                if (typeof Game !== 'undefined' && Game.useBoost) {
+                    Game.useBoost(boostId);
+                }
+                // Update inventory from server
+                this.loadFromServer(resp.inventory || {});
+            })
+            .catch(err => {
+                console.error('Use boost API error:', err);
+            });
     }
 };
-

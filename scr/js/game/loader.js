@@ -1,5 +1,29 @@
 const animationCache = {};
 let loadedCount = 0;
+let totalAssets = 0;
+
+// Scripts to load dynamically (in order)
+const SCRIPTS_TO_LOAD = [
+    'scr/js/wallet.js',
+    'scr/js/utils/input-handlers.js',
+    'scr/js/utils/formatters.js',
+    'scr/js/utils/particles.js',
+    'scr/js/ui/ui-updates.js',
+    'scr/js/ui/quests.js',
+    'scr/js/ui/shop.js',
+    'scr/js/ui/inventory.js',
+    'scr/js/ui/menu.js',
+    'scr/js/ui/effects.js',
+    'scr/js/game/game.js',
+    'scr/js/game/events.js',
+];
+
+const IMAGES_TO_LOAD = [
+    'assets/UI/images/1-last.png',
+    'assets/UI/images/2-last.png',
+    'assets/UI/images/3-last.png',
+    'assets/UI/images/cubes_cubes.png',
+];
 
 async function loadTGS(path) {
     try {
@@ -33,37 +57,85 @@ async function loadTGS(path) {
     }
 }
 
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = () => resolve(true);
+        script.onerror = () => {
+            console.error('Failed to load script:', src);
+            resolve(false);
+        };
+        document.body.appendChild(script);
+    });
+}
+
+function preloadImage(src) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = src;
+        setTimeout(() => resolve(false), 5000);
+    });
+}
+
 const loadingScreen = document.getElementById('loading-screen');
 const loadingText = document.getElementById('loading-text');
 const gameContent = document.getElementById('game-content');
 const loadingChicken = document.getElementById('loading-chicken');
 
+function updateLoadingText() {
+    if (loadingText) {
+        loadingText.textContent = `${loadedCount}/${totalAssets} loaded`;
+    }
+}
+
 async function preload() {
+    const tgsAssets = CONFIG.assets || [];
 
-    let chickenLoaded = false;
+    // Total: chicken + scripts + TGS + images
+    totalAssets = 1 + SCRIPTS_TO_LOAD.length + tgsAssets.length + IMAGES_TO_LOAD.length;
+    loadedCount = 0;
+    updateLoadingText();
 
+    // ── Step 1: Load chicken image FIRST ──
     await new Promise(resolve => {
-        loadingChicken.onload = () => { chickenLoaded = true; resolve(); };
-
-        if (loadingChicken.complete || loadingChicken.naturalWidth > 0) {
-            chickenLoaded = true;
+        if (loadingChicken.complete && loadingChicken.naturalWidth > 0) {
             resolve();
+        } else {
+            loadingChicken.onload = () => resolve();
+            loadingChicken.onerror = () => resolve();
+            setTimeout(resolve, 3000);
         }
-
-        setTimeout(resolve, 3000);
     });
+    loadedCount++;
+    updateLoadingText();
 
-
-    const allAssets = CONFIG.assets;
-
-    for (let i = 0; i < allAssets.length; i++) {
-        const name = allAssets[i].replace('.tgs', '');
-        const data = await loadTGS(CONFIG.assetsPath + allAssets[i]);
-        if (data) animationCache[name] = data;
+    // ── Step 2: Load all JS scripts ──
+    for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
+        await loadScript(SCRIPTS_TO_LOAD[i]);
         loadedCount++;
-        loadingText.textContent = `${loadedCount}/${allAssets.length} loaded`;
+        updateLoadingText();
     }
 
+    // ── Step 3: Load TGS animations ──
+    for (let i = 0; i < tgsAssets.length; i++) {
+        const name = tgsAssets[i].replace('.tgs', '');
+        const data = await loadTGS(CONFIG.assetsPath + tgsAssets[i]);
+        if (data) animationCache[name] = data;
+        loadedCount++;
+        updateLoadingText();
+    }
+
+    // ── Step 4: Preload images ──
+    for (let i = 0; i < IMAGES_TO_LOAD.length; i++) {
+        await preloadImage(IMAGES_TO_LOAD[i]);
+        loadedCount++;
+        updateLoadingText();
+    }
+
+    // ── Done: show game ──
     loadingScreen.style.opacity = '0';
     setTimeout(() => {
         loadingScreen.style.display = 'none';
@@ -76,4 +148,3 @@ async function preload() {
         }
     }, 600);
 }
-

@@ -154,41 +154,59 @@ const Shop = {
         const item = document.querySelector(`.boost-item[data-id="${boostId}"]`);
         if (!item) return;
 
-        const rect = item.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
+        // Call server to buy boost
+        const initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || 'dev_mode';
+        fetch(CONFIG.API_URL + '/api/buy-boost', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initData: initData, boostId: boostId }),
+        })
+            .then(r => r.json())
+            .then(resp => {
+                if (resp.error) {
+                    alert(resp.error);
+                    return;
+                }
 
-        for (let i = 0; i < 30; i++) {
-            const p = document.createElement('div');
-            p.style.position = 'fixed';
-            p.style.left = `${centerX + (Math.random() - 0.5) * rect.width * 0.4}px`;
-            p.style.top = `${centerY + (Math.random() - 0.5) * rect.height * 0.4}px`;
-            p.style.width = '5px';
-            p.style.height = '5px';
-            p.style.borderRadius = '50%';
-            p.style.background = '#dc3545';
-            p.style.zIndex = '100';
-            p.style.transition = 'all 0.8s ease-out';
-            p.style.opacity = '1';
+                // Update local state from server
+                if (typeof Game !== 'undefined' && Game.applyServerState) {
+                    Game.applyServerState(resp);
+                }
 
-            document.body.appendChild(p);
+                // Particle effect
+                const rect = item.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                for (let i = 0; i < 30; i++) {
+                    const p = document.createElement('div');
+                    p.style.position = 'fixed';
+                    p.style.left = `${centerX + (Math.random() - 0.5) * rect.width * 0.4}px`;
+                    p.style.top = `${centerY + (Math.random() - 0.5) * rect.height * 0.4}px`;
+                    p.style.width = '5px';
+                    p.style.height = '5px';
+                    p.style.borderRadius = '50%';
+                    p.style.background = '#dc3545';
+                    p.style.zIndex = '100';
+                    p.style.transition = 'all 0.8s ease-out';
+                    p.style.opacity = '1';
+                    document.body.appendChild(p);
+                    setTimeout(() => {
+                        p.style.transform = `translate(${(Math.random() - 0.5) * 150}px, ${(Math.random() - 0.5) * 150}px) scale(0)`;
+                        p.style.opacity = '0';
+                    }, 50);
+                    setTimeout(() => p.remove(), 1000);
+                }
 
-            setTimeout(() => {
-                p.style.transform = `translate(${(Math.random() - 0.5) * 150}px, ${(Math.random() - 0.5) * 150}px) scale(0)`;
-                p.style.opacity = '0';
-            }, 50);
-
-            setTimeout(() => p.remove(), 1000);
-        }
-
-        Game.addCoins(-boost.price);
-        this.renderBoosts();
-
-        setTimeout(() => {
-            if (typeof Inventory !== 'undefined') {
-                Inventory.addBoost(boostId);
-            }
-        }, 500);
+                this.renderBoosts();
+                setTimeout(() => {
+                    if (typeof Inventory !== 'undefined') {
+                        Inventory.loadFromServer(resp.inventory || {});
+                    }
+                }, 500);
+            })
+            .catch(err => {
+                console.error('Buy boost failed:', err);
+            });
     },
 
     render: function () {
