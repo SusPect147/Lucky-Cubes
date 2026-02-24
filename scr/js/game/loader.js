@@ -1,6 +1,7 @@
 const animationCache = {};
 let loadedCount = 0;
 let totalAssets = 0;
+let serverState = null; // Fetched during loading
 
 // Scripts to load dynamically (in order)
 const SCRIPTS_TO_LOAD = [
@@ -25,6 +26,15 @@ const IMAGES_TO_LOAD = [
     'assets/UI/images/3-last.png',
     'assets/UI/images/cubes_cubes.png',
 ];
+
+function getInitData() {
+    try {
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+            return window.Telegram.WebApp.initData;
+        }
+    } catch (e) { }
+    return 'dev_mode';
+}
 
 async function loadTGS(path) {
     try {
@@ -95,8 +105,8 @@ function updateLoadingText() {
 async function preload() {
     const tgsAssets = CONFIG.assets || [];
 
-    // Total: chicken + scripts + TGS + images
-    totalAssets = 1 + SCRIPTS_TO_LOAD.length + tgsAssets.length + IMAGES_TO_LOAD.length;
+    // Total: chicken + server state + scripts + TGS + images
+    totalAssets = 1 + 1 + SCRIPTS_TO_LOAD.length + tgsAssets.length + IMAGES_TO_LOAD.length;
     loadedCount = 0;
     updateLoadingText();
 
@@ -113,14 +123,27 @@ async function preload() {
     loadedCount++;
     updateLoadingText();
 
-    // ── Step 2: Load all JS scripts ──
+    // ── Step 2: Fetch server state (creates player if new) ──
+    try {
+        const initData = getInitData();
+        const resp = await fetch(CONFIG.API_URL + '/api/state?initData=' + encodeURIComponent(initData));
+        if (resp.ok) {
+            serverState = await resp.json();
+        }
+    } catch (e) {
+        console.error('Failed to fetch server state:', e);
+    }
+    loadedCount++;
+    updateLoadingText();
+
+    // ── Step 3: Load all JS scripts ──
     for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
         await loadScript(SCRIPTS_TO_LOAD[i]);
         loadedCount++;
         updateLoadingText();
     }
 
-    // ── Step 3: Load TGS animations ──
+    // ── Step 4: Load TGS animations ──
     for (let i = 0; i < tgsAssets.length; i++) {
         const name = tgsAssets[i].replace('.tgs', '');
         const data = await loadTGS(CONFIG.assetsPath + tgsAssets[i]);
@@ -129,20 +152,20 @@ async function preload() {
         updateLoadingText();
     }
 
-    // ── Step 4: Preload images ──
+    // ── Step 5: Preload images ──
     for (let i = 0; i < IMAGES_TO_LOAD.length; i++) {
         await preloadImage(IMAGES_TO_LOAD[i]);
         loadedCount++;
         updateLoadingText();
     }
 
-    // ── Done: show game ──
+    // ── Done: show game with pre-fetched state ──
     loadingScreen.style.opacity = '0';
     setTimeout(() => {
         loadingScreen.style.display = 'none';
         gameContent.style.display = 'block';
         if (typeof Game !== 'undefined' && Game.init) {
-            Game.init();
+            Game.init(serverState);
         }
         if (typeof Inventory !== 'undefined' && Inventory.init) {
             Inventory.init();

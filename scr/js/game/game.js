@@ -392,77 +392,73 @@ const Game = (function () {
             const sq = serverQuests[q.id];
             if (sq) {
                 q.current = sq.current || 0;
-                q.completed = sq.completed || false;
-                q.claimed = sq.claimed || false;
+                // Never downgrade completed to false
+                if (sq.completed) q.completed = true;
+                if (sq.claimed) q.claimed = true;
+                // Mark completed if current >= target
+                if (q.current >= q.target && !q.completed) {
+                    q.completed = true;
+                }
             }
         });
         Quests.render();
     }
 
     return {
-        init: function () {
-            // Load state from server
-            const initData = getInitData();
-            apiCall('/api/state?initData=' + encodeURIComponent(initData)).then(state => {
-                if (state && !state.error) {
-                    coinCount = state.totalCoins || 0;
-                    currentMin = state.currentMin || 0;
-                    totalXP = state.totalXP || 0;
-                    rollsToRainbow = state.rollsToRainbow || 0;
-                    targetRainbow = state.targetRainbow || 7;
+        init: function (prefetchedState) {
+            // Use pre-fetched state from loader (already loaded during loading screen)
+            const state = prefetchedState;
+            if (state && !state.error) {
+                coinCount = state.totalCoins || 0;
+                currentMin = state.currentMin || 0;
+                totalXP = state.totalXP || 0;
+                rollsToRainbow = state.rollsToRainbow || 0;
+                targetRainbow = state.targetRainbow || 7;
 
-                    // Restore rainbow mode
-                    if (state.isRainbow) {
-                        isRainbow = true;
-                        isRainbowFromBoost = false;
-                        const rainbowOverlay = document.getElementById('rainbow-overlay');
-                        if (rainbowOverlay) rainbowOverlay.classList.add('active');
-                        const rf = document.getElementById('rainbow-progress-fill');
-                        if (rf) {
-                            rf.style.width = '100%';
-                            rf.classList.add('rainbow-active');
-                        }
-                        const rainbowText = document.getElementById('rainbow-text');
-                        if (rainbowText) rainbowText.textContent = 'Rainbow Mode Active!';
+                // Restore rainbow mode
+                if (state.isRainbow) {
+                    isRainbow = true;
+                    isRainbowFromBoost = false;
+                    const rainbowOverlay = document.getElementById('rainbow-overlay');
+                    if (rainbowOverlay) rainbowOverlay.classList.add('active');
+                    const rf = document.getElementById('rainbow-progress-fill');
+                    if (rf) {
+                        rf.style.width = '100%';
+                        rf.classList.add('rainbow-active');
                     }
-                } else {
-                    totalXP = 0;
-                    coinCount = 0;
-                    currentMin = 0;
-                    newRainbowTarget();
-                }
-                updateLevel(totalXP);
-                showIdleCube();
-                updateUI(coinCount, currentMin);
-                // Update rainbow progress bar (if not in rainbow mode)
-                if (!isRainbow) {
-                    const rainbowFill = document.getElementById('rainbow-progress-fill');
                     const rainbowText = document.getElementById('rainbow-text');
-                    if (rainbowFill && rainbowText) {
-                        const percent = (rollsToRainbow / targetRainbow) * 100;
-                        rainbowFill.style.width = percent + '%';
-                        rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
-                    }
+                    if (rainbowText) rainbowText.textContent = 'Rainbow Mode Active!';
                 }
-                // Sync quests and inventory from server
-                syncQuestsFromServer(state.quests);
-                if (typeof Inventory !== 'undefined' && Inventory.loadFromServer) {
-                    Inventory.loadFromServer(state.inventory || {});
-                }
-                // Init leaderboard
-                if (typeof Leaderboard !== 'undefined' && Leaderboard.init) {
-                    Leaderboard.init();
-                }
-            }).catch(() => {
+            } else {
                 totalXP = 0;
                 coinCount = 0;
                 currentMin = 0;
                 newRainbowTarget();
-                updateLevel(totalXP);
-                showIdleCube();
-                updateUI(coinCount, currentMin);
-            });
-
+            }
+            updateLevel(totalXP);
+            showIdleCube();
+            updateUI(coinCount, currentMin);
+            // Update rainbow progress bar (if not in rainbow mode)
+            if (!isRainbow) {
+                const rainbowFill = document.getElementById('rainbow-progress-fill');
+                const rainbowText = document.getElementById('rainbow-text');
+                if (rainbowFill && rainbowText) {
+                    const percent = (rollsToRainbow / targetRainbow) * 100;
+                    rainbowFill.style.width = percent + '%';
+                    rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
+                }
+            }
+            // Sync quests and inventory from server
+            if (state) {
+                syncQuestsFromServer(state.quests);
+                if (typeof Inventory !== 'undefined' && Inventory.loadFromServer) {
+                    Inventory.loadFromServer(state.inventory || {});
+                }
+            }
+            // Init leaderboard
+            if (typeof Leaderboard !== 'undefined' && Leaderboard.init) {
+                Leaderboard.init();
+            }
         },
         claimQuest: claimQuest,
         rollCube: rollCube,
