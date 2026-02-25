@@ -11,35 +11,35 @@ const Shop = {
             id: 'double_cube',
             name: '+2 Cubes Boost',
             description: 'Get +2 cubes for 30-100 seconds',
-            price: 55,
+            price: 60,
             icon: 'dice'
         },
         {
             id: 'rainbow_mode',
             name: 'Rainbow Mode Boost',
             description: 'Activate Rainbow Mode for 30-100 seconds',
-            price: 40,
+            price: 80,
             icon: 'star'
         },
         {
             id: 'coin_surge',
             name: 'Coin Surge',
             description: 'Multiply coins earned for 2-6 minutes',
-            price: 80,
+            price: 50,
             icon: 'coin'
         },
         {
             id: 'crit_roll',
             name: 'Crit Roll',
             description: 'Rare critical rolls give 3-10x XP and coins (2-6 min)',
-            price: 120,
+            price: 70,
             icon: 'crit'
         },
         {
             id: 'auto_roll',
             name: 'AutoRoll',
             description: 'Automatic rolls every second for 1-5 minutes',
-            price: 60,
+            price: 45,
             icon: 'auto'
         },
         {
@@ -154,17 +154,11 @@ const Shop = {
         const item = document.querySelector(`.boost-item[data-id="${boostId}"]`);
         if (!item) return;
 
-        // Call server to buy boost
-        const initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || 'dev_mode';
-        fetch(CONFIG.API_URL + '/api/buy-boost', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ initData: initData, boostId: boostId }),
-        })
-            .then(r => r.json())
+        // Call server to buy boost (signed via API module)
+        API.call('/api/buy-boost', { boostId: boostId })
             .then(resp => {
-                if (resp.error) {
-                    alert(resp.error);
+                if (!resp || resp.error) {
+                    alert(resp ? resp.error : 'Request failed');
                     return;
                 }
 

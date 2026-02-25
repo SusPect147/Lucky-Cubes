@@ -231,6 +231,10 @@
     cursor: pointer;
 }
 
+.quest-item.completed .quest-percentage {
+    display: none;
+}
+
 .quest-item.claiming {
     opacity: 0;
     transform: translateY(-20px);

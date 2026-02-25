@@ -16,45 +16,13 @@ const Game = (function () {
     let consecutiveRolls = 0;
     let lastRollTime = 0;
 
+    // Use shared API module for all network calls
+    function apiCall(endpoint, body) {
+        return API.call(endpoint, body);
+    }
+
     function getInitData() {
-        try {
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
-                return window.Telegram.WebApp.initData;
-            }
-        } catch (e) { }
-        return 'dev_mode';
-    }
-
-    function generateNonce() {
-        return Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
-    }
-
-    async function apiCall(endpoint, body) {
-        try {
-            const nonce = generateNonce();
-            let url = CONFIG.API_URL + endpoint;
-            let options;
-            if (body) {
-                body.nonce = nonce;
-                options = {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body),
-                };
-            } else {
-                url += (url.includes('?') ? '&' : '?') + 'nonce=' + nonce;
-                options = { method: 'GET' };
-            }
-            const resp = await fetch(url, options);
-            if (!resp.ok) {
-                console.error('API error:', resp.status);
-                return null;
-            }
-            return await resp.json();
-        } catch (e) {
-            console.error('API call failed:', e);
-            return null;
-        }
+        return API.getInitData();
     }
 
     let extraCubesTimer = null;
@@ -213,7 +181,6 @@ const Game = (function () {
         let serverError = false;
         const serverPromise = apiCall('/api/roll', {
             initData: getInitData(),
-            isRainbow: isRainbow,
             activeBoosts: boostIds,
         }).then(result => {
             if (!result || result.error) {
@@ -490,26 +457,8 @@ const Game = (function () {
                 }
             });
         },
-        addCoins: function (amount) {
-            coinCount += amount;
-            updateUI(coinCount, currentMin);
-        },
-        addXP: function (amount) {
-            totalXP += amount;
-            updateLevel(totalXP);
-        },
-        setXP: function (xp) {
-            totalXP = xp;
-            updateLevel(totalXP);
-        },
-        setRainbowProgress: function (rolls) {
-            rollsToRainbow = rolls;
-            const rainbowFill = document.getElementById('rainbow-progress-fill');
-            const rainbowText = document.getElementById('rainbow-text');
-            const percent = Math.min(100, (rollsToRainbow / targetRainbow) * 100);
-            rainbowFill.style.width = percent + '%';
-            rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
-        },
+        // addCoins / addXP / setXP / setMinNumber / setRainbowProgress removed
+        // — state is authoritative from server only
         activateRainbowMode: function () {
             isRainbow = true;
             const rainbowOverlay = document.getElementById('rainbow-overlay');
@@ -566,43 +515,32 @@ const Game = (function () {
                 this.updateBoostUI();
             }
         },
-        setMinNumber: function (value) {
-            currentMin = value;
-            updateUI(coinCount, currentMin);
-        },
         getTotalXP: function () {
             return totalXP;
         },
         getCoinCount: function () {
             return coinCount;
         },
-        useBoost: function (boostId) {
+        useBoost: function (boostId, serverDuration) {
+            // Duration is now determined by the server — no client-side randomness
+            const duration = serverDuration || 30000; // fallback 30s if missing
             if (boostId === 'rainbow_mode') {
-                const duration = (30 + Math.random() * 70) * 1000;
                 this.activateRainbowModeFromBoost(duration);
             } else if (boostId === 'extra_cube') {
-                const duration = (30 + Math.random() * 70) * 1000;
                 this.addExtraCube(1, duration);
             } else if (boostId === 'double_cube') {
-                const duration = (30 + Math.random() * 70) * 1000;
                 this.addExtraCube(2, duration);
             } else if (boostId === 'coin_surge') {
-                const duration = (2 + Math.random() * 4) * 60 * 1000;
                 this.activateBoost('coin_surge', duration);
             } else if (boostId === 'crit_roll') {
-                const duration = (2 + Math.random() * 4) * 60 * 1000;
                 this.activateBoost('crit_roll', duration);
             } else if (boostId === 'auto_roll') {
-                const duration = (1 + Math.random() * 4) * 60 * 1000;
                 this.activateAutoRoll(duration);
             } else if (boostId === 'lucky_streak') {
-                const duration = (3 + Math.random() * 5) * 60 * 1000;
                 this.activateBoost('lucky_streak', duration);
             } else if (boostId === 'time_freeze') {
-                const duration = (2 + Math.random() * 3) * 60 * 1000;
                 this.activateBoost('time_freeze', duration);
             } else if (boostId === 'hypertap') {
-                const duration = (5 + Math.random() * 10) * 1000;
                 this.activateHyperTap(duration);
             }
         },
@@ -1102,7 +1040,6 @@ const Game = (function () {
             // Ask server for multi-roll result
             apiCall('/api/roll-multi', {
                 initData: getInitData(),
-                isRainbow: isRainbow,
                 cubeCount: totalCubes,
             }).then(serverResult => {
                 if (!serverResult || serverResult.error) {

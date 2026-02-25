@@ -5,6 +5,7 @@ let serverState = null; // Fetched during loading
 
 // Scripts to load dynamically (in order)
 const SCRIPTS_TO_LOAD = [
+    'scr/js/api.js',
     'scr/js/wallet.js',
     'scr/js/utils/input-handlers.js',
     'scr/js/utils/formatters.js',
@@ -27,7 +28,9 @@ const IMAGES_TO_LOAD = [
     'assets/UI/images/cubes_cubes.png',
 ];
 
-function getInitData() {
+function _loaderGetInitData() {
+    // Fallback for loading phase (before api.js is loaded)
+    if (typeof API !== 'undefined' && API.getInitData) return API.getInitData();
     try {
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
             return window.Telegram.WebApp.initData;
@@ -125,7 +128,7 @@ async function preload() {
 
     // ── Step 2: Fetch server state (creates player if new) ──
     try {
-        const initData = getInitData();
+        const initData = _loaderGetInitData();
         const resp = await fetch(CONFIG.API_URL + '/api/state?initData=' + encodeURIComponent(initData));
         if (resp.ok) {
             serverState = await resp.json();

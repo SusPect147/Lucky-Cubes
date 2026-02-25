@@ -29,9 +29,13 @@ const Leaderboard = {
     },
 
     load: function () {
-        fetch(CONFIG.API_URL + '/api/leaderboard')
-            .then(r => r.json())
+        // Use API module for authenticated request with API key
+        API.call('/api/leaderboard', null)
             .then(data => {
+                if (!data) {
+                    console.error('Leaderboard load failed: no data');
+                    return;
+                }
                 this.data = data;
                 this.render();
             })
@@ -64,7 +68,13 @@ const Leaderboard = {
 
     getAvatarHTML: function (entry) {
         if (entry.photo_url) {
-            return `<img class="leaderboard-avatar" src="${entry.photo_url}" alt="" style="object-fit:cover;" onerror="this.style.display='none'">`;
+            const img = document.createElement('img');
+            img.className = 'leaderboard-avatar';
+            img.src = entry.photo_url;
+            img.alt = '';
+            img.style.objectFit = 'cover';
+            img.onerror = function () { this.style.display = 'none'; };
+            return img.outerHTML;
         }
         return `<div class="leaderboard-avatar"></div>`;
     },
@@ -120,14 +130,38 @@ const Leaderboard = {
             const isMe = entry.id === this.myId;
             const row = document.createElement('div');
             row.className = 'leaderboard-row' + (isMe ? ' leaderboard-row-me' : '');
-            row.innerHTML = `
-                ${this.getPlaceHTML(i)}
-                <div class="leaderboard-row-bar" ${isMe ? 'style="border:1px solid rgba(220,53,69,0.3);background:rgba(220,53,69,0.08)"' : ''}>
-                    ${this.getAvatarHTML(entry)}
-                    <div class="leaderboard-nickname">${entry.name}</div>
-                    <div class="leaderboard-value">${this.formatValue(entry)}</div>
-                </div>
-            `;
+
+            // Build row content safely — use textContent for user-provided data
+            const placeCell = document.createElement('div');
+            placeCell.innerHTML = this.getPlaceHTML(i);
+
+            const rowBar = document.createElement('div');
+            rowBar.className = 'leaderboard-row-bar';
+            if (isMe) {
+                rowBar.style.border = '1px solid rgba(220,53,69,0.3)';
+                rowBar.style.background = 'rgba(220,53,69,0.08)';
+            }
+
+            // Avatar (safe — server-generated URL, no user input)
+            const avatarContainer = document.createElement('div');
+            avatarContainer.innerHTML = this.getAvatarHTML(entry);
+            const avatarEl = avatarContainer.firstElementChild;
+            if (avatarEl) rowBar.appendChild(avatarEl);
+
+            // Nickname — use textContent to prevent XSS
+            const nicknameDiv = document.createElement('div');
+            nicknameDiv.className = 'leaderboard-nickname';
+            nicknameDiv.textContent = entry.name;  // SAFE: textContent, no HTML injection
+            rowBar.appendChild(nicknameDiv);
+
+            // Value
+            const valueDiv = document.createElement('div');
+            valueDiv.className = 'leaderboard-value';
+            valueDiv.textContent = this.formatValue(entry);
+            rowBar.appendChild(valueDiv);
+
+            row.appendChild(placeCell.firstElementChild || placeCell);
+            row.appendChild(rowBar);
             listEl.appendChild(row);
         });
     },

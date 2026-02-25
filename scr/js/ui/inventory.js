@@ -100,26 +100,20 @@ const Inventory = {
     useBoost: function (boostId) {
         if (!this.boosts[boostId] || this.boosts[boostId] <= 0) return;
 
-        // Call server to use boost
-        const initData = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) || 'dev_mode';
-        fetch(CONFIG.API_URL + '/api/use-boost', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ initData: initData, boostId: boostId }),
-        })
-            .then(r => r.json())
+        // Call server to use boost (signed via API module)
+        API.call('/api/use-boost', { boostId: boostId })
             .then(resp => {
-                if (resp.error) {
-                    console.error('Use boost failed:', resp.error);
+                if (!resp || resp.error) {
+                    console.error('Use boost failed:', resp ? resp.error : 'no response');
                     return;
                 }
                 // Apply server state
                 if (typeof Game !== 'undefined' && Game.applyServerState) {
                     Game.applyServerState(resp);
                 }
-                // Activate boost locally
+                // Activate boost locally with SERVER-provided duration
                 if (typeof Game !== 'undefined' && Game.useBoost) {
-                    Game.useBoost(boostId);
+                    Game.useBoost(boostId, resp.duration || 30000);
                 }
                 // Update inventory from server
                 this.loadFromServer(resp.inventory || {});
