@@ -101,7 +101,7 @@ function getReferralLink() {
     var botUsername = (typeof CONFIG !== 'undefined' && CONFIG.BOT_USERNAME) ? CONFIG.BOT_USERNAME : 'LuckyCubesBot';
     var myId = Leaderboard && Leaderboard.myId ? Leaderboard.myId : '0';
     var encodedId = encodeReferralId(myId);
-    return `https://t.me/${botUsername}/app?startapp=ref_${encodedId}`;
+    return `https://t.me/${botUsername}/my_cubes?startapp=ref_${encodedId}`;
 }
 
 if (profileCopyBtn) {
