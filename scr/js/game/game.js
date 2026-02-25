@@ -412,7 +412,7 @@ const Game = (function () {
                     refCountEl.textContent = state.referralsCount;
                 }
                 if (refEarnedEl && state.referralEarned !== undefined) {
-                    refEarnedEl.textContent = state.referralEarned + ' LUCU';
+                    refEarnedEl.textContent = state.referralEarned + ' TON';
                 }
             }
             // Update rainbow progress bar (if not in rainbow mode)
@@ -457,7 +457,7 @@ const Game = (function () {
             }
             if (resp.referralEarned !== undefined) {
                 const el = document.getElementById('leaderboard-credited-total');
-                if (el) el.textContent = resp.referralEarned + ' LUCU';
+                if (el) el.textContent = resp.referralEarned + ' TON';
             }
             if (resp.quests) {
                 syncQuestsFromServer(resp.quests);
