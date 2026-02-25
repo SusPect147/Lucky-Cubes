@@ -362,10 +362,10 @@ const Game = (function () {
                 // Never downgrade completed to false
                 if (sq.completed) q.completed = true;
                 if (sq.claimed) q.claimed = true;
-                // Mark completed if current >= target
-                if (q.current >= q.target && !q.completed) {
-                    q.completed = true;
-                }
+            }
+            // Always mark completed if current >= target (even without server flag)
+            if (!q.claimed && !q.social && q.current >= q.target) {
+                q.completed = true;
             }
         });
         Quests.render();

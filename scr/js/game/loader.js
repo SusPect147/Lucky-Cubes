@@ -108,8 +108,8 @@ function updateLoadingText() {
 async function preload() {
     const tgsAssets = CONFIG.assets || [];
 
-    // Total: chicken + server state + scripts + TGS + images
-    totalAssets = 1 + 1 + SCRIPTS_TO_LOAD.length + tgsAssets.length + IMAGES_TO_LOAD.length;
+    // Total: chicken + api.js + server state + remaining scripts + TGS + images
+    totalAssets = 1 + 1 + 1 + (SCRIPTS_TO_LOAD.length - 1) + tgsAssets.length + IMAGES_TO_LOAD.length;
     loadedCount = 0;
     updateLoadingText();
 
@@ -126,27 +126,33 @@ async function preload() {
     loadedCount++;
     updateLoadingText();
 
-    // ── Step 2: Fetch server state (creates player if new) ──
+    // ── Step 2: Load api.js FIRST (needed for signed state fetch) ──
+    await loadScript('scr/js/api.js');
+    loadedCount++;
+    updateLoadingText();
+
+    // ── Step 3: Fetch server state with proper HMAC signing ──
     try {
-        const initData = _loaderGetInitData();
-        const resp = await fetch(CONFIG.API_URL + '/api/state?initData=' + encodeURIComponent(initData));
-        if (resp.ok) {
-            serverState = await resp.json();
-        }
+        serverState = await API.call('/api/state', null);
     } catch (e) {
         console.error('Failed to fetch server state:', e);
     }
     loadedCount++;
     updateLoadingText();
 
-    // ── Step 3: Load all JS scripts ──
+    // ── Step 4: Load remaining JS scripts (api.js already loaded) ──
     for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
+        if (SCRIPTS_TO_LOAD[i] === 'scr/js/api.js') {
+            loadedCount++;
+            updateLoadingText();
+            continue;
+        }
         await loadScript(SCRIPTS_TO_LOAD[i]);
         loadedCount++;
         updateLoadingText();
     }
 
-    // ── Step 4: Load TGS animations ──
+    // ── Step 5: Load TGS animations ──
     for (let i = 0; i < tgsAssets.length; i++) {
         const name = tgsAssets[i].replace('.tgs', '');
         const data = await loadTGS(CONFIG.assetsPath + tgsAssets[i]);
@@ -155,7 +161,7 @@ async function preload() {
         updateLoadingText();
     }
 
-    // ── Step 5: Preload images ──
+    // ── Step 6: Preload images ──
     for (let i = 0; i < IMAGES_TO_LOAD.length; i++) {
         await preloadImage(IMAGES_TO_LOAD[i]);
         loadedCount++;

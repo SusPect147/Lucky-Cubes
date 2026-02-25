@@ -21,11 +21,8 @@ const Quests = {
             const currentProgress = q.social ? 0 : q.current;
             const progress = q.social ? (q.completed ? 100 : 0) : Math.min(100, (currentProgress / q.target) * 100);
 
-            // Auto-mark as completed if progress reached target
-            if (!q.social && q.current >= q.target && !q.completed && !q.claimed) {
-                q.completed = true;
-            }
-            if (progress >= 100 && !q.completed && !q.claimed) {
+            // Force completed if progress >= 100% OR current >= target (fixes edge case after quest reset)
+            if (!q.claimed && (progress >= 100 || (!q.social && q.current >= q.target))) {
                 q.completed = true;
             }
 
