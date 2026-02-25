@@ -405,6 +405,16 @@ const Game = (function () {
             updateLevel(totalXP);
             showIdleCube();
             updateUI(coinCount, currentMin);
+            if (state) {
+                const refCountEl = document.getElementById('leaderboard-referrals-count');
+                const refEarnedEl = document.getElementById('leaderboard-credited-total');
+                if (refCountEl && state.referralsCount !== undefined) {
+                    refCountEl.textContent = state.referralsCount;
+                }
+                if (refEarnedEl && state.referralEarned !== undefined) {
+                    refEarnedEl.textContent = state.referralEarned + ' LUCU';
+                }
+            }
             // Update rainbow progress bar (if not in rainbow mode)
             if (!isRainbow) {
                 const rainbowFill = document.getElementById('rainbow-progress-fill');
@@ -441,6 +451,14 @@ const Game = (function () {
                 currentMin = resp.currentMin;
             }
             updateUI(coinCount, currentMin);
+            if (resp.referralsCount !== undefined) {
+                const el = document.getElementById('leaderboard-referrals-count');
+                if (el) el.textContent = resp.referralsCount;
+            }
+            if (resp.referralEarned !== undefined) {
+                const el = document.getElementById('leaderboard-credited-total');
+                if (el) el.textContent = resp.referralEarned + ' LUCU';
+            }
             if (resp.quests) {
                 syncQuestsFromServer(resp.quests);
             }

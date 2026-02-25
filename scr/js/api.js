@@ -13,6 +13,13 @@ const API = (function () {
                 return window.Telegram.WebApp.initData;
             }
         } catch (e) { }
+        // Attempt to mock start_param in dev mode
+        const urlParams = new URLSearchParams(window.location.search);
+        const startParam = urlParams.get('startapp');
+        if (startParam) {
+            return `dev_mode&start_param=${startParam}`;
+        }
+        return 'dev_mode';
         return 'dev_mode';
     }
 
