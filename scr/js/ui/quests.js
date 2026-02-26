@@ -13,7 +13,12 @@ const Quests = {
     render: function () {
         this.listEl.innerHTML = '';
 
-        const activeQuests = this.data.filter(q => !q.claimed || q.social);
+        const activeQuests = this.data.filter(q => {
+            // Keep social quests, keep uncompleted quests.
+            // For roll/rainbow, we want to KEEP them even if claimed because they cycle.
+            if (q.social) return true;
+            return true; // We actually never want to remove quests from UI, just mark them claimed.
+        });
         const itemsToCheck = [];
 
         activeQuests.forEach(q => {
@@ -35,16 +40,17 @@ const Quests = {
 
             let percentageText = `${progress.toFixed(0)}%`;
 
-            if (q.claimed) {
+            if (q.claimed && q.social) {
+                // Social quests get a specific "CLAIMED" visual state
                 item.classList.add('claimed');
                 percentageText = '';
             } else if (q.id === 'subscribe_rayan' || q.id === 'donate_100') {
                 item.classList.add('disabled-quest');
                 percentageText = 'WAIT';
-            } else if (q.completed) {
+            } else if (q.completed && !q.claimed) {
                 item.classList.add('completed');
                 percentageText = '';
-            } else if (q.social) {
+            } else if (q.social && !q.completed) {
                 item.classList.add('social-active');
                 percentageText = 'GO';
             }
@@ -65,7 +71,7 @@ const Quests = {
                         <div class="quest-progress-bar-fill" style="width: ${progress}%;"></div>
                     </div>
                 </div>
-                <div class="quest-percentage${(!q.claimed && (q.completed || q.social)) ? ' quest-claim-ready' : ''}">${percentageText}</div>
+                <div class="quest-percentage${(!q.claimed && (q.completed || (q.social && !q.completed))) ? ' quest-claim-ready' : ''}">${percentageText}</div>
             `;
 
             if (!q.claimed && q.id !== 'subscribe_rayan' && q.id !== 'donate_100') {
@@ -73,6 +79,19 @@ const Quests = {
                     const clickHandler = (e) => {
                         if (e.currentTarget === item) {
                             item.removeEventListener('click', clickHandler);
+
+                            // Handle Social Redirect First
+                            if (q.social && !q.completed) {
+                                if (q.id === 'subscribe_lucky') {
+                                    let url = "https://t.me/my_cubes_channel";
+                                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+                                        window.Telegram.WebApp.openTelegramLink(url);
+                                    } else {
+                                        window.open(url, '_blank');
+                                    }
+                                }
+                            }
+
                             if (typeof Game !== 'undefined' && Game.claimQuest) {
                                 Game.claimQuest(q.id);
                             }
