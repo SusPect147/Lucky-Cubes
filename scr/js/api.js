@@ -110,7 +110,12 @@ const API = (function () {
             const resp = await fetch(url, options);
             if (!resp.ok) {
                 console.error('API error:', resp.status);
-                return null;
+                try {
+                    const errBody = await resp.json();
+                    return errBody; // return the JSON so game.js can read .error
+                } catch (e) {
+                    return null;
+                }
             }
             return await resp.json();
         } catch (e) {

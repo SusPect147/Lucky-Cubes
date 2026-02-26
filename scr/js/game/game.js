@@ -288,7 +288,8 @@ const Game = (function () {
 
     function claimQuest(id) {
         const quest = Quests.data.find(q => q.id === id);
-        if (!quest || !quest.completed || quest.claimed) return;
+        if (!quest || quest.claimed) return;
+        if (!quest.completed && !quest.social) return;
 
         // Call server to claim quest
         apiCall('/api/quest-claim', {

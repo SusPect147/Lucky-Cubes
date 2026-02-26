@@ -278,17 +278,38 @@
 }
 
 .quest-item.disabled-quest {
-    background: rgba(150, 0, 0, 0.15) !important;
-    border: 1px solid rgba(255, 50, 50, 0.3) !important;
-    opacity: 0.7;
-    pointer-events: none;
+    position: relative;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
-.quest-item.disabled-quest .quest-percentage {
-    color: #ff5555 !important;
-    font-weight: 700 !important;
-    text-shadow: 0 0 8px rgba(255, 85, 85, 0.5);
+.quest-item.disabled-quest> :not(.claim-overlay) {
+    transition: opacity 0.3s;
+    opacity: 0.1;
+}
+
+.quest-item.disabled-quest::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(150, 0, 0, 0.25);
+    z-index: 1;
+    border-radius: 18px;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+}
+
+.quest-item.disabled-quest::after {
+    content: 'UNAVAILABLE';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-shadow: 0 0 10px rgba(255, 50, 50, 0.8), 0 0 20px rgba(255, 50, 50, 0.5);
+    z-index: 2;
+    pointer-events: none;
 }
 
 .quest-item.completed::before {
