@@ -296,6 +296,15 @@ const Game = (function () {
             questId: id,
         }).then(resp => {
             if (!resp || resp.error) {
+                if (resp && resp.error === 'not_subscribed' && resp.channelUrl) {
+                    // Open Telegram link and wait for user to subscribe
+                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+                        window.Telegram.WebApp.openTelegramLink(resp.channelUrl);
+                    } else {
+                        window.open(resp.channelUrl, '_blank');
+                    }
+                    return;
+                }
                 console.error('Quest claim failed:', resp);
                 return;
             }
@@ -341,10 +350,6 @@ const Game = (function () {
                     if (Quests.listEl.children.length === 0) hideQuestMenu();
                 }, 500);
             } else {
-                quest.current = 0;
-                quest.target *= 2;
-                quest.completed = false;
-                quest.claimed = false;
                 Quests.render();
             }
             Quests.render();

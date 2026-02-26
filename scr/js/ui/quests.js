@@ -22,28 +22,23 @@ const Quests = {
             const progress = q.social ? (q.completed ? 100 : 0) : Math.min(100, (currentProgress / q.target) * 100);
 
             // Force completed if progress >= 100% OR current >= target (fixes edge case after quest reset)
-            if (!q.claimed && (progress >= 100 || (!q.social && q.current >= q.target))) {
+            if (!q.claimed && !q.social && (progress >= 100 || q.current >= q.target)) {
                 q.completed = true;
             }
 
             const item = document.createElement('div');
             item.className = 'quest-item';
             item.dataset.id = q.id;
-            if (q.completed && !q.claimed) {
-                item.classList.add('completed');
-
-                item.addEventListener('click', (e) => {
-                    if (e.currentTarget === item) {
-                        if (typeof Game !== 'undefined' && Game.claimQuest) {
-                            Game.claimQuest(q.id);
-                        }
-                    }
-                });
-            }
+            // Removed click listener from here, moved below template
 
             const nameText = q.name.replace('{target}', q.target);
             const xpText = `(+${q.xp} xp)`;
-            const percentageText = q.completed && !q.claimed ? 'CLAIM' : `${progress.toFixed(0)}%`;
+            let percentageText = `${progress.toFixed(0)}%`;
+            if (q.social && !q.completed) {
+                percentageText = 'GO';
+            } else if (q.completed && !q.claimed) {
+                percentageText = 'CLAIM';
+            }
 
             item.innerHTML = `
                 <div class="quest-icon-placeholder">${this.getIconSVG(q.icon)}</div>
@@ -61,8 +56,20 @@ const Quests = {
                         <div class="quest-progress-bar-fill" style="width: ${progress}%;"></div>
                     </div>
                 </div>
-                <div class="quest-percentage${q.completed && !q.claimed ? ' quest-claim-ready' : ''}">${percentageText}</div>
+                <div class="quest-percentage${(q.completed && !q.claimed) || (q.social && !q.completed) ? ' quest-claim-ready' : ''}">${percentageText}</div>
             `;
+
+            // Allow clicking social quests that are not completed
+            if ((q.completed && !q.claimed) || (q.social && !q.completed)) {
+                item.classList.add('completed');
+                item.addEventListener('click', (e) => {
+                    if (e.currentTarget === item) {
+                        if (typeof Game !== 'undefined' && Game.claimQuest) {
+                            Game.claimQuest(q.id);
+                        }
+                    }
+                });
+            }
             this.listEl.appendChild(item);
             itemsToCheck.push(item);
         });
