@@ -254,6 +254,43 @@
     opacity: 0.2;
 }
 
+.quest-item.claimed {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+}
+
+.quest-item.claimed .quest-percentage {
+    display: none;
+}
+
+.quest-item.claimed::after {
+    content: 'CLAIMED';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.5rem;
+    font-weight: 700;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.quest-item.disabled-quest {
+    background: rgba(150, 0, 0, 0.15) !important;
+    border: 1px solid rgba(255, 50, 50, 0.3) !important;
+    opacity: 0.7;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.quest-item.disabled-quest .quest-percentage {
+    color: #ff5555 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 0 8px rgba(255, 85, 85, 0.5);
+}
+
 .quest-item.completed::before {
     content: '';
     position: absolute;

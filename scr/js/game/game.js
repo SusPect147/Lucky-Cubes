@@ -321,7 +321,11 @@ const Game = (function () {
                 quest.claimed = true;
             }
 
-            const questEl = document.createElement('div'); // dummy if missing or deleted
+            const questEl = document.querySelector(`.quest-item[data-id="${id}"]`) || document.createElement('div');
+            if (!document.body.contains(questEl)) {
+                Quests.render();
+                return; // Exit particles if we couldn't find real element on DOM
+            }
             if (!questEl) return;
 
             const rect = questEl.getBoundingClientRect();
@@ -347,18 +351,7 @@ const Game = (function () {
                 setTimeout(() => p.remove(), 1000);
             }
 
-            if (quest.social) {
-                const questUiEl = document.querySelector(`.quest-item[data-id="${id}"]`);
-                if (questUiEl) {
-                    questUiEl.classList.add('claiming');
-                    setTimeout(() => {
-                        questUiEl.remove();
-                        if (Quests.listEl.children.length === 0) hideQuestMenu();
-                    }, 500);
-                }
-            } else {
-                Quests.render();
-            }
+            Quests.render();
         }).catch(err => {
             console.error('Quest claim error:', err);
         });
@@ -369,10 +362,10 @@ const Game = (function () {
         Quests.data.forEach(q => {
             const sq = serverQuests[q.id];
             if (sq) {
-                q.current = sq.current || 0;
-                // Never downgrade completed to false
-                if (sq.completed) q.completed = true;
-                if (sq.claimed) q.claimed = true;
+                q.current = sq.current !== undefined ? sq.current : q.current;
+                if (sq.target !== undefined) q.target = sq.target;
+                q.completed = !!sq.completed;
+                q.claimed = !!sq.claimed;
             }
             // Always mark completed if current >= target (even without server flag)
             if (!q.claimed && !q.social && q.current >= q.target) {

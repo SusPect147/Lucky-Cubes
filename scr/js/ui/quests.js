@@ -13,7 +13,7 @@ const Quests = {
     render: function () {
         this.listEl.innerHTML = '';
 
-        const activeQuests = this.data.filter(q => !q.claimed || !q.social);
+        const activeQuests = this.data.filter(q => !q.claimed || q.social);
         const itemsToCheck = [];
 
         activeQuests.forEach(q => {
@@ -29,20 +29,23 @@ const Quests = {
             const item = document.createElement('div');
             item.className = 'quest-item';
             item.dataset.id = q.id;
-            // Removed click listener from here, moved below template
 
             const nameText = q.name.replace('{target}', q.target);
             const xpText = `(+${q.xp} xp)`;
 
             let percentageText = `${progress.toFixed(0)}%`;
 
-            // Remove any specific display for "CLAIM" percentage if completed class is added
-            if (q.completed && !q.claimed) {
-                percentageText = ''; // Let css handle the giant middle CLAIM text
-            }
-
-            // For active social quests, let's just make it look like a regular link text
-            if (q.social && !q.completed) {
+            if (q.claimed) {
+                item.classList.add('claimed');
+                percentageText = '';
+            } else if (q.id === 'subscribe_rayan' || q.id === 'donate_100') {
+                item.classList.add('disabled-quest');
+                percentageText = 'WAIT';
+            } else if (q.completed) {
+                item.classList.add('completed');
+                percentageText = '';
+            } else if (q.social) {
+                item.classList.add('social-active');
                 percentageText = 'GO';
             }
 
@@ -62,55 +65,22 @@ const Quests = {
                         <div class="quest-progress-bar-fill" style="width: ${progress}%;"></div>
                     </div>
                 </div>
-                <div class="quest-percentage${(q.completed && !q.claimed) || (q.social && !q.completed) ? ' quest-claim-ready' : ''}">${percentageText}</div>
+                <div class="quest-percentage${(!q.claimed && (q.completed || q.social)) ? ' quest-claim-ready' : ''}">${percentageText}</div>
             `;
 
-            // Allow clicking social quests that are not completed
-            if ((q.completed && !q.claimed) || (q.social && !q.completed)) {
-                if (q.completed && !q.claimed) {
-                    item.classList.add('completed');
-                } else if (q.social && !q.completed) {
-                    item.classList.add('social-active');
+            if (!q.claimed && q.id !== 'subscribe_rayan' && q.id !== 'donate_100') {
+                if (q.completed || q.social) {
+                    const clickHandler = (e) => {
+                        if (e.currentTarget === item) {
+                            item.removeEventListener('click', clickHandler);
+                            if (typeof Game !== 'undefined' && Game.claimQuest) {
+                                Game.claimQuest(q.id);
+                            }
+                            setTimeout(() => item.addEventListener('click', clickHandler), 2000);
+                        }
+                    };
+                    item.addEventListener('click', clickHandler);
                 }
-
-                // Handler abstraction to prevent duplicate clicks and handle retries
-                const clickHandler = (e) => {
-                    if (e.currentTarget === item) {
-                        item.removeEventListener('click', clickHandler);
-
-                        if (q.social && !q.completed) {
-                            if (q.id === 'subscribe_rayan') {
-                                let url = "https://t.me/RayanSvyat";
-                                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
-                                    window.Telegram.WebApp.openTelegramLink(url);
-                                } else {
-                                    window.open(url, '_blank');
-                                }
-                                setTimeout(() => item.addEventListener('click', clickHandler), 2000);
-                                return;
-                            }
-                            if (q.id === 'donate_100') {
-                                setTimeout(() => item.addEventListener('click', clickHandler), 2000);
-                                return;
-                            }
-                            if (q.id === 'subscribe_lucky') {
-                                let url = "https://t.me/my_cubes_channel";
-                                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
-                                    window.Telegram.WebApp.openTelegramLink(url);
-                                } else {
-                                    window.open(url, '_blank');
-                                }
-                                setTimeout(() => item.addEventListener('click', clickHandler), 2000);
-                                return;
-                            }
-                        }
-
-                        if (typeof Game !== 'undefined' && Game.claimQuest) {
-                            Game.claimQuest(q.id);
-                        }
-                    }
-                };
-                item.addEventListener('click', clickHandler);
             }
             this.listEl.appendChild(item);
             itemsToCheck.push(item);
