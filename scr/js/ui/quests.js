@@ -33,6 +33,9 @@ const Quests = {
 
             const nameText = q.name.replace('{target}', q.target);
             const xpText = `(+${q.xp} xp)`;
+
+            let percentageText = `${progress.toFixed(0)}%`;
+
             // Remove any specific display for "CLAIM" percentage if completed class is added
             if (q.completed && !q.claimed) {
                 percentageText = ''; // Let css handle the giant middle CLAIM text
