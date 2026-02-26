@@ -231,6 +231,10 @@
     cursor: pointer;
 }
 
+.quest-item.social-active {
+    cursor: pointer;
+}
+
 .quest-item.completed .quest-percentage {
     display: none;
 }

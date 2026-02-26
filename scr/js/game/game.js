@@ -315,9 +315,13 @@ const Game = (function () {
             updateLevel(totalXP);
             updateUI(coinCount, currentMin);
 
-            quest.claimed = true;
+            if (resp.quests) {
+                syncQuestsFromServer(resp.quests);
+            } else {
+                quest.claimed = true;
+            }
 
-            const questEl = document.querySelector(`.quest-item[data-id="${id}"]`);
+            const questEl = document.createElement('div'); // dummy if missing or deleted
             if (!questEl) return;
 
             const rect = questEl.getBoundingClientRect();
@@ -344,15 +348,17 @@ const Game = (function () {
             }
 
             if (quest.social) {
-                questEl.classList.add('claiming');
-                setTimeout(() => {
-                    questEl.remove();
-                    if (Quests.listEl.children.length === 0) hideQuestMenu();
-                }, 500);
+                const questUiEl = document.querySelector(`.quest-item[data-id="${id}"]`);
+                if (questUiEl) {
+                    questUiEl.classList.add('claiming');
+                    setTimeout(() => {
+                        questUiEl.remove();
+                        if (Quests.listEl.children.length === 0) hideQuestMenu();
+                    }, 500);
+                }
             } else {
                 Quests.render();
             }
-            Quests.render();
         }).catch(err => {
             console.error('Quest claim error:', err);
         });

@@ -33,11 +33,14 @@ const Quests = {
 
             const nameText = q.name.replace('{target}', q.target);
             const xpText = `(+${q.xp} xp)`;
-            let percentageText = `${progress.toFixed(0)}%`;
+            // Remove any specific display for "CLAIM" percentage if completed class is added
+            if (q.completed && !q.claimed) {
+                percentageText = ''; // Let css handle the giant middle CLAIM text
+            }
+
+            // For active social quests, let's just make it look like a regular link text
             if (q.social && !q.completed) {
                 percentageText = 'GO';
-            } else if (q.completed && !q.claimed) {
-                percentageText = 'CLAIM';
             }
 
             item.innerHTML = `
@@ -61,14 +64,50 @@ const Quests = {
 
             // Allow clicking social quests that are not completed
             if ((q.completed && !q.claimed) || (q.social && !q.completed)) {
-                item.classList.add('completed');
-                item.addEventListener('click', (e) => {
+                if (q.completed && !q.claimed) {
+                    item.classList.add('completed');
+                } else if (q.social && !q.completed) {
+                    item.classList.add('social-active');
+                }
+
+                // Handler abstraction to prevent duplicate clicks and handle retries
+                const clickHandler = (e) => {
                     if (e.currentTarget === item) {
+                        item.removeEventListener('click', clickHandler);
+
+                        if (q.social && !q.completed) {
+                            if (q.id === 'subscribe_rayan') {
+                                let url = "https://t.me/RayanSvyat";
+                                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+                                    window.Telegram.WebApp.openTelegramLink(url);
+                                } else {
+                                    window.open(url, '_blank');
+                                }
+                                setTimeout(() => item.addEventListener('click', clickHandler), 2000);
+                                return;
+                            }
+                            if (q.id === 'donate_100') {
+                                setTimeout(() => item.addEventListener('click', clickHandler), 2000);
+                                return;
+                            }
+                            if (q.id === 'subscribe_lucky') {
+                                let url = "https://t.me/my_cubes_channel";
+                                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+                                    window.Telegram.WebApp.openTelegramLink(url);
+                                } else {
+                                    window.open(url, '_blank');
+                                }
+                                setTimeout(() => item.addEventListener('click', clickHandler), 2000);
+                                return;
+                            }
+                        }
+
                         if (typeof Game !== 'undefined' && Game.claimQuest) {
                             Game.claimQuest(q.id);
                         }
                     }
-                });
+                };
+                item.addEventListener('click', clickHandler);
             }
             this.listEl.appendChild(item);
             itemsToCheck.push(item);
