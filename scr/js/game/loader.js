@@ -158,7 +158,15 @@ async function preload() {
                 const avatarContainer = document.getElementById('player-avatar-container');
                 if (avatarContainer) {
                     avatarContainer.style.background = 'transparent';
-                    avatarContainer.innerHTML = `<img src="${user.photo_url}" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                    const img = document.createElement('img');
+                    img.src = user.photo_url;
+                    img.alt = 'Avatar';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.borderRadius = '50%';
+                    img.style.objectFit = 'cover';
+                    avatarContainer.innerHTML = ''; // Clear previous content
+                    avatarContainer.appendChild(img);
                 }
             }
         }

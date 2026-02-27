@@ -718,15 +718,27 @@ const Game = (function () {
 
                 const boostEl = document.createElement('div');
                 boostEl.className = 'boost-timer-item';
-                boostEl.innerHTML = `
-                    <div class="boost-timer-icon">
-                        ${iconSVG}
-                    </div>
-                    <div class="boost-timer-text">
-                        <div class="boost-timer-name">${i18n.t(boostData.name)}</div>
-                        <div class="boost-timer-time">${timeText}</div>
-                    </div>
-                `;
+
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'boost-timer-icon';
+                iconDiv.innerHTML = iconSVG; // safe as getIconSVG returns hardcoded strings
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'boost-timer-text';
+
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'boost-timer-name';
+                nameDiv.textContent = i18n.t(boostData.name);
+
+                const timeDiv = document.createElement('div');
+                timeDiv.className = 'boost-timer-time';
+                timeDiv.textContent = timeText;
+
+                textDiv.appendChild(nameDiv);
+                textDiv.appendChild(timeDiv);
+
+                boostEl.appendChild(iconDiv);
+                boostEl.appendChild(textDiv);
 
                 boostList.appendChild(boostEl);
             });
@@ -744,15 +756,27 @@ const Game = (function () {
 
                     const boostEl = document.createElement('div');
                     boostEl.className = 'boost-timer-item';
-                    boostEl.innerHTML = `
-                        <div class="boost-timer-icon">
-                            ${iconSVG}
-                        </div>
-                        <div class="boost-timer-text">
-                            <div class="boost-timer-name">${i18n.t(boostName)}</div>
-                            <div class="boost-timer-time">${timeText}</div>
-                        </div>
-                    `;
+
+                    const iconDiv = document.createElement('div');
+                    iconDiv.className = 'boost-timer-icon';
+                    iconDiv.innerHTML = iconSVG; // safe
+
+                    const textDiv = document.createElement('div');
+                    textDiv.className = 'boost-timer-text';
+
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'boost-timer-name';
+                    nameDiv.textContent = i18n.t(boostName);
+
+                    const timeDiv = document.createElement('div');
+                    timeDiv.className = 'boost-timer-time';
+                    timeDiv.textContent = timeText;
+
+                    textDiv.appendChild(nameDiv);
+                    textDiv.appendChild(timeDiv);
+
+                    boostEl.appendChild(iconDiv);
+                    boostEl.appendChild(textDiv);
 
                     boostList.appendChild(boostEl);
                 }
@@ -770,15 +794,27 @@ const Game = (function () {
 
                     const boostEl = document.createElement('div');
                     boostEl.className = 'boost-timer-item';
-                    boostEl.innerHTML = `
-                        <div class="boost-timer-icon">
-                            ${iconSVG}
-                        </div>
-                        <div class="boost-timer-text">
-                            <div class="boost-timer-name">${i18n.t("Rainbow Mode")}</div>
-                            <div class="boost-timer-time">${timeText}</div>
-                        </div>
-                    `;
+
+                    const iconDiv = document.createElement('div');
+                    iconDiv.className = 'boost-timer-icon';
+                    iconDiv.innerHTML = iconSVG; // safe
+
+                    const textDiv = document.createElement('div');
+                    textDiv.className = 'boost-timer-text';
+
+                    const nameDiv = document.createElement('div');
+                    nameDiv.className = 'boost-timer-name';
+                    nameDiv.textContent = i18n.t("Rainbow Mode");
+
+                    const timeDiv = document.createElement('div');
+                    timeDiv.className = 'boost-timer-time';
+                    timeDiv.textContent = timeText;
+
+                    textDiv.appendChild(nameDiv);
+                    textDiv.appendChild(timeDiv);
+
+                    boostEl.appendChild(iconDiv);
+                    boostEl.appendChild(textDiv);
 
                     boostList.appendChild(boostEl);
                 }

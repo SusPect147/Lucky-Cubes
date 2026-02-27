@@ -53,24 +53,54 @@ const Quests = {
                 percentageText = 'GO';
             }
 
-            item.innerHTML = `
-                <div class="quest-icon-placeholder">${this.getIconSVG(q.icon)}</div>
-                <div class="quest-info">
-                    <div class="quest-name">
-                        <div class="quest-description-marquee">
-                            <div class="quest-marquee-content-wrapper">
-                                <span class="quest-text">${nameText}</span>
-                                <span class="quest-text duplicate">${nameText}</span>
-                            </div>
-                        </div>
-                        <div class="quest-xp-container">${xpText}</div>
-                    </div>
-                    <div class="quest-progress-bar-container">
-                        <div class="quest-progress-bar-fill" style="width: ${progress}%;"></div>
-                    </div>
-                </div>
-                <div class="quest-percentage${(!q.claimed && (q.completed || (q.social && !q.completed))) ? ' quest-claim-ready' : ''}">${percentageText}</div>
-            `;
+            const placeholderDiv = document.createElement('div');
+            placeholderDiv.className = 'quest-icon-placeholder';
+            placeholderDiv.innerHTML = this.getIconSVG(q.icon); // safe
+            item.appendChild(placeholderDiv);
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'quest-info';
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'quest-name';
+
+            const marqueeDiv = document.createElement('div');
+            marqueeDiv.className = 'quest-description-marquee';
+            const wrapperDiv = document.createElement('div');
+            wrapperDiv.className = 'quest-marquee-content-wrapper';
+
+            const span1 = document.createElement('span');
+            span1.className = 'quest-text';
+            span1.textContent = nameText;
+            const span2 = document.createElement('span');
+            span2.className = 'quest-text duplicate';
+            span2.textContent = nameText;
+
+            wrapperDiv.appendChild(span1);
+            wrapperDiv.appendChild(span2);
+            marqueeDiv.appendChild(wrapperDiv);
+            nameDiv.appendChild(marqueeDiv);
+
+            const xpDiv = document.createElement('div');
+            xpDiv.className = 'quest-xp-container';
+            xpDiv.textContent = xpText;
+            nameDiv.appendChild(xpDiv);
+            infoDiv.appendChild(nameDiv);
+
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'quest-progress-bar-container';
+            const progressFill = document.createElement('div');
+            progressFill.className = 'quest-progress-bar-fill';
+            progressFill.style.width = `${progress}%`;
+            progressContainer.appendChild(progressFill);
+            infoDiv.appendChild(progressContainer);
+
+            item.appendChild(infoDiv);
+
+            const pctDiv = document.createElement('div');
+            pctDiv.className = 'quest-percentage' + ((!q.claimed && (q.completed || (q.social && !q.completed))) ? ' quest-claim-ready' : '');
+            pctDiv.textContent = percentageText;
+            item.appendChild(pctDiv);
 
             if (!q.claimed && q.id !== 'subscribe_rayan' && q.id !== 'donate_100') {
                 if (q.completed || q.social) {

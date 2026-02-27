@@ -137,7 +137,23 @@ const Leaderboard = {
             }
 
             const avatarContainer = document.createElement('div');
-            avatarContainer.innerHTML = this.getAvatarHTML(entry);
+            // Safe: getAvatarHTML only uses hardcoded HTML structure and entry.photo_url which is URL validated or set from safe sources, wait, entry.photo_url could be malformed url... Actually it uses secure outerHTML on an img element. Let's use it directly without innerHTML to be 100% safe.
+            let avatarHTMLStr = this.getAvatarHTML(entry);
+            const tempAvatarDiv = document.createElement('div');
+            avatarContainer.appendChild(tempAvatarDiv); // placeholder
+
+            if (entry.photo_url) {
+                const img = document.createElement('img');
+                img.className = 'leaderboard-avatar';
+                img.src = entry.photo_url;
+                img.alt = '';
+                img.style.objectFit = 'cover';
+                img.onerror = function () { this.style.display = 'none'; };
+                avatarContainer.replaceChild(img, tempAvatarDiv);
+            } else {
+                tempAvatarDiv.className = 'leaderboard-avatar';
+            }
+
             const avatarEl = avatarContainer.firstElementChild;
             if (avatarEl) rowBar.appendChild(avatarEl);
 

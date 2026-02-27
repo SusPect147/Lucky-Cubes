@@ -39,21 +39,25 @@ const Inventory = {
         const activeTab = document.querySelector('.inventory-tab-btn.active');
 
         if (!activeTab || activeTab.dataset.tab === 'skins') {
-            content.innerHTML = `
-                <div class="inventory-empty-state">
-                    <div class="inventory-empty-text">${i18n.t('empty_skins')}</div>
-                </div>
-            `;
+            const divState = document.createElement('div');
+            divState.className = 'inventory-empty-state';
+            const divText = document.createElement('div');
+            divText.className = 'inventory-empty-text';
+            divText.textContent = i18n.t('empty_skins');
+            divState.appendChild(divText);
+            content.appendChild(divState);
             return;
         }
 
         const boostIds = Object.keys(this.boosts);
         if (boostIds.length === 0) {
-            content.innerHTML = `
-                <div class="inventory-empty-state">
-                    <div class="inventory-empty-text">${i18n.t('empty_skins')}</div>
-                </div>
-            `;
+            const divState = document.createElement('div');
+            divState.className = 'inventory-empty-state';
+            const divText = document.createElement('div');
+            divText.className = 'inventory-empty-text';
+            divText.textContent = i18n.t('empty_skins');
+            divState.appendChild(divText);
+            content.appendChild(divState);
             return;
         }
 
@@ -74,18 +78,33 @@ const Inventory = {
 
             const countDisplay = count > 1 ? `<div class="boost-count">${count}</div>` : '';
 
-            item.innerHTML = `
-                <div class="boost-image">
-                    ${this.getIconSVG(boost.icon)}
-                    ${countDisplay}
-                </div>
-                <div class="boost-info">
-                    <div class="boost-description">${i18n.t(boost.name)}</div>
-                    <button class="boost-use-btn">Use</button>
-                </div>
-            `;
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'boost-image';
+            imgDiv.innerHTML = this.getIconSVG(boost.icon); // safe internal SVGs
+            if (count > 1) {
+                const countDiv = document.createElement('div');
+                countDiv.className = 'boost-count';
+                countDiv.textContent = count;
+                imgDiv.appendChild(countDiv);
+            }
+            item.appendChild(imgDiv);
 
-            const useBtn = item.querySelector('.boost-use-btn');
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'boost-info';
+
+            const descDiv = document.createElement('div');
+            descDiv.className = 'boost-description';
+            descDiv.textContent = i18n.t(boost.name);
+            infoDiv.appendChild(descDiv);
+
+            const useBtn = document.createElement('button');
+            useBtn.className = 'boost-use-btn';
+            useBtn.textContent = 'Use';
+            infoDiv.appendChild(useBtn);
+
+            item.appendChild(infoDiv);
+
+            // Event listeners added above already for useBtn? No, doing it now.
             useBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.useBoost(boostId);

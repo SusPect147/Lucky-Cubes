@@ -114,18 +114,34 @@ const Shop = {
             const canAfford = currentCoins >= boost.price;
             const priceColor = canAfford ? '#00c88c' : '#dc3545';
 
-            item.innerHTML = `
-                <div class="boost-image">
-                    ${this.getIconSVG(boost.icon)}
-                </div>
-                <div class="boost-info">
-                    <div class="boost-description">${i18n.t(boost.description)}</div>
-                    <div class="boost-price" style="color: ${priceColor};">
-                        <span class="boost-price-icon">$LUCU</span>
-                        <span>${format(boost.price)}</span>
-                    </div>
-                </div>
-            `;
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'boost-image';
+            imgDiv.innerHTML = this.getIconSVG(boost.icon); // safe: hardcoded SVGs
+            item.appendChild(imgDiv);
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'boost-info';
+
+            const descDiv = document.createElement('div');
+            descDiv.className = 'boost-description';
+            descDiv.textContent = i18n.t(boost.description);
+            infoDiv.appendChild(descDiv);
+
+            const priceDiv = document.createElement('div');
+            priceDiv.className = 'boost-price';
+            priceDiv.style.color = priceColor;
+
+            const coinIcon = document.createElement('span');
+            coinIcon.className = 'boost-price-icon';
+            coinIcon.textContent = '$LUCU';
+            priceDiv.appendChild(coinIcon);
+
+            const priceSpan = document.createElement('span');
+            priceSpan.textContent = format(boost.price);
+            priceDiv.appendChild(priceSpan);
+
+            infoDiv.appendChild(priceDiv);
+            item.appendChild(infoDiv);
 
             item.addEventListener('click', () => {
                 this.buyBoost(boost.id);
