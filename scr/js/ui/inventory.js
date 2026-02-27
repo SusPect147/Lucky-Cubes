@@ -38,6 +38,8 @@ const Inventory = {
         const content = document.getElementById('inventory-content');
         const activeTab = document.querySelector('.inventory-tab-btn.active');
 
+        content.innerHTML = '';
+
         if (!activeTab || activeTab.dataset.tab === 'skins') {
             const divState = document.createElement('div');
             divState.className = 'inventory-empty-state';
@@ -61,7 +63,7 @@ const Inventory = {
             return;
         }
 
-        content.innerHTML = '';
+
         const boostsList = document.createElement('div');
         boostsList.className = 'inventory-boosts-list';
         boostsList.style.display = 'grid';

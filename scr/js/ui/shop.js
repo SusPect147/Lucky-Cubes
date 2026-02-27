@@ -122,6 +122,11 @@ const Shop = {
             const infoDiv = document.createElement('div');
             infoDiv.className = 'boost-info';
 
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'boost-name';
+            nameDiv.textContent = i18n.t(boost.name);
+            infoDiv.appendChild(nameDiv);
+
             const descDiv = document.createElement('div');
             descDiv.className = 'boost-description';
             descDiv.textContent = i18n.t(boost.description);

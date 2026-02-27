@@ -36,7 +36,7 @@ const i18n = (function () {
 
 
             if (el.hasAttribute('data-i18n-html')) {
-                el.textContent = translate(key);
+                el.innerHTML = translate(key);
             } else if (el.tagName.toLowerCase() === 'input' && el.type === 'placeholder') {
                 el.placeholder = translate(key);
             } else {
