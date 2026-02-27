@@ -190,7 +190,7 @@
 
 .quest-xp-container {
     flex-shrink: 0;
-    font-size: 0.85rem;
+    font-size: clamp(0.55rem, 2.5vw, 0.85rem);
     font-weight: 400;
     color: rgba(180, 180, 180, 0.6);
 }

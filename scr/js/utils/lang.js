@@ -80,6 +80,7 @@ const TRANSLATIONS = {
         "Extra Cube": "Extra Cube",
         "+2 Cubes": "+2 Cubes",
         "Rainbow Mode": "Rainbow mode",
+        leaderboard_your_rank: "#{rank} {name}",
     },
     ru: {
         loading: '{loaded}/{total} загружено',
@@ -104,7 +105,7 @@ const TRANSLATIONS = {
         filter_lucu: 'По $LUCU',
         filter_min: 'По МИН числу',
         you: 'Вы',
-        farm_more: 'Стремись к лучшему!',
+        farm_more: 'Фарми больше!',
         game_balance: 'Игровой баланс:',
         top_up_stars: 'Пополнить Звездами',
         top_up_ton: 'Пополнить TON',
@@ -122,7 +123,7 @@ const TRANSLATIONS = {
         quest_claimed: 'ПОЛУЧЕНО',
         quest_claim: 'ЗАБРАТЬ',
         quest_unavailable: 'Недоступно',
-        quest_go: 'ВЫПОЛНИТЬ',
+        quest_go: 'GO',
         "Roller Newbie": "Новичок",
         "Dice Flicker": "Кидала Дайсов",
         "Street Roller": "Уличный Игрок",
@@ -162,5 +163,6 @@ const TRANSLATIONS = {
         "Extra Cube": "Доп. Кубик",
         "+2 Cubes": "+2 Кубика",
         "Rainbow Mode": "Радужное сияние",
+        leaderboard_your_rank: "#{rank} {name}",
     }
 };

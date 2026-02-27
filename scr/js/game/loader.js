@@ -108,7 +108,7 @@ async function preload() {
 
     const tgsAssets = CONFIG.assets || [];
 
-    totalAssets = 1 + 1 + 1 + (SCRIPTS_TO_LOAD.length - 1) + tgsAssets.length + IMAGES_TO_LOAD.length;
+    totalAssets = SCRIPTS_TO_LOAD.length + tgsAssets.length + IMAGES_TO_LOAD.length;
     loadedCount = 0;
     updateLoadingText();
 
@@ -121,8 +121,7 @@ async function preload() {
             setTimeout(resolve, 3000);
         }
     });
-    loadedCount++;
-    updateLoadingText();
+
 
     await loadScript('scr/js/api.js');
     loadedCount++;
@@ -133,8 +132,7 @@ async function preload() {
     } catch (e) {
         console.error('Failed to fetch server state:', e);
     }
-    loadedCount++;
-    updateLoadingText();
+
 
     for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
         if (SCRIPTS_TO_LOAD[i] === 'scr/js/api.js') {
