@@ -46,7 +46,7 @@ const Quests = {
                 percentageText = '';
             } else if (q.id === 'subscribe_rayan' || q.id === 'donate_100') {
                 item.classList.add('disabled-quest');
-                percentageText = 'WAIT';
+                percentageText = '';
             } else if (q.completed && !q.claimed) {
                 item.classList.add('completed');
                 percentageText = '';

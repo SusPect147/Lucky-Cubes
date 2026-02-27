@@ -255,13 +255,25 @@
 }
 
 .quest-item.claimed {
-    opacity: 0.4;
     cursor: default;
     pointer-events: none;
 }
 
+.quest-item.claimed>* {
+    opacity: 0.4;
+}
+
 .quest-item.claimed .quest-percentage {
     display: none;
+}
+
+.quest-item.claimed::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 150, 0, 0.25);
+    z-index: 1;
+    border-radius: 18px;
 }
 
 .quest-item.claimed::after {
@@ -270,7 +282,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: rgba(255, 255, 255, 0.4);
+    color: #ffffff;
     font-size: 1.5rem;
     font-weight: 700;
     z-index: 2;
@@ -283,7 +295,7 @@
     pointer-events: none;
 }
 
-.quest-item.disabled-quest> :not(.claim-overlay) {
+.quest-item.disabled-quest>* {
     transition: opacity 0.3s;
     opacity: 0.1;
 }
@@ -292,14 +304,13 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(150, 0, 0, 0.25);
+    background: rgba(80, 80, 80, 0.25);
     z-index: 1;
     border-radius: 18px;
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
 }
 
 .quest-item.disabled-quest::after {
-    content: 'UNAVAILABLE';
+    content: 'Недоступно';
     position: absolute;
     top: 50%;
     left: 50%;
@@ -307,7 +318,7 @@
     color: #ffffff;
     font-size: 1.4rem;
     font-weight: 800;
-    text-shadow: 0 0 10px rgba(255, 50, 50, 0.8), 0 0 20px rgba(255, 50, 50, 0.5);
+    text-shadow: none;
     z-index: 2;
     pointer-events: none;
 }

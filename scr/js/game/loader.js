@@ -169,6 +169,19 @@ async function preload() {
     }
 
     // ── Done: show game with pre-fetched state ──
+    try {
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+            const user = window.Telegram.WebApp.initDataUnsafe.user;
+            if (user.photo_url) {
+                const avatarContainer = document.getElementById('player-avatar-container');
+                if (avatarContainer) {
+                    avatarContainer.style.background = 'transparent';
+                    avatarContainer.innerHTML = `<img src="${user.photo_url}" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+                }
+            }
+        }
+    } catch (e) { console.error('Error loading avatar:', e); }
+
     loadingScreen.style.opacity = '0';
     setTimeout(() => {
         loadingScreen.style.display = 'none';
