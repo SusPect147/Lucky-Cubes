@@ -95,7 +95,6 @@ function preloadImage(src) {
 const loadingScreen = document.getElementById('loading-screen');
 const loadingText = document.getElementById('loading-text');
 const gameContent = document.getElementById('game-content');
-const loadingChicken = document.getElementById('loading-chicken');
 
 function updateLoadingText() {
     if (loadingText) {
@@ -112,16 +111,7 @@ async function preload() {
     loadedCount = 0;
     updateLoadingText();
 
-    await new Promise(resolve => {
-        if (loadingChicken.complete && loadingChicken.naturalWidth > 0) {
-            resolve();
-        } else {
-            loadingChicken.onload = () => resolve();
-            loadingChicken.onerror = () => resolve();
-            setTimeout(resolve, 3000);
-        }
-    });
-
+    await new Promise(resolve => setTimeout(resolve, 300));
 
     await loadScript('scr/js/api.js?v=' + Date.now());
 

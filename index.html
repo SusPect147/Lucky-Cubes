@@ -27,11 +27,17 @@
 </head>
 
 <body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
+    <!-- Failsafe for cached older versions of loader.js -->
+    <img id="loading-chicken" style="display:none;"
+        src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt="dummy" />
 
     <div id="loading-screen">
         <div class="loading-center">
-            <svg class="google-spinner" viewBox="0 0 50 50">
-                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+            <svg class="google-spinner" viewBox="0 0 100 100">
+                <!-- Isometric Cube -->
+                <path class="path"
+                    d="M50 15 L85 35 L85 65 L50 85 L15 65 L15 35 Z M50 15 L50 50 L85 65 M15 65 L50 50 M50 50 L15 35"
+                    fill="none" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"></path>
             </svg>
         </div>
         <div class="loading-text" id="loading-text">0/8 loaded</div>
