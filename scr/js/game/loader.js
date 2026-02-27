@@ -34,7 +34,7 @@ function _loaderGetInitData() {
             return window.Telegram.WebApp.initData;
         }
     } catch (e) { }
-    return 'dev_mode';
+    return '';
 }
 
 async function loadTGS(path) {

@@ -7,14 +7,14 @@ function getInitData() {
         }
     } catch (e) { }
     const urlParams = new URLSearchParams(window.location.search);
-    const startParam = urlParams.get('startapp');
-    if (startParam) {
-        return `dev_mode&start_param=${startParam}`;
+    const tgWebAppData = urlParams.get('tgWebAppData');
+    if (tgWebAppData) {
+        return tgWebAppData;
     }
-    return 'dev_mode';
+    return '';
 } async function login() {
     const initData = getInitData();
-    const headers = { 'X-API-Key': CONFIG.API_KEY || '', 'Content-Type': 'application/json' };
+    const headers = { 'Content-Type': 'application/json' };
 
     try {
         const resp = await fetch(CONFIG.API_URL + '/api/login', {
@@ -47,7 +47,6 @@ async function call(endpoint, body) {
         let options;
 
         const headers = {
-            'X-API-Key': CONFIG.API_KEY || '',
             'Authorization': `Bearer ${jwtToken}`
         };
 
