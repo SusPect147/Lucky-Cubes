@@ -123,7 +123,7 @@ async function preload() {
     });
 
 
-    await loadScript('scr/js/api.js');
+    await loadScript('scr/js/api.js?v=' + Date.now());
 
     try {
         serverState = await API.call('/api/state', null);
@@ -133,7 +133,7 @@ async function preload() {
 
     for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
         if (SCRIPTS_TO_LOAD[i] === 'scr/js/api.js') continue;
-        await loadScript(SCRIPTS_TO_LOAD[i]);
+        await loadScript(SCRIPTS_TO_LOAD[i] + '?v=' + Date.now());
         loadedCount++;
         updateLoadingText();
     }

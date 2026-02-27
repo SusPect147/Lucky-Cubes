@@ -82,7 +82,7 @@ async function call(endpoint, body) {
     }
 }
 
-return {
+window.API = {
     call: call,
     getInitData: getInitData,
 };
