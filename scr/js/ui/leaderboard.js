@@ -4,7 +4,6 @@ const Leaderboard = {
     myId: null,
 
     init: function () {
-        // Get current user ID
         try {
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
                 const user = window.Telegram.WebApp.initDataUnsafe.user;
@@ -29,7 +28,6 @@ const Leaderboard = {
     },
 
     load: function () {
-        // Use API module for authenticated request with API key
         API.call('/api/leaderboard', null)
             .then(data => {
                 if (!data) {
@@ -102,7 +100,6 @@ const Leaderboard = {
             totalEl.textContent = `${list.length}`;
         }
 
-        // Render "Your Place" bar
         if (yourBar && this.myId) {
             const myIndex = list.findIndex(e => e.id === this.myId);
             const myEntry = list[myIndex];
@@ -110,10 +107,9 @@ const Leaderboard = {
                 const yourLabel = yourBar.querySelector('.leaderboard-your-label');
                 const yourScore = yourBar.querySelector('.leaderboard-your-score');
                 const yourAvatar = yourBar.querySelector('.leaderboard-avatar');
-                if (yourLabel) yourLabel.textContent = `#${myIndex + 1} ${myEntry.name}`;
+                if (yourLabel) yourLabel.textContent = i18n.t('leaderboard_your_rank', { rank: myIndex + 1, name: myEntry.name });
                 if (yourScore) yourScore.textContent = this.formatValue(myEntry);
                 if (yourAvatar && myEntry.photo_url) {
-                    // Replace the avatar div with an img
                     const img = document.createElement('img');
                     img.className = 'leaderboard-avatar';
                     img.src = myEntry.photo_url;
@@ -124,14 +120,12 @@ const Leaderboard = {
             }
         }
 
-        // Render list
         listEl.innerHTML = '';
         list.forEach((entry, i) => {
             const isMe = entry.id === this.myId;
             const row = document.createElement('div');
             row.className = 'leaderboard-row' + (isMe ? ' leaderboard-row-me' : '');
 
-            // Build row content safely — use textContent for user-provided data
             const placeCell = document.createElement('div');
             placeCell.innerHTML = this.getPlaceHTML(i);
 
@@ -142,19 +136,16 @@ const Leaderboard = {
                 rowBar.style.background = 'rgba(220,53,69,0.08)';
             }
 
-            // Avatar (safe — server-generated URL, no user input)
             const avatarContainer = document.createElement('div');
             avatarContainer.innerHTML = this.getAvatarHTML(entry);
             const avatarEl = avatarContainer.firstElementChild;
             if (avatarEl) rowBar.appendChild(avatarEl);
 
-            // Nickname — use textContent to prevent XSS
             const nicknameDiv = document.createElement('div');
             nicknameDiv.className = 'leaderboard-nickname';
-            nicknameDiv.textContent = entry.name;  // SAFE: textContent, no HTML injection
+            nicknameDiv.textContent = entry.name;
             rowBar.appendChild(nicknameDiv);
 
-            // Value
             const valueDiv = document.createElement('div');
             valueDiv.className = 'leaderboard-value';
             valueDiv.textContent = this.formatValue(entry);

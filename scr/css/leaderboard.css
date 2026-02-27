@@ -643,7 +643,7 @@
     object-fit: cover;
 }
 
-/* Placeholder icon only for div avatars (no image) */
+
 div.leaderboard-avatar::after {
     content: '';
     width: 16px;

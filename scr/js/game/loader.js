@@ -1,9 +1,8 @@
 const animationCache = {};
 let loadedCount = 0;
 let totalAssets = 0;
-let serverState = null; // Fetched during loading
+let serverState = null;
 
-// Scripts to load dynamically (in order)
 const SCRIPTS_TO_LOAD = [
     'scr/js/api.js',
     'scr/js/wallet.js',
@@ -29,7 +28,6 @@ const IMAGES_TO_LOAD = [
 ];
 
 function _loaderGetInitData() {
-    // Fallback for loading phase (before api.js is loaded)
     if (typeof API !== 'undefined' && API.getInitData) return API.getInitData();
     try {
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
@@ -101,19 +99,19 @@ const loadingChicken = document.getElementById('loading-chicken');
 
 function updateLoadingText() {
     if (loadingText) {
-        loadingText.textContent = `${loadedCount}/${totalAssets} loaded`;
+        loadingText.textContent = i18n.t('loading', { loaded: loadedCount, total: totalAssets });
     }
 }
 
 async function preload() {
+    i18n.init();
+
     const tgsAssets = CONFIG.assets || [];
 
-    // Total: chicken + api.js + server state + remaining scripts + TGS + images
     totalAssets = 1 + 1 + 1 + (SCRIPTS_TO_LOAD.length - 1) + tgsAssets.length + IMAGES_TO_LOAD.length;
     loadedCount = 0;
     updateLoadingText();
 
-    // ── Step 1: Load chicken image FIRST ──
     await new Promise(resolve => {
         if (loadingChicken.complete && loadingChicken.naturalWidth > 0) {
             resolve();
@@ -126,12 +124,10 @@ async function preload() {
     loadedCount++;
     updateLoadingText();
 
-    // ── Step 2: Load api.js FIRST (needed for signed state fetch) ──
     await loadScript('scr/js/api.js');
     loadedCount++;
     updateLoadingText();
 
-    // ── Step 3: Fetch server state with proper HMAC signing ──
     try {
         serverState = await API.call('/api/state', null);
     } catch (e) {
@@ -140,7 +136,6 @@ async function preload() {
     loadedCount++;
     updateLoadingText();
 
-    // ── Step 4: Load remaining JS scripts (api.js already loaded) ──
     for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
         if (SCRIPTS_TO_LOAD[i] === 'scr/js/api.js') {
             loadedCount++;
@@ -152,7 +147,6 @@ async function preload() {
         updateLoadingText();
     }
 
-    // ── Step 5: Load TGS animations ──
     for (let i = 0; i < tgsAssets.length; i++) {
         const name = tgsAssets[i].replace('.tgs', '');
         const data = await loadTGS(CONFIG.assetsPath + tgsAssets[i]);
@@ -161,14 +155,12 @@ async function preload() {
         updateLoadingText();
     }
 
-    // ── Step 6: Preload images ──
     for (let i = 0; i < IMAGES_TO_LOAD.length; i++) {
         await preloadImage(IMAGES_TO_LOAD[i]);
         loadedCount++;
         updateLoadingText();
     }
 
-    // ── Done: show game with pre-fetched state ──
     try {
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
             const user = window.Telegram.WebApp.initDataUnsafe.user;

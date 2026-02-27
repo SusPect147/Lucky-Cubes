@@ -1,10 +1,4 @@
-/**
- * Shared API module — HMAC-signed requests to prevent console forgery.
- * Every API call includes: initData, nonce, timestamp, and HMAC signature.
- * All requests include X-API-Key header for server-side validation.
- */
 const API = (function () {
-    // App salt — NOT a secret per se, but makes brute-forcing harder
     const _S = 'LuckyCubes$2026$xK9m';
 
     function getInitData() {
@@ -13,13 +7,11 @@ const API = (function () {
                 return window.Telegram.WebApp.initData;
             }
         } catch (e) { }
-        // Attempt to mock start_param in dev mode
         const urlParams = new URLSearchParams(window.location.search);
         const startParam = urlParams.get('startapp');
         if (startParam) {
             return `dev_mode&start_param=${startParam}`;
         }
-        return 'dev_mode';
         return 'dev_mode';
     }
 
@@ -29,7 +21,6 @@ const API = (function () {
         return Array.from(a, b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Derive a signing key from initData + salt using SHA-256
     async function _deriveKey(initData) {
         const enc = new TextEncoder();
         const material = enc.encode(initData + '::' + _S);
@@ -39,14 +30,12 @@ const API = (function () {
         );
     }
 
-    // Sign a canonical string
     async function _sign(key, message) {
         const enc = new TextEncoder();
         const sig = await crypto.subtle.sign('HMAC', key, enc.encode(message));
         return Array.from(new Uint8Array(sig), b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Build canonical string for signing (sorted key=value pairs)
     function _canonical(obj) {
         const keys = Object.keys(obj).filter(k => k !== 'signature').sort();
         return keys.map(k => {
@@ -55,12 +44,6 @@ const API = (function () {
         }).join('&');
     }
 
-    /**
-     * Make an API call with HMAC signing and API key.
-     * @param {string} endpoint - e.g. '/api/roll'
-     * @param {object|null} body - POST body (null = GET)
-     * @returns {Promise<object|null>}
-     */
     async function call(endpoint, body) {
         try {
             const initData = getInitData();
@@ -70,7 +53,6 @@ const API = (function () {
             let url = CONFIG.API_URL + endpoint;
             let options;
 
-            // Common headers with API key
             const headers = {
                 'X-API-Key': CONFIG.API_KEY || '',
             };
@@ -80,7 +62,6 @@ const API = (function () {
                 body.nonce = nonce;
                 body.ts = ts;
 
-                // Sign the payload
                 const key = await _deriveKey(initData);
                 const canonical = _canonical(body);
                 body.signature = await _sign(key, canonical);
@@ -93,7 +74,6 @@ const API = (function () {
                     body: JSON.stringify(body),
                 };
             } else {
-                // GET — sign query params
                 const params = { initData, nonce, ts };
                 const key = await _deriveKey(initData);
                 const canonical = _canonical(params);
@@ -112,7 +92,7 @@ const API = (function () {
                 console.error('API error:', resp.status);
                 try {
                     const errBody = await resp.json();
-                    return errBody; // return the JSON so game.js can read .error
+                    return errBody;
                 } catch (e) {
                     return null;
                 }

@@ -107,7 +107,6 @@ const Shop = {
             item.className = 'boost-item';
             item.dataset.id = boost.id;
 
-
             let currentCoins = 0;
             if (typeof Game !== 'undefined' && Game.getCoinCount) {
                 currentCoins = Game.getCoinCount();
@@ -120,7 +119,7 @@ const Shop = {
                     ${this.getIconSVG(boost.icon)}
                 </div>
                 <div class="boost-info">
-                    <div class="boost-description">${boost.description}</div>
+                    <div class="boost-description">${i18n.t(boost.description)}</div>
                     <div class="boost-price" style="color: ${priceColor};">
                         <span class="boost-price-icon">$LUCU</span>
                         <span>${format(boost.price)}</span>
@@ -154,7 +153,6 @@ const Shop = {
         const item = document.querySelector(`.boost-item[data-id="${boostId}"]`);
         if (!item) return;
 
-        // Call server to buy boost (signed via API module)
         API.call('/api/buy-boost', { boostId: boostId })
             .then(resp => {
                 if (!resp || resp.error) {
@@ -162,12 +160,10 @@ const Shop = {
                     return;
                 }
 
-                // Update local state from server
                 if (typeof Game !== 'undefined' && Game.applyServerState) {
                     Game.applyServerState(resp);
                 }
 
-                // Particle effect
                 const rect = item.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
@@ -210,4 +206,3 @@ const Shop = {
         }
     }
 };
-

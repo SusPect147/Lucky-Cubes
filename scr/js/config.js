@@ -1,6 +1,6 @@
 const CONFIG = {
     API_URL: 'https://my-cubes-server.onrender.com',
-    API_KEY: 'LuCu_s3cur3_k3y_2026!xQ',  // Must match Render env var API_KEY
+    API_KEY: 'LuCu_s3cur3_k3y_2026!xQ',
     BOT_USERNAME: 'my_cubes_bot',
     assetsPath: 'assets/UI/cubics/classic_skins/',
     assets: [

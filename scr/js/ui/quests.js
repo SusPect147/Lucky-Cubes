@@ -14,19 +14,15 @@ const Quests = {
         this.listEl.innerHTML = '';
 
         const activeQuests = this.data.filter(q => {
-            // Keep social quests, keep uncompleted quests.
-            // For roll/rainbow, we want to KEEP them even if claimed because they cycle.
             if (q.social) return true;
-            return true; // We actually never want to remove quests from UI, just mark them claimed.
+            return true;
         });
         const itemsToCheck = [];
 
         activeQuests.forEach(q => {
-
             const currentProgress = q.social ? 0 : q.current;
             const progress = q.social ? (q.completed ? 100 : 0) : Math.min(100, (currentProgress / q.target) * 100);
 
-            // Force completed if progress >= 100% OR current >= target (fixes edge case after quest reset)
             if (!q.claimed && !q.social && (progress >= 100 || q.current >= q.target)) {
                 q.completed = true;
             }
@@ -34,14 +30,16 @@ const Quests = {
             const item = document.createElement('div');
             item.className = 'quest-item';
             item.dataset.id = q.id;
+            item.setAttribute('data-text-claimed', i18n.t('quest_claimed'));
+            item.setAttribute('data-text-claim', i18n.t('quest_claim'));
+            item.setAttribute('data-text-unavailable', i18n.t('quest_unavailable'));
 
-            const nameText = q.name.replace('{target}', q.target);
+            const nameText = i18n.t(q.name, { target: q.target });
             const xpText = `(+${q.xp} xp)`;
 
             let percentageText = `${progress.toFixed(0)}%`;
 
             if (q.claimed && q.social) {
-                // Social quests get a specific "CLAIMED" visual state
                 item.classList.add('claimed');
                 percentageText = '';
             } else if (q.id === 'subscribe_rayan' || q.id === 'donate_100') {
@@ -52,7 +50,7 @@ const Quests = {
                 percentageText = '';
             } else if (q.social && !q.completed) {
                 item.classList.add('social-active');
-                percentageText = 'GO';
+                percentageText = i18n.t('quest_go');
             }
 
             item.innerHTML = `
@@ -80,7 +78,6 @@ const Quests = {
                         if (e.currentTarget === item) {
                             item.removeEventListener('click', clickHandler);
 
-                            // Handle Social Redirect First
                             if (q.social && !q.completed) {
                                 if (q.id === 'subscribe_lucky') {
                                     let url = "https://t.me/my_cubes_channel";
@@ -105,9 +102,7 @@ const Quests = {
             itemsToCheck.push(item);
         });
 
-
         if (itemsToCheck.length > 0) {
-
             setTimeout(() => {
                 itemsToCheck.forEach(item => {
                     const marqueeContainer = item.querySelector('.quest-description-marquee');
@@ -116,20 +111,14 @@ const Quests = {
 
                     if (!originalTextSpan || !marqueeContainer) return;
 
-
                     marqueeWrapper.classList.remove('marquee-active');
-
-
 
                     const textWidth = originalTextSpan.offsetWidth;
                     const containerWidth = marqueeContainer.offsetWidth;
 
-
                     if (textWidth > containerWidth) {
-
                         marqueeWrapper.classList.add('marquee-active');
                     }
-
                 });
             }, 0);
         }
@@ -159,4 +148,3 @@ const Quests = {
         if (didUpdate) this.render();
     },
 };
-

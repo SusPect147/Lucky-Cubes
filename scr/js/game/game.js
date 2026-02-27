@@ -16,7 +16,7 @@ const Game = (function () {
     let consecutiveRolls = 0;
     let lastRollTime = 0;
 
-    // Use shared API module for all network calls
+
     function apiCall(endpoint, body) {
         return API.call(endpoint, body);
     }
@@ -42,10 +42,51 @@ const Game = (function () {
             rainbowFill.style.width = '0%';
             rainbowFill.classList.remove('rainbow-active');
         }
-        if (rainbowText) rainbowText.textContent = `0/${targetRainbow} rolls to Rainbow Mode`;
+        if (rainbowText) rainbowText.textContent = i18n.t('rainbow_progress', { current: 0, target: targetRainbow });
     }
 
-    // generateMin removed — now computed on server
+
+
+    function updateLevel(xp) {
+        let levelIdx = 0;
+        for (let i = 0; i < CONFIG.levels.length; i++) {
+            if (xp >= CONFIG.levels[i].xp) {
+                levelIdx = i + 1;
+            } else {
+                break;
+            }
+        }
+        levelIdx = Math.min(levelIdx, CONFIG.levels.length - 1);
+
+        let currentLvlXp;
+        let targetXp;
+
+        if (levelIdx === 0) {
+            currentLvlXp = xp;
+            targetXp = CONFIG.levels[0].xp;
+        } else {
+            const prevXp = CONFIG.levels[levelIdx - 1].xp;
+            currentLvlXp = xp - prevXp;
+            targetXp = CONFIG.levels[levelIdx].xp - prevXp;
+        }
+
+        const progressEl = document.getElementById('progress-fill');
+        const xpTextEl = document.getElementById('xp-text');
+        const rankTextEl = document.getElementById('rank-text');
+
+        if (progressEl) {
+            const percent = Math.min(100, Math.max(0, (currentLvlXp / targetXp) * 100));
+            progressEl.style.width = percent + '%';
+        }
+
+        if (xpTextEl) xpTextEl.textContent = i18n.t('xp_format', { current: parseInt(currentLvlXp, 10), total: targetXp });
+
+        if (rankTextEl) {
+
+            const rawRank = CONFIG.levels[levelIdx].name;
+            rankTextEl.textContent = i18n.t(rawRank);
+        }
+    }
 
     function addXP(amount) {
         totalXP += amount;
@@ -167,7 +208,7 @@ const Game = (function () {
 
         isRolling = true;
 
-        // Optimistic: pick a local random roll and start animation IMMEDIATELY
+
         const localRoll = Math.floor(Math.random() * 6) + 1;
         const animData = animationCache[localRoll + '-cubic'];
         if (!animData) {
@@ -175,7 +216,7 @@ const Game = (function () {
             return;
         }
 
-        // Fire server API call in parallel (don't wait for it)
+
         const boostIds = activeBoosts.map(b => b.id);
         let serverResult = null;
         let serverError = false;
@@ -223,7 +264,7 @@ const Game = (function () {
             currentAnim.removeEventListener('complete', handler);
             clearTimeout(safetyTimeout);
 
-            // Wait for server if it hasn't responded yet
+
             const applyResult = () => {
                 if (serverError) {
                     isRolling = false;
@@ -234,7 +275,7 @@ const Game = (function () {
                 const rainbowText = document.getElementById('rainbow-text');
                 const rainbowOverlay = document.getElementById('rainbow-overlay');
 
-                // Apply server-computed values
+
                 coinCount = serverResult.totalCoins;
                 currentMin = serverResult.currentMin;
                 totalXP = serverResult.totalXP;
@@ -246,7 +287,7 @@ const Game = (function () {
                 if (serverResult.rainbowTriggered) {
                     isRainbow = true;
                     isRainbowFromBoost = false;
-                    if (rainbowText) rainbowText.textContent = 'Rainbow Mode Active!';
+                    if (rainbowText) rainbowText.textContent = i18n.t('rainbow_active');
                     if (rainbowOverlay) rainbowOverlay.classList.add('active');
                     const rf = document.getElementById('rainbow-progress-fill');
                     if (rf) {
@@ -258,7 +299,7 @@ const Game = (function () {
                 } else if (!isRainbow) {
                     const percent = (rollsToRainbow / targetRainbow) * 100;
                     if (rainbowFill) rainbowFill.style.width = percent + '%';
-                    if (rainbowText) rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
+                    if (rainbowText) rainbowText.textContent = i18n.t('rainbow_progress', { current: rollsToRainbow, target: targetRainbow });
                 } else if (isRainbow && !isRainbowFromBoost) {
                     isRainbow = false;
                     if (rainbowOverlay) rainbowOverlay.classList.remove('active');
@@ -280,7 +321,7 @@ const Game = (function () {
             } else if (serverError) {
                 isRolling = false;
             } else {
-                // Server hasn't responded yet — wait for it
+
                 serverPromise.then(() => applyResult());
             }
         });
@@ -291,14 +332,14 @@ const Game = (function () {
         if (!quest || quest.claimed) return;
         if (!quest.completed && !quest.social) return;
 
-        // Call server to claim quest
+
         apiCall('/api/quest-claim', {
             initData: getInitData(),
             questId: id,
         }).then(resp => {
             if (!resp || resp.error) {
                 if (resp && resp.error === 'not_subscribed' && resp.channelUrl) {
-                    // Open Telegram link and wait for user to subscribe
+
                     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
                         window.Telegram.WebApp.openTelegramLink(resp.channelUrl);
                     } else {
@@ -310,7 +351,7 @@ const Game = (function () {
                 return;
             }
 
-            // Apply server state
+
             coinCount = resp.totalCoins;
             totalXP = resp.totalXP;
             updateLevel(totalXP);
@@ -325,7 +366,7 @@ const Game = (function () {
             const questEl = document.querySelector(`.quest-item[data-id="${id}"]`) || document.createElement('div');
             if (!document.body.contains(questEl)) {
                 Quests.render();
-                return; // Exit particles if we couldn't find real element on DOM
+                return;
             }
             if (!questEl) return;
 
@@ -368,7 +409,7 @@ const Game = (function () {
                 q.completed = !!sq.completed;
                 q.claimed = !!sq.claimed;
             }
-            // Always mark completed if current >= target (even without server flag)
+
             if (!q.claimed && !q.social && q.current >= q.target) {
                 q.completed = true;
             }
@@ -378,7 +419,7 @@ const Game = (function () {
 
     return {
         init: function (prefetchedState) {
-            // Use pre-fetched state from loader (already loaded during loading screen)
+
             const state = prefetchedState;
             if (state && !state.error) {
                 coinCount = state.totalCoins || 0;
@@ -387,7 +428,7 @@ const Game = (function () {
                 rollsToRainbow = state.rollsToRainbow || 0;
                 targetRainbow = state.targetRainbow || 7;
 
-                // Restore rainbow mode
+
                 if (state.isRainbow) {
                     isRainbow = true;
                     isRainbowFromBoost = false;
@@ -399,7 +440,7 @@ const Game = (function () {
                         rf.classList.add('rainbow-active');
                     }
                     const rainbowText = document.getElementById('rainbow-text');
-                    if (rainbowText) rainbowText.textContent = 'Rainbow Mode Active!';
+                    if (rainbowText) rainbowText.textContent = i18n.t('rainbow_active');
                 }
             } else {
                 totalXP = 0;
@@ -420,24 +461,24 @@ const Game = (function () {
                     refEarnedEl.textContent = state.referralEarned + ' TON';
                 }
             }
-            // Update rainbow progress bar (if not in rainbow mode)
+
             if (!isRainbow) {
                 const rainbowFill = document.getElementById('rainbow-progress-fill');
                 const rainbowText = document.getElementById('rainbow-text');
                 if (rainbowFill && rainbowText) {
                     const percent = (rollsToRainbow / targetRainbow) * 100;
                     rainbowFill.style.width = percent + '%';
-                    rainbowText.textContent = `${rollsToRainbow}/${targetRainbow} rolls to Rainbow Mode`;
+                    rainbowText.textContent = i18n.t('rainbow_progress', { current: rollsToRainbow, target: targetRainbow });
                 }
             }
-            // Sync quests and inventory from server
+
             if (state) {
                 syncQuestsFromServer(state.quests);
                 if (typeof Inventory !== 'undefined' && Inventory.loadFromServer) {
                     Inventory.loadFromServer(state.inventory || {});
                 }
             }
-            // Init leaderboard
+
             if (typeof Leaderboard !== 'undefined' && Leaderboard.init) {
                 Leaderboard.init();
             }
@@ -480,14 +521,13 @@ const Game = (function () {
                 }
             });
         },
-        // addCoins / addXP / setXP / setMinNumber / setRainbowProgress removed
-        // — state is authoritative from server only
+
         activateRainbowMode: function () {
             isRainbow = true;
             const rainbowOverlay = document.getElementById('rainbow-overlay');
             const rainbowText = document.getElementById('rainbow-text');
             rainbowOverlay.classList.add('active');
-            rainbowText.textContent = 'Rainbow Mode Active!';
+            rainbowText.textContent = i18n.t('rainbow_active');
             showIdleCube();
             if (extraCubes > 0) {
                 this.updateCubeLayout();
@@ -505,7 +545,7 @@ const Game = (function () {
             const rainbowText = document.getElementById('rainbow-text');
             const rainbowFill = document.getElementById('rainbow-progress-fill');
             rainbowOverlay.classList.add('active');
-            rainbowText.textContent = 'Rainbow Mode Active!';
+            rainbowText.textContent = i18n.t('rainbow_active');
             if (rainbowFill) {
                 rainbowFill.style.width = '100%';
                 rainbowFill.classList.add('rainbow-active');
@@ -545,8 +585,8 @@ const Game = (function () {
             return coinCount;
         },
         useBoost: function (boostId, serverDuration) {
-            // Duration is now determined by the server — no client-side randomness
-            const duration = serverDuration || 30000; // fallback 30s if missing
+
+            const duration = serverDuration || 30000;
             if (boostId === 'rainbow_mode') {
                 this.activateRainbowModeFromBoost(duration);
             } else if (boostId === 'extra_cube') {
@@ -683,7 +723,7 @@ const Game = (function () {
                         ${iconSVG}
                     </div>
                     <div class="boost-timer-text">
-                        <div class="boost-timer-name">${boostData.name}</div>
+                        <div class="boost-timer-name">${i18n.t(boostData.name)}</div>
                         <div class="boost-timer-time">${timeText}</div>
                     </div>
                 `;
@@ -709,7 +749,7 @@ const Game = (function () {
                             ${iconSVG}
                         </div>
                         <div class="boost-timer-text">
-                            <div class="boost-timer-name">${boostName}</div>
+                            <div class="boost-timer-name">${i18n.t(boostName)}</div>
                             <div class="boost-timer-time">${timeText}</div>
                         </div>
                     `;
@@ -735,7 +775,7 @@ const Game = (function () {
                             ${iconSVG}
                         </div>
                         <div class="boost-timer-text">
-                            <div class="boost-timer-name">Rainbow Mode</div>
+                            <div class="boost-timer-name">${i18n.t("Rainbow Mode")}</div>
                             <div class="boost-timer-time">${timeText}</div>
                         </div>
                     `;
@@ -747,7 +787,7 @@ const Game = (function () {
             if (!hasActiveBoosts) {
                 const emptyEl = document.createElement('div');
                 emptyEl.className = 'boost-timers-empty';
-                emptyEl.textContent = 'Haha, activate a boost to be cooler';
+                emptyEl.textContent = i18n.t('boost_empty');
                 boostList.appendChild(emptyEl);
             }
 
@@ -976,7 +1016,7 @@ const Game = (function () {
             const rainbowText = document.getElementById('rainbow-text');
             const rainbowOverlay = document.getElementById('rainbow-overlay');
 
-            // Apply server-computed values
+
             coinCount = serverResult.totalCoins;
             currentMin = serverResult.currentMin;
             totalXP = serverResult.totalXP;
@@ -1057,10 +1097,10 @@ const Game = (function () {
                 }
             }, 10000);
 
-            const totalCubes = extraCubes + 1; // extra + main
+            const totalCubes = extraCubes + 1;
             Quests.updateProgress('roll', 1);
 
-            // Ask server for multi-roll result
+
             apiCall('/api/roll-multi', {
                 initData: getInitData(),
                 cubeCount: totalCubes,
