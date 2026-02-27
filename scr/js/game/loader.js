@@ -93,14 +93,58 @@ function preloadImage(src) {
 }
 
 const loadingScreen = document.getElementById('loading-screen');
-const loadingText = document.getElementById('loading-text');
 const gameContent = document.getElementById('game-content');
 
 function updateLoadingText() {
-    if (loadingText) {
-        loadingText.textContent = i18n.t('loading', { loaded: loadedCount, total: totalAssets });
+    const redText = document.getElementById('loading-text-red');
+    const cyanText = document.getElementById('loading-text-cyan');
+
+    if (redText && cyanText) {
+        const rawText = i18n.t('loading', { loaded: loadedCount, total: totalAssets });
+        // Make uppercase and replace first space with <br/> to match cube_animation.html layout
+        const formattedText = rawText.toUpperCase().replace(' ', '<br/>');
+        redText.innerHTML = formattedText;
+        cyanText.innerHTML = formattedText;
     }
 }
+
+// 3D Parallax Tilt Effect for loader
+let tiltWrapper;
+let currentRotateX = 0;
+let currentRotateY = 0;
+let targetRotateX = 0;
+let targetRotateY = 0;
+
+document.addEventListener('mousemove', (e) => {
+    tiltWrapper = document.getElementById('interactive-cube-wrapper');
+    if (!tiltWrapper) return;
+    const x = e.clientX;
+    const y = e.clientY;
+
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+
+    targetRotateX = ((y - centerY) / centerY) * -35;
+    targetRotateY = ((x - centerX) / centerX) * 35;
+});
+
+document.addEventListener('mouseleave', () => {
+    targetRotateX = 0;
+    targetRotateY = 0;
+});
+
+function animateTilt() {
+    tiltWrapper = document.getElementById('interactive-cube-wrapper');
+    if (tiltWrapper) {
+        currentRotateX += (targetRotateX - currentRotateX) * 0.1;
+        currentRotateY += (targetRotateY - currentRotateY) * 0.1;
+
+        tiltWrapper.style.transform = `translate(-50%, -50%) rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
+    }
+    requestAnimationFrame(animateTilt);
+}
+
+animateTilt();
 
 async function preload() {
     i18n.init();
