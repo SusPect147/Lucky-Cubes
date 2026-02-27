@@ -116,8 +116,14 @@
             ]
         };
 
-        tonConnectUI.sendTransaction(transaction).then(function () {
+        tonConnectUI.sendTransaction(transaction).then(function (result) {
             alert('Thank you for your donation of ' + amountTON + ' TON!');
+            if (window.API && window.API.call) {
+                const boc = result && result.boc ? result.boc : '';
+                window.API.call('/api/donate', { amount: amountTON, boc: boc })
+                    .then(res => console.log('Donation recorded:', res))
+                    .catch(err => console.error('Failed to record donation:', err));
+            }
         }).catch(function (e) {
             if (e && e.message && e.message.indexOf('cancel') !== -1) return;
             console.warn('[Wallet] Transaction error:', e);
