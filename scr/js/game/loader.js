@@ -124,8 +124,6 @@ async function preload() {
 
 
     await loadScript('scr/js/api.js');
-    loadedCount++;
-    updateLoadingText();
 
     try {
         serverState = await API.call('/api/state', null);
@@ -133,18 +131,12 @@ async function preload() {
         console.error('Failed to fetch server state:', e);
     }
 
-
     for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
-        if (SCRIPTS_TO_LOAD[i] === 'scr/js/api.js') {
-            loadedCount++;
-            updateLoadingText();
-            continue;
-        }
+        if (SCRIPTS_TO_LOAD[i] === 'scr/js/api.js') continue;
         await loadScript(SCRIPTS_TO_LOAD[i]);
         loadedCount++;
         updateLoadingText();
     }
-
     for (let i = 0; i < tgsAssets.length; i++) {
         const name = tgsAssets[i].replace('.tgs', '');
         const data = await loadTGS(CONFIG.assetsPath + tgsAssets[i]);

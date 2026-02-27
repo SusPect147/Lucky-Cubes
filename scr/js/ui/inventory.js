@@ -41,7 +41,7 @@ const Inventory = {
         if (!activeTab || activeTab.dataset.tab === 'skins') {
             content.innerHTML = `
                 <div class="inventory-empty-state">
-                    <div class="inventory-empty-text">Oops, looks like there's nothing here</div>
+                    <div class="inventory-empty-text">${i18n.t('empty_skins')}</div>
                 </div>
             `;
             return;
@@ -51,7 +51,7 @@ const Inventory = {
         if (boostIds.length === 0) {
             content.innerHTML = `
                 <div class="inventory-empty-state">
-                    <div class="inventory-empty-text">Oops, looks like there's nothing here</div>
+                    <div class="inventory-empty-text">${i18n.t('empty_skins')}</div>
                 </div>
             `;
             return;
@@ -80,7 +80,7 @@ const Inventory = {
                     ${countDisplay}
                 </div>
                 <div class="boost-info">
-                    <div class="boost-description">${boost.name}</div>
+                    <div class="boost-description">${i18n.t(boost.name)}</div>
                     <button class="boost-use-btn">Use</button>
                 </div>
             `;

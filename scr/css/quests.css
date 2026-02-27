@@ -363,3 +363,14 @@
         opacity: 0.6;
     }
 }
+
+.quest-item.social-active .quest-percentage {
+    color: #ffffff;
+    font-weight: 800;
+    opacity: 1;
+    text-shadow: none;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: initial;
+}

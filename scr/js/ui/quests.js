@@ -50,7 +50,7 @@ const Quests = {
                 percentageText = '';
             } else if (q.social && !q.completed) {
                 item.classList.add('social-active');
-                percentageText = i18n.t('quest_go');
+                percentageText = 'GO';
             }
 
             item.innerHTML = `
