@@ -64,7 +64,16 @@ async function call(endpoint, body) {
             };
         }
 
-        const resp = await fetch(url, options);
+        let resp = await fetch(url, options);
+        if (resp.status === 401) {
+            jwtToken = null;
+            const success = await login();
+            if (success) {
+                options.headers['Authorization'] = `Bearer ${jwtToken}`;
+                resp = await fetch(url, options);
+            }
+        }
+
         if (!resp.ok) {
             console.error('API error:', resp.status);
             try {
