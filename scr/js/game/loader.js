@@ -159,10 +159,17 @@ async function preload() {
 
     await loadScript('scr/js/api.js?v=' + Date.now());
 
+    // Start API call, but don't await it yet! Let it run concurrently.
+    let statePromise = null;
     try {
-        serverState = await API.call('/api/state', null);
+        if (typeof API !== 'undefined') {
+            statePromise = API.call('/api/state', null).catch(e => {
+                console.error('Failed to fetch server state:', e);
+                return null;
+            });
+        }
     } catch (e) {
-        console.error('Failed to fetch server state:', e);
+        console.error('API call initialization failed:', e);
     }
 
     for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
@@ -205,6 +212,14 @@ async function preload() {
             }
         }
     } catch (e) { console.error('Error loading avatar:', e); }
+
+    try {
+        if (statePromise) {
+            serverState = await statePromise;
+        }
+    } catch (e) {
+        console.error('Failed awaiting statePromise:', e);
+    }
 
     loadingScreen.style.opacity = '0';
     setTimeout(() => {

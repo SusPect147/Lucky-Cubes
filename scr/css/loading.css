@@ -130,14 +130,16 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: min(15vw, 6rem);
+    font-size: clamp(1.5rem, 8vw, 4rem);
     font-weight: 900;
     line-height: 1.1;
-    letter-spacing: 6px;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    white-space: nowrap;
+    white-space: pre-wrap;
+    word-break: break-word;
     text-align: center;
     pointer-events: none;
+    width: 90vw;
 }
 
 .bg-text-red {
