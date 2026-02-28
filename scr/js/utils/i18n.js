@@ -5,35 +5,45 @@ const i18n = (function () {
     function init() {
         let langCode = 'en';
 
-        let rawInitData = '';
-        if (window.location.hash && window.location.hash.includes('tgWebAppData=')) {
-            const hashParams = new URLSearchParams(window.location.hash.substring(1));
-            rawInitData = hashParams.get('tgWebAppData');
-        } else if (window.location.search && window.location.search.includes('tgWebAppData=')) {
-            const searchParams = new URLSearchParams(window.location.search);
-            rawInitData = searchParams.get('tgWebAppData');
-        }
-
-        if (rawInitData) {
-            try {
-                const urlParams = new URLSearchParams(rawInitData);
-                const userStr = urlParams.get('user');
-                if (userStr) {
-                    const userObj = JSON.parse(decodeURIComponent(userStr));
-                    if (userObj && userObj.language_code) {
-                        langCode = userObj.language_code;
-                        tgLangCode = langCode;
-                    }
-                }
-            } catch (e) {
-                console.error("Error parsing raw tgWebAppData", e);
-            }
-        }
-
-        // Fallback to initDataUnsafe if URL didn't contain it
-        if (tgLangCode === 'unknown' && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+        // 1. Primary source: use Telegram WebApp's Native Object if available 
+        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user && window.Telegram.WebApp.initDataUnsafe.user.language_code) {
             langCode = window.Telegram.WebApp.initDataUnsafe.user.language_code;
             tgLangCode = langCode;
+        } else {
+            // 2. Fallback: Parse URL hash manually
+            let rawInitData = '';
+            if (window.location.hash && window.location.hash.includes('tgWebAppData=')) {
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                rawInitData = hashParams.get('tgWebAppData');
+            } else if (window.location.search && window.location.search.includes('tgWebAppData=')) {
+                const searchParams = new URLSearchParams(window.location.search);
+                rawInitData = searchParams.get('tgWebAppData');
+            }
+
+            if (rawInitData) {
+                try {
+                    const urlParams = new URLSearchParams(rawInitData);
+                    const userStr = urlParams.get('user');
+                    if (userStr) {
+                        try {
+                            const userObj = JSON.parse(decodeURIComponent(userStr));
+                            if (userObj && userObj.language_code) {
+                                langCode = userObj.language_code;
+                                tgLangCode = langCode;
+                            }
+                        } catch (e) {
+                            // Secondary fallback if decodeURIComponent fails
+                            const userObj = JSON.parse(userStr);
+                            if (userObj && userObj.language_code) {
+                                langCode = userObj.language_code;
+                                tgLangCode = langCode;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error parsing raw tgWebAppData", e);
+                }
+            }
         }
 
         if (langCode === 'ru' || langCode === 'be' || langCode === 'uk' || langCode === 'kk') {
