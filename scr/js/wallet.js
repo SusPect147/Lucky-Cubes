@@ -29,15 +29,14 @@
             const rawAddr = wallet.account.address || '';
             let parsedAddr = rawAddr;
             try {
-                // If it's a raw hex, attempt basic conversion via core if available or keep fallback
-                parsedAddr = rawAddr.includes(':') ? rawAddr : rawAddr;
-                if (tonConnectUI && tonConnectUI.account && window.TonConnect && window.TonConnect.toUserFriendlyAddress) {
-                    parsedAddr = window.TonConnect.toUserFriendlyAddress(rawAddr);
-                } else if (tonConnectUI && tonConnectUI.walletInfo && tonConnectUI.walletInfo.account && tonConnectUI.walletInfo.account.address) {
-                    // try UI wallet formatting
-                    parsedAddr = tonConnectUI.walletInfo.account.address;
+                if (typeof TON_CONNECT_UI !== 'undefined' && TON_CONNECT_UI.toUserFriendlyAddress) {
+                    parsedAddr = TON_CONNECT_UI.toUserFriendlyAddress(rawAddr, wallet.account.chain === '-3');
+                } else if (typeof TonConnectUI !== 'undefined' && TonConnectUI.toUserFriendlyAddress) {
+                    parsedAddr = TonConnectUI.toUserFriendlyAddress(rawAddr, wallet.account.chain === '-3');
                 }
-            } catch (e) { }
+            } catch (e) {
+                console.warn('[Wallet] Address parsing issue:', e);
+            }
 
             if (addressEl) addressEl.textContent = truncateAddress(parsedAddr);
             if (strip) strip.classList.add('connected');
@@ -419,6 +418,7 @@
 
         const lucuInput = document.getElementById('topup-amount-lucu-main');
         const tonInput = document.getElementById('topup-amount-ton-main');
+        const btnAmount = document.getElementById('topup-btn-amount');
 
         if (lucuInput && tonInput && btnAmount) {
             function updateFromLucu() {
