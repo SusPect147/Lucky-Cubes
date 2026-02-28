@@ -20,18 +20,27 @@
         const disconnectBtn = document.getElementById('wallet-disconnect-btn');
         const donateToggle = document.getElementById('wallet-donate-toggle');
         const donatePanel = document.getElementById('wallet-donate-panel');
-        if (!strip) return;
+
+        const topupCell = document.getElementById('topup-wallet-cell');
+        const topupConnectBtn = document.getElementById('topup-wallet-connect-btn');
+        const topupAddr = document.getElementById('topup-wallet-address-display');
 
         if (wallet && wallet.account) {
             const addr = wallet.account.address || '';
-            addressEl.textContent = truncateAddress(addr);
-            strip.classList.add('connected');
+            if (addressEl) addressEl.textContent = truncateAddress(addr);
+            if (strip) strip.classList.add('connected');
             if (connectBtn) connectBtn.style.display = 'none';
             if (disconnectBtn) disconnectBtn.style.display = 'inline-block';
             if (donateToggle) donateToggle.style.display = 'inline-block';
+
+            if (topupCell) {
+                topupCell.style.display = 'flex';
+                if (topupConnectBtn) topupConnectBtn.style.display = 'none';
+                if (topupAddr) topupAddr.textContent = truncateAddress(addr);
+            }
         } else {
-            addressEl.textContent = '—';
-            strip.classList.remove('connected');
+            if (addressEl) addressEl.textContent = '—';
+            if (strip) strip.classList.remove('connected');
             if (connectBtn) connectBtn.style.display = '';
             if (disconnectBtn) disconnectBtn.style.display = 'none';
             if (donateToggle) {
@@ -39,6 +48,12 @@
                 donateToggle.classList.remove('open');
             }
             if (donatePanel) donatePanel.style.display = 'none';
+
+            if (topupCell) {
+                topupCell.style.display = 'none';
+                if (topupConnectBtn) topupConnectBtn.style.display = '';
+                if (topupAddr) topupAddr.textContent = '—';
+            }
         }
     }
 
@@ -219,13 +234,179 @@
         }
     }
 
+    const baseLucu = 100;
+    const baseTon = 0.3;
+    const discountExponent = 0.95;
+
+    function calculateTonFromLucu(lucu) {
+        if (lucu <= 0) return 0;
+        let ton = baseTon * Math.pow((lucu / baseLucu), discountExponent);
+        return parseFloat(ton.toFixed(2));
+    }
+
+    function calculateLucuFromTon(ton) {
+        if (ton <= 0) return 0;
+        let lucu = baseLucu * Math.pow((ton / baseTon), 1 / discountExponent);
+        return Math.floor(lucu);
+    }
+
+    function sendTopupTransaction(amountTON, amountLUCU) {
+        var amountNano = BigInt(Math.round(amountTON * 1e9)).toString();
+        var transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 600,
+            messages: [
+                {
+                    address: DONATE_ADDRESS,
+                    amount: amountNano
+                }
+            ]
+        };
+
+        tonConnectUI.sendTransaction(transaction).then(function (result) {
+            const coinCount = document.getElementById('coin-count');
+            if (coinCount) {
+                let current = parseInt(coinCount.textContent, 10);
+                if (isNaN(current)) current = 0;
+                current += amountLUCU;
+                coinCount.textContent = current;
+                const profBalance = document.getElementById('profile-balance');
+                if (profBalance) profBalance.textContent = current + ' $LUCU';
+
+                const curCoin = localStorage.getItem('coins');
+                if (curCoin !== null) {
+                    localStorage.setItem('coins', parseInt(curCoin, 10) + amountLUCU);
+                }
+            }
+
+            const topupOverlay = document.getElementById('topup-menu-overlay');
+            if (topupOverlay) topupOverlay.classList.remove('visible');
+
+        }).catch(function (e) {
+            if (e && e.message && e.message.indexOf('cancel') !== -1) return;
+            console.warn('[Wallet] Transaction error:', e);
+        });
+    }
+
+    function initTopupEvents() {
+        const topupOverlay = document.getElementById('topup-menu-overlay');
+        const openBtn = document.getElementById('btn-profile-topup-open');
+        const closeBtn = document.getElementById('topup-menu-close-btn');
+
+        if (openBtn && topupOverlay) {
+            openBtn.addEventListener('click', function () {
+                topupOverlay.classList.add('visible');
+            });
+        }
+        if (closeBtn && topupOverlay) {
+            closeBtn.addEventListener('click', function () {
+                topupOverlay.classList.remove('visible');
+            });
+        }
+        if (topupOverlay) {
+            topupOverlay.addEventListener('click', function (e) {
+                if (e.target === topupOverlay) topupOverlay.classList.remove('visible');
+            });
+        }
+
+        const tabBtns = document.querySelectorAll('.topup-tab-btn');
+        const tabPanes = {
+            'stars': document.getElementById('topup-tab-stars'),
+            'ton': document.getElementById('topup-tab-ton')
+        };
+
+        tabBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                tabBtns.forEach(function (b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+                const tab = btn.getAttribute('data-tab');
+                Object.keys(tabPanes).forEach(function (k) {
+                    if (tabPanes[k]) {
+                        tabPanes[k].style.display = k === tab ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+
+        const lucuInput = document.getElementById('topup-amount-lucu-main');
+        const tonInput = document.getElementById('topup-amount-ton-main');
+        const rateText = document.getElementById('topup-rate-equivalent');
+        const btnAmount = document.getElementById('topup-btn-amount');
+
+        if (lucuInput && tonInput && rateText && btnAmount) {
+            function updateFromLucu() {
+                let lucu = parseInt(lucuInput.value, 10);
+                if (isNaN(lucu) || lucu <= 0) {
+                    tonInput.value = '';
+                    rateText.textContent = `0 TON`;
+                    btnAmount.textContent = `0`;
+                    return;
+                }
+                let ton = calculateTonFromLucu(lucu);
+                tonInput.value = ton;
+                rateText.textContent = `${ton} TON`;
+                btnAmount.textContent = `${ton}`;
+            }
+
+            function updateFromTon() {
+                let ton = parseFloat(tonInput.value);
+                if (isNaN(ton) || ton <= 0) {
+                    lucuInput.value = '';
+                    rateText.textContent = `0 TON`;
+                    btnAmount.textContent = `0`;
+                    return;
+                }
+                let lucu = calculateLucuFromTon(ton);
+                lucuInput.value = lucu;
+                rateText.textContent = `${ton} TON`;
+                btnAmount.textContent = `${ton}`;
+            }
+
+            lucuInput.addEventListener('input', updateFromLucu);
+            tonInput.addEventListener('input', updateFromTon);
+            updateFromLucu();
+        }
+
+        const topupConnectBtn = document.getElementById('topup-wallet-connect-btn');
+        const topupReconnectBtn = document.getElementById('topup-wallet-reconnect-btn');
+        if (topupConnectBtn) {
+            topupConnectBtn.addEventListener('click', function () {
+                if (!tonConnectUI || !tonConnectUI.wallet) {
+                    connectWallet();
+                }
+            });
+        }
+        if (topupReconnectBtn) {
+            topupReconnectBtn.addEventListener('click', function () {
+                disconnectWallet();
+                setTimeout(connectWallet, 500);
+            });
+        }
+
+        const submitBtn = document.getElementById('topup-ton-submit-btn');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function () {
+                if (!tonConnectUI || !tonConnectUI.wallet) {
+                    connectWallet();
+                    return;
+                }
+                const ton = parseFloat(tonInput.value);
+                const lucu = parseInt(lucuInput.value, 10);
+                if (ton > 0 && lucu > 0) {
+                    sendTopupTransaction(ton, lucu);
+                }
+            });
+        }
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             bindEvents();
+            initTopupEvents();
             setTimeout(initTonConnect, 500);
         });
     } else {
         bindEvents();
+        initTopupEvents();
         setTimeout(initTonConnect, 500);
     }
 })();

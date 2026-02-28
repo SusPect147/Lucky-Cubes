@@ -298,3 +298,322 @@
 .boost-price-icon {
     font-size: 0.9rem;
 }
+
+/* --- Top Up Menu --- */
+.topup-menu-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 60;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.topup-menu-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.topup-menu {
+    width: 100%;
+    max-width: 480px;
+    background: #1c1c1e;
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px 40px;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+}
+
+.topup-menu-overlay.visible .topup-menu {
+    transform: translateY(0);
+}
+
+.topup-menu-header {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 12px;
+}
+
+.topup-menu-close-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+}
+
+.topup-menu-close-btn:hover {
+    color: #fff;
+}
+
+.topup-tabs {
+    display: flex;
+    gap: 24px;
+}
+
+.topup-tab-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 12px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.topup-tab-btn.active {
+    color: #fff;
+}
+
+.topup-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+}
+
+.topup-tab-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.topup-coming-soon {
+    text-align: center;
+    padding: 60px 0;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.topup-exchange-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.topup-exchange-amount-label {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.topup-exchange-currency {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    font-size: 3.5rem;
+    font-weight: 700;
+}
+
+.topup-exchange-currency input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 3.5rem;
+    font-weight: 700;
+    width: 180px;
+    text-align: right;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    padding: 0;
+}
+
+.topup-exchange-currency input::-webkit-outer-spin-button,
+.topup-exchange-currency input::-webkit-inner-spin-button,
+.topup-exchange-rate-dynamic input::-webkit-outer-spin-button,
+.topup-exchange-rate-dynamic input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.topup-exchange-rate-dynamic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(35, 35, 40, 0.8);
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.topup-exchange-rate-dynamic input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-weight: 700;
+    width: 60px;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
+    font-size: 1.05rem;
+    padding-bottom: 2px;
+}
+
+.topup-wallet-cell {
+    background: rgba(0, 152, 234, 0.15);
+    border: 1px solid rgba(0, 152, 234, 0.3);
+    border-radius: 12px;
+    padding: 18px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.topup-wallet-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.topup-wallet-icon {
+    width: 20px;
+    height: 20px;
+    color: #0098ea;
+}
+
+.topup-wallet-address {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.topup-wallet-balance {
+    color: #0098ea;
+    font-weight: 600;
+    margin-left: 6px;
+    font-size: 0.9rem;
+}
+
+.topup-wallet-reconnect {
+    background: transparent;
+    border: none;
+    color: #0098ea;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+}
+
+.topup-wallet-connect-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 100%;
+    padding: 18px;
+    border-radius: 16px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    font-family: 'Inter', sans-serif;
+}
+
+.topup-wallet-connect-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.topup-submit-btn {
+    background: #23c1e8;
+    color: #000;
+    border: none;
+    width: 100%;
+    padding: 18px;
+    border-radius: 16px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.topup-submit-btn:hover {
+    opacity: 0.9;
+}
+
+.topup-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Profile specific pill overrides */
+.profile-balance-pill-wrapper {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(30, 30, 35, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 6px 6px 6px 20px;
+    margin: 0 auto;
+    gap: 16px;
+}
+
+.profile-balance-pill-text {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+.profile-btn-plus {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    padding: 0;
+}
+
+.profile-btn-plus:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
