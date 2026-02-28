@@ -3,48 +3,45 @@ const i18n = (function () {
     let tgLangCode = 'unknown';
 
     function init() {
-        let langCode = 'en';
+        const tg = window.Telegram?.WebApp;
+        let langCode = tg?.initDataUnsafe?.user?.language_code;
 
-        // 1. Primary source: use Telegram WebApp's Native Object if available 
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user && window.Telegram.WebApp.initDataUnsafe.user.language_code) {
-            langCode = window.Telegram.WebApp.initDataUnsafe.user.language_code;
-            tgLangCode = langCode;
-        } else {
-            // 2. Fallback: Parse URL hash manually
-            let rawInitData = '';
-            if (window.location.hash && window.location.hash.includes('tgWebAppData=')) {
-                const hashParams = new URLSearchParams(window.location.hash.substring(1));
-                rawInitData = hashParams.get('tgWebAppData');
-            } else if (window.location.search && window.location.search.includes('tgWebAppData=')) {
-                const searchParams = new URLSearchParams(window.location.search);
-                rawInitData = searchParams.get('tgWebAppData');
-            }
+        if (!langCode) {
+            langCode = 'en'; // По умолчанию 'en'
+            try {
+                // Fallback parsing...
+                let rawInitData = '';
+                if (window.location.hash && window.location.hash.includes('tgWebAppData=')) {
+                    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                    rawInitData = hashParams.get('tgWebAppData');
+                } else if (window.location.search && window.location.search.includes('tgWebAppData=')) {
+                    const searchParams = new URLSearchParams(window.location.search);
+                    rawInitData = searchParams.get('tgWebAppData');
+                }
 
-            if (rawInitData) {
-                try {
+                if (rawInitData) {
                     const urlParams = new URLSearchParams(rawInitData);
                     const userStr = urlParams.get('user');
                     if (userStr) {
                         try {
                             const userObj = JSON.parse(decodeURIComponent(userStr));
-                            if (userObj && userObj.language_code) {
-                                langCode = userObj.language_code;
-                                tgLangCode = langCode;
-                            }
+                            if (userObj?.language_code) langCode = userObj.language_code;
                         } catch (e) {
-                            // Secondary fallback if decodeURIComponent fails
-                            const userObj = JSON.parse(userStr);
-                            if (userObj && userObj.language_code) {
-                                langCode = userObj.language_code;
-                                tgLangCode = langCode;
-                            }
+                            try {
+                                const userObj = JSON.parse(userStr);
+                                if (userObj?.language_code) langCode = userObj.language_code;
+                            } catch (e2) { }
                         }
                     }
-                } catch (e) {
-                    console.error("Error parsing raw tgWebAppData", e);
                 }
+            } catch (e) {
+                console.error("Error detecting language:", e);
             }
         }
+
+        console.log(langCode);
+
+        tgLangCode = langCode;
 
         if (langCode === 'ru' || langCode === 'be' || langCode === 'uk' || langCode === 'kk') {
             currentLang = 'ru';

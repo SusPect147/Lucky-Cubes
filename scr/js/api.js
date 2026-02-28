@@ -2,9 +2,9 @@
     try {
         const verEl = document.querySelector('.app-version-display');
         const searchStr = window.location.search || '';
-        if (verEl && !verEl.textContent.includes('1.0.5') && !searchStr.includes('cb=1.0.5')) {
+        if (verEl && !verEl.textContent.includes('1.0.8') && !searchStr.includes('cb=1.0.8')) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.0.5');
+            url.searchParams.set('cb', '1.0.8');
             window.location.replace(url.toString());
         }
     } catch (e) { }
