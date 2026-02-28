@@ -208,7 +208,8 @@
                             <div class="topup-exchange-row">
                                 <span class="topup-row-label">Вы отдаете:</span>
                                 <div class="topup-row-input">
-                                    <input type="number" id="topup-amount-ton-main" value="0.3" min="0.01" step="0.01">
+                                    <input type="number" id="topup-amount-ton-main" value="0.1" min="0.01" max="10000"
+                                        step="0.01">
                                     <span>TON</span>
                                 </div>
                             </div>
@@ -224,7 +225,7 @@
                             <div class="topup-exchange-row">
                                 <span class="topup-row-label">Итоговая сумма:</span>
                                 <div class="topup-row-input">
-                                    <input type="number" id="topup-amount-lucu-main" value="100" min="1" step="1">
+                                    <input type="number" id="topup-amount-lucu-main" value="33" min="1" step="1">
                                     <span>$LUCU</span>
                                 </div>
                             </div>
@@ -251,8 +252,11 @@
                             style="display:none;">Подключить TON кошелек</button>
 
                         <div class="topup-submit-wrapper">
-                            <button class="topup-submit-btn" id="topup-ton-submit-btn">Пополнить <span
-                                    id="topup-btn-amount">0.3</span> TON</button>
+                            <button class="topup-submit-btn" id="topup-ton-submit-btn">
+                                <span class="topup-btn-text">Оплатить</span>
+                                <span class="topup-btn-value" id="topup-btn-amount">0.1</span>
+                                <span class="topup-btn-currency">TON</span>
+                            </button>
                         </div>
                     </div>
                 </div>

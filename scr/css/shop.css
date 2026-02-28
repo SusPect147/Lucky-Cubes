@@ -591,6 +591,14 @@
     transition: opacity 0.2s;
     font-family: 'Inter', sans-serif;
     margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.topup-btn-value {
+    font-size: 1.4rem;
 }
 
 .topup-submit-btn:hover {

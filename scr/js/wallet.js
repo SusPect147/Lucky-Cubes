@@ -26,8 +26,20 @@
         const topupAddr = document.getElementById('topup-wallet-address-display');
 
         if (wallet && wallet.account) {
-            const addr = wallet.account.address || '';
-            if (addressEl) addressEl.textContent = truncateAddress(addr);
+            const rawAddr = wallet.account.address || '';
+            let parsedAddr = rawAddr;
+            try {
+                // If it's a raw hex, attempt basic conversion via core if available or keep fallback
+                parsedAddr = rawAddr.includes(':') ? rawAddr : rawAddr;
+                if (tonConnectUI && tonConnectUI.account && window.TonConnect && window.TonConnect.toUserFriendlyAddress) {
+                    parsedAddr = window.TonConnect.toUserFriendlyAddress(rawAddr);
+                } else if (tonConnectUI && tonConnectUI.walletInfo && tonConnectUI.walletInfo.account && tonConnectUI.walletInfo.account.address) {
+                    // try UI wallet formatting
+                    parsedAddr = tonConnectUI.walletInfo.account.address;
+                }
+            } catch (e) { }
+
+            if (addressEl) addressEl.textContent = truncateAddress(parsedAddr);
             if (strip) strip.classList.add('connected');
             if (connectBtn) connectBtn.style.display = 'none';
             if (disconnectBtn) disconnectBtn.style.display = 'inline-block';
@@ -36,7 +48,7 @@
             if (topupCell) {
                 topupCell.style.display = 'flex';
                 if (topupConnectBtn) topupConnectBtn.style.display = 'none';
-                if (topupAddr) topupAddr.textContent = truncateAddress(addr);
+                if (topupAddr) topupAddr.textContent = truncateAddress(parsedAddr);
             }
         } else {
             if (addressEl) addressEl.textContent = '—';
@@ -234,8 +246,8 @@
         }
     }
 
-    const baseLucu = 100;
-    const baseTon = 0.3;
+    const baseLucu = 33;
+    const baseTon = 0.1;
     const discountExponent = 0.95;
 
     function calculateTonFromLucu(lucu) {
@@ -408,25 +420,39 @@
         const lucuInput = document.getElementById('topup-amount-lucu-main');
         const tonInput = document.getElementById('topup-amount-ton-main');
 
-        if (lucuInput && tonInput) {
+        if (lucuInput && tonInput && btnAmount) {
             function updateFromLucu() {
                 let lucu = parseInt(lucuInput.value, 10);
                 if (isNaN(lucu) || lucu <= 0) {
                     tonInput.value = '';
+                    btnAmount.textContent = `0`;
                     return;
                 }
                 let ton = calculateTonFromLucu(lucu);
-                tonInput.value = ton;
+                if (ton > 10000) {
+                    ton = 10000;
+                    tonInput.value = ton;
+                    lucuInput.value = calculateLucuFromTon(ton);
+                } else {
+                    tonInput.value = ton;
+                }
+                btnAmount.textContent = `${tonInput.value}`;
             }
 
             function updateFromTon() {
                 let ton = parseFloat(tonInput.value);
                 if (isNaN(ton) || ton <= 0) {
                     lucuInput.value = '';
+                    btnAmount.textContent = `0`;
                     return;
+                }
+                if (ton > 10000) {
+                    ton = 10000;
+                    tonInput.value = ton;
                 }
                 let lucu = calculateLucuFromTon(ton);
                 lucuInput.value = lucu;
+                btnAmount.textContent = `${ton}`;
             }
 
             lucuInput.addEventListener('input', updateFromLucu);
