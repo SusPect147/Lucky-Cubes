@@ -2,14 +2,24 @@ const i18n = (function () {
     let currentLang = 'en';
 
     function init() {
+        let langCode = 'en';
+
+        // Read language_code from initDataUnsafe first (which might be cached by Telegram)
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-            const langCode = window.Telegram.WebApp.initDataUnsafe.user.language_code;
-            if (langCode === 'ru' || langCode === 'be' || langCode === 'uk' || langCode === 'kk') {
-                currentLang = 'ru';
-            } else {
-                currentLang = 'en';
-            }
+            langCode = window.Telegram.WebApp.initDataUnsafe.user.language_code;
         }
+
+        // Override with navigator.language because it updates immediately when the app language changes, avoiding the WebApp initData cache
+        if (navigator.language) {
+            langCode = navigator.language.toLowerCase().substring(0, 2);
+        }
+
+        if (langCode === 'ru' || langCode === 'be' || langCode === 'uk' || langCode === 'kk') {
+            currentLang = 'ru';
+        } else {
+            currentLang = 'en';
+        }
+
         document.documentElement.setAttribute('lang', currentLang);
         applyTranslationsToDOM();
     }
