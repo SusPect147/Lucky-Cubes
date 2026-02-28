@@ -292,8 +292,8 @@
         }
     }
 
-    const baseLucu = 33;
-    const baseTon = 0.1;
+    const baseLucu = 1000;
+    const baseTon = 0.2;
     const discountExponent = 0.95;
 
     function calculateTonFromLucu(lucu) {
@@ -321,20 +321,17 @@
         };
 
         tonConnectUI.sendTransaction(transaction).then(function (result) {
-            const coinCount = document.getElementById('coin-count');
-            if (coinCount) {
-                let current = parseInt(coinCount.textContent, 10);
-                if (isNaN(current)) current = 0;
-                current += amountLUCU;
-                coinCount.textContent = current;
-                const profBalance = document.getElementById('profile-balance');
-                if (profBalance) profBalance.textContent = current + ' $LUCU';
-
-                const curCoin = localStorage.getItem('coins');
-                if (curCoin !== null) {
-                    localStorage.setItem('coins', parseInt(curCoin, 10) + amountLUCU);
-                }
+            let currentCoins = 0;
+            const curCoin = localStorage.getItem('coins');
+            if (curCoin !== null) {
+                currentCoins = parseInt(curCoin, 10);
+                if (isNaN(currentCoins)) currentCoins = 0;
             }
+            currentCoins += amountLUCU;
+            localStorage.setItem('coins', currentCoins);
+
+            const profBalance = document.getElementById('profile-balance');
+            if (profBalance) profBalance.textContent = currentCoins + ' $LUCU';
 
             const topupOverlay = document.getElementById('topup-menu-overlay');
             if (topupOverlay) topupOverlay.classList.remove('visible');
