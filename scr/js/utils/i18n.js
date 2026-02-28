@@ -1,17 +1,39 @@
 const i18n = (function () {
     let currentLang = 'en';
+    let tgLangCode = 'unknown';
 
     function init() {
         let langCode = 'en';
 
-        // Read language_code from initDataUnsafe first (which might be cached by Telegram)
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-            langCode = window.Telegram.WebApp.initDataUnsafe.user.language_code;
+        let rawInitData = '';
+        if (window.location.hash && window.location.hash.includes('tgWebAppData=')) {
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            rawInitData = hashParams.get('tgWebAppData');
+        } else if (window.location.search && window.location.search.includes('tgWebAppData=')) {
+            const searchParams = new URLSearchParams(window.location.search);
+            rawInitData = searchParams.get('tgWebAppData');
         }
 
-        // Override with navigator.language because it updates immediately when the app language changes, avoiding the WebApp initData cache
-        if (navigator.language) {
-            langCode = navigator.language.toLowerCase().substring(0, 2);
+        if (rawInitData) {
+            try {
+                const urlParams = new URLSearchParams(rawInitData);
+                const userStr = urlParams.get('user');
+                if (userStr) {
+                    const userObj = JSON.parse(decodeURIComponent(userStr));
+                    if (userObj && userObj.language_code) {
+                        langCode = userObj.language_code;
+                        tgLangCode = langCode;
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing raw tgWebAppData", e);
+            }
+        }
+
+        // Fallback to initDataUnsafe if URL didn't contain it
+        if (tgLangCode === 'unknown' && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
+            langCode = window.Telegram.WebApp.initDataUnsafe.user.language_code;
+            tgLangCode = langCode;
         }
 
         if (langCode === 'ru' || langCode === 'be' || langCode === 'uk' || langCode === 'kk') {
@@ -22,6 +44,20 @@ const i18n = (function () {
 
         document.documentElement.setAttribute('lang', currentLang);
         applyTranslationsToDOM();
+        updateVersionDisplay();
+    }
+
+    function updateVersionDisplay() {
+        const versionEl = document.querySelector('.app-version-display');
+        if (versionEl) {
+            let versionText = versionEl.textContent;
+            if (versionText.includes('○')) {
+                versionText = versionText.split('○').pop().trim();
+            } else {
+                versionText = versionText.trim();
+            }
+            versionEl.textContent = `${currentLang.toUpperCase()} ○ ${tgLangCode.toUpperCase()} ○ ${versionText}`;
+        }
     }
 
     function translate(key, params = {}) {

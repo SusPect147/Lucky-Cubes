@@ -1,3 +1,15 @@
+(function () {
+    try {
+        const verEl = document.querySelector('.app-version-display');
+        const searchStr = window.location.search || '';
+        if (verEl && !verEl.textContent.includes('1.0.5') && !searchStr.includes('cb=1.0.5')) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('cb', '1.0.5');
+            window.location.replace(url.toString());
+        }
+    } catch (e) { }
+})();
+
 let jwtToken = null;
 
 function getInitData() {
