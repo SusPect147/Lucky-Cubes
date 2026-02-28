@@ -322,16 +322,23 @@
 
         tonConnectUI.sendTransaction(transaction).then(function (result) {
             let currentCoins = 0;
-            const curCoin = localStorage.getItem('coins');
-            if (curCoin !== null) {
-                currentCoins = parseInt(curCoin, 10);
-                if (isNaN(currentCoins)) currentCoins = 0;
+            if (window.Game && window.Game.getCoinCount) {
+                currentCoins = window.Game.getCoinCount();
+            } else {
+                const curCoin = localStorage.getItem('coins');
+                if (curCoin !== null) {
+                    currentCoins = parseInt(curCoin, 10);
+                    if (isNaN(currentCoins)) currentCoins = 0;
+                }
             }
             currentCoins += amountLUCU;
-            localStorage.setItem('coins', currentCoins);
 
             const profBalance = document.getElementById('profile-balance');
-            if (profBalance) profBalance.textContent = currentCoins + ' $LUCU';
+            if (profBalance) profBalance.textContent = currentCoins.toFixed(2) + ' $LUCU';
+
+            if (typeof updateUI === 'function') {
+                updateUI(currentCoins, window.Game && window.Game.applyServerState ? 0 : 0);
+            }
 
             const topupOverlay = document.getElementById('topup-menu-overlay');
             if (topupOverlay) topupOverlay.classList.remove('visible');
@@ -339,7 +346,13 @@
             if (window.API && window.API.call) {
                 const boc = result && result.boc ? result.boc : '';
                 window.API.call('/api/donate', { amount: amountTON, coins: amountLUCU, boc: boc })
-                    .then(res => console.log('Topup recorded:', res))
+                    .then(res => {
+                        console.log('Topup recorded:', res);
+                        if (res && res.totalCoins !== undefined && window.Game && window.Game.applyServerState) {
+                            window.Game.applyServerState(res);
+                            if (profBalance) profBalance.textContent = res.totalCoins.toFixed(2) + ' $LUCU';
+                        }
+                    })
                     .catch(err => console.error('Failed to record topup:', err));
             }
 

@@ -1,4 +1,4 @@
-const Game = (function () {
+window.Game = (function () {
     let totalXP = 0;
     let coinCount = 0;
     let currentMin = 0;
