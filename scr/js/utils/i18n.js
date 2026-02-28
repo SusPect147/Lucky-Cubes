@@ -7,9 +7,9 @@ const i18n = (function () {
         let langCode = tg?.initDataUnsafe?.user?.language_code;
 
         if (!langCode) {
-            langCode = 'en'; // По умолчанию 'en'
+            langCode = 'en';
             try {
-                // Fallback parsing...
+
                 let rawInitData = '';
                 if (window.location.hash && window.location.hash.includes('tgWebAppData=')) {
                     const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -40,7 +40,7 @@ const i18n = (function () {
         }
 
         if (!langCode) {
-            langCode = 'en'; // По умолчанию 'en'
+            langCode = 'en';
         }
 
         console.debug("User language detected:", langCode);
@@ -90,7 +90,7 @@ const i18n = (function () {
             return text;
         }
 
-        // Безопасная подстановка параметров без RegExp инъекций
+
         for (const [param, value] of Object.entries(params)) {
             text = text.split(`{${param}}`).join(value);
         }
@@ -113,7 +113,7 @@ const i18n = (function () {
         elements.forEach(el => {
             const key = el.getAttribute('data-i18n');
 
-            // Чтение JSON параметров
+
             let params = {};
             const paramsAttr = el.getAttribute('data-i18n-params');
             if (paramsAttr) {
@@ -127,7 +127,7 @@ const i18n = (function () {
             } else if (el.hasAttribute('placeholder') || el.tagName.toLowerCase() === 'textarea') {
                 el.placeholder = translatedText;
             } else if (el.tagName.toLowerCase() === 'input' && el.type === 'placeholder') {
-                // Старая логика в fallback
+
                 el.placeholder = translatedText;
             } else {
                 el.textContent = translatedText;

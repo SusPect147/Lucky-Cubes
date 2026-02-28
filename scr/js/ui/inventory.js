@@ -82,7 +82,7 @@ const Inventory = {
 
             const imgDiv = document.createElement('div');
             imgDiv.className = 'boost-image';
-            imgDiv.innerHTML = this.getIconSVG(boost.icon); // safe internal SVGs
+            imgDiv.innerHTML = this.getIconSVG(boost.icon);
             if (count > 1) {
                 const countDiv = document.createElement('div');
                 countDiv.className = 'boost-count';
@@ -106,7 +106,7 @@ const Inventory = {
 
             item.appendChild(infoDiv);
 
-            // Event listeners added above already for useBtn? No, doing it now.
+
             useBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.useBoost(boostId);

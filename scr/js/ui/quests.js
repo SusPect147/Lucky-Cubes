@@ -55,7 +55,7 @@ const Quests = {
 
             const placeholderDiv = document.createElement('div');
             placeholderDiv.className = 'quest-icon-placeholder';
-            placeholderDiv.innerHTML = this.getIconSVG(q.icon); // safe
+            placeholderDiv.innerHTML = this.getIconSVG(q.icon);
             item.appendChild(placeholderDiv);
 
             const infoDiv = document.createElement('div');

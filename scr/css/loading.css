@@ -23,105 +23,117 @@
     justify-content: center;
 }
 
-/* Wrapper that tilts based on mouse */
 #interactive-cube-wrapper {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.1s ease-out;
-    transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg);
+    position: relative;
     z-index: 2;
+    transform-style: flat;
+    transition: transform 0.1s ease-out;
+    filter: blur(5px);
 }
 
-.ascii-cube {
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
-    font-size: min(3.5vw, 22px);
-    line-height: min(4.2vw, 26.4px);
-    color: rgba(255, 255, 255, 1);
-    margin: 0;
+.responsive-loading-text {
+    font-size: min(16vw, 7rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: 4px;
+    white-space: nowrap;
+}
+
+#loading-cube-img {
+    width: min(90vw, 450px);
+    height: auto;
     pointer-events: none;
-    text-align: center;
-    white-space: pre;
-    animation: randomGlitch 8s infinite step-end;
-    transform: none;
+    animation:
+        distortedSignal 0.15s infinite linear,
+        heavyGlitch 5s infinite step-end;
 }
 
-@keyframes randomGlitch {
+@keyframes distortedSignal {
+    0% {
+        transform: translate(0, 0);
+        opacity: 0.95;
+        filter: contrast(110%);
+    }
+
+    25% {
+        transform: translate(-1px, 1px);
+        opacity: 0.85;
+        filter: contrast(100%);
+    }
+
+    50% {
+        transform: translate(1px, -1px);
+        opacity: 0.9;
+        filter: contrast(120%);
+    }
+
+    75% {
+        transform: translate(0px, 2px);
+        opacity: 0.8;
+        filter: contrast(105%);
+    }
+
+    100% {
+        transform: translate(-1px, 0);
+        opacity: 0.95;
+        filter: contrast(115%);
+    }
+}
+
+@keyframes heavyGlitch {
     0% {
         filter: none;
-        transform: skew(0deg);
-        text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
-        opacity: 1;
+        transform: skew(0deg) scale(1);
     }
 
     81% {
         filter: none;
-        transform: skew(0deg);
-        text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
-        opacity: 1;
+        transform: skew(0deg) scale(1);
     }
 
     82% {
-        filter: blur(6px);
-        transform: scale(1.05);
-        opacity: 0.9;
-        text-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
+        filter: blur(4px) drop-shadow(-5px 0 red) drop-shadow(5px 0 cyan);
+        transform: scale(1.05) translateX(5px);
     }
 
     84% {
         filter: none;
-        transform: scale(1);
-        opacity: 1;
-        text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
+        transform: scale(1) translateX(0);
     }
 
     88% {
-        transform: skew(-8deg);
-        text-shadow: -5px 0 #ff0000, 5px 0 #00ffff;
-        opacity: 0.8;
+        transform: skew(-15deg);
+        filter: contrast(200%) grayscale(50%);
     }
 
     89% {
-        transform: skew(12deg);
-        text-shadow: 4px 0 #ff0000, -4px 0 #00ffff;
-        opacity: 0.9;
+        transform: skew(20deg) scaleY(0.9);
+        filter: contrast(150%) hue-rotate(90deg);
     }
 
     90% {
         transform: skew(0deg);
-        text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
-        opacity: 1;
+        filter: none;
     }
 
     95% {
-        transform: skew(-20deg);
-        filter: blur(2px);
-        opacity: 0.3;
+        transform: skew(-5deg) translateY(-5px);
+        filter: blur(2px) drop-shadow(4px 4px magenta);
     }
 
     96% {
-        transform: skew(15deg);
-        filter: none;
-        opacity: 0.9;
-        text-shadow: -3px 0 #ff00ff, 3px 0 #00ff00;
+        transform: skew(10deg) translateY(5px);
+        filter: brightness(1.5) contrast(1.5);
     }
 
     98% {
-        transform: skew(0deg);
-        text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
-        opacity: 1;
+        transform: skew(0deg) translateY(0);
+        filter: none;
     }
 
     100% {
         filter: none;
-        transform: skew(0deg);
+        transform: skew(0deg) scale(1);
     }
 }
 

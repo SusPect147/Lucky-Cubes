@@ -25,154 +25,27 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/@telegram-apps/analytics"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    <style>
-        .responsive-loading-text {
-            font-size: min(12vw, 5rem);
-            font-weight: 900;
-            line-height: 1.1;
-            letter-spacing: 4px;
-            white-space: nowrap;
-        }
 
-        #interactive-cube-wrapper {
-            position: relative;
-            z-index: 2;
-            transform-style: flat;
-            transition: transform 0.1s ease-out;
-            filter: blur(5px);
-        }
-
-        #loading-cube-img {
-            width: min(80vw, 300px);
-            height: auto;
-            pointer-events: none;
-            /* Combine constant signal distortion and occasional heavy glitches */
-            animation:
-                distortedSignal 0.15s infinite linear,
-                heavyGlitch 5s infinite step-end;
-        }
-
-        /* Subtle constant jitter and opacity shifts like a bad signal */
-        @keyframes distortedSignal {
-            0% {
-                transform: translate(0, 0);
-                opacity: 0.95;
-                filter: contrast(110%);
-            }
-
-            25% {
-                transform: translate(-1px, 1px);
-                opacity: 0.85;
-                filter: contrast(100%);
-            }
-
-            50% {
-                transform: translate(1px, -1px);
-                opacity: 0.9;
-                filter: contrast(120%);
-            }
-
-            75% {
-                transform: translate(0px, 2px);
-                opacity: 0.8;
-                filter: contrast(105%);
-            }
-
-            100% {
-                transform: translate(-1px, 0);
-                opacity: 0.95;
-                filter: contrast(115%);
-            }
-        }
-
-        /* Occasional harsh glitches */
-        @keyframes heavyGlitch {
-            0% {
-                filter: none;
-                transform: skew(0deg) scale(1);
-            }
-
-            81% {
-                filter: none;
-                transform: skew(0deg) scale(1);
-            }
-
-            82% {
-                filter: blur(4px) drop-shadow(-5px 0 red) drop-shadow(5px 0 cyan);
-                transform: scale(1.05) translateX(5px);
-            }
-
-            84% {
-                filter: none;
-                transform: scale(1) translateX(0);
-            }
-
-            88% {
-                transform: skew(-15deg);
-                filter: contrast(200%) grayscale(50%);
-            }
-
-            89% {
-                transform: skew(20deg) scaleY(0.9);
-                filter: contrast(150%) hue-rotate(90deg);
-            }
-
-            90% {
-                transform: skew(0deg);
-                filter: none;
-            }
-
-            95% {
-                transform: skew(-5deg) translateY(-5px);
-                filter: blur(2px) drop-shadow(4px 4px magenta);
-            }
-
-            96% {
-                transform: skew(10deg) translateY(5px);
-                filter: brightness(1.5) contrast(1.5);
-            }
-
-            98% {
-                transform: skew(0deg) translateY(0);
-                filter: none;
-            }
-
-            100% {
-                filter: none;
-                transform: skew(0deg) scale(1);
-            }
-        }
-    </style>
 </head>
 
 <body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
-    <!-- Failsafe for cached older versions of loader.js -->
     <img id="loading-chicken" style="display:none;"
         src="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" alt="dummy" />
 
     <div id="loading-screen">
-        <!-- APP_VERSION_TAG: Update this version number (e.g., v1.0.1) for every new release or significant UI change -->
         <div class="app-version-display"
             style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; color: rgba(255, 255, 255, 0.3); z-index: 9999; font-family: 'Inter', sans-serif; pointer-events: none;">
-            v1.0.18</div>
+            v1.1.0</div>
 
         <div class="loading-center">
 
-            <!-- LAYER 1: BLACK TEXT -->
-            <!-- We keep this layer physically in DOM for loader.js, but make it black so it's hidden on the black background. 
-                 If the image has transparency, it won't show through incorrectly. -->
             <div class="overlay-text responsive-loading-text" id="loading-text-red" style="color: #000; z-index: 1;">
                 0/8<br />LOADED</div>
 
-            <!-- LAYER 2: THE IMAGE -->
-            <div id="interactive-cube-wrapper"
-                style="z-index: 2; transform-style: flat; transition: transform 0.1s ease-out;">
+            <div id="interactive-cube-wrapper">
                 <img src="assets/UI/images/loading_cube.png" id="loading-cube-img" alt="Loading Cube" />
             </div>
 
-            <!-- LAYER 3: EXACTLY WHITE TEXT WITH EXCLUSION -->
-            <!-- White text with exclusion on black background = White (255-0=255) 
-                 White text with exclusion on white image = Black (255-255=0) -->
             <div class="overlay-text responsive-loading-text" id="loading-text-cyan"
                 style="color: #ffffff; mix-blend-mode: exclusion; z-index: 3;">0/8<br />LOADED</div>
 

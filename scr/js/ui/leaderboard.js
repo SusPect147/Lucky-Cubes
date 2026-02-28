@@ -46,7 +46,7 @@ const Leaderboard = {
 
     openLeaderboard: function () {
         const now = Date.now();
-        // Refresh if data is older than 60 seconds (60000 ms) or null
+
         if (!this.data || now - this.lastLoadTime > 60000) {
             this.load();
         } else {
@@ -149,10 +149,10 @@ const Leaderboard = {
             }
 
             const avatarContainer = document.createElement('div');
-            // Safe: getAvatarHTML only uses hardcoded HTML structure and entry.photo_url which is URL validated or set from safe sources, wait, entry.photo_url could be malformed url... Actually it uses secure outerHTML on an img element. Let's use it directly without innerHTML to be 100% safe.
+
             let avatarHTMLStr = this.getAvatarHTML(entry);
             const tempAvatarDiv = document.createElement('div');
-            avatarContainer.appendChild(tempAvatarDiv); // placeholder
+            avatarContainer.appendChild(tempAvatarDiv);
 
             if (entry.photo_url) {
                 const img = document.createElement('img');

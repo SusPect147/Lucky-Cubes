@@ -101,14 +101,14 @@ function updateLoadingText() {
 
     if (redText && cyanText) {
         const rawText = i18n.t('loading', { loaded: loadedCount, total: totalAssets });
-        // Make uppercase and replace first space with <br/> to match cube_animation.html layout
+
         const formattedText = rawText.toUpperCase().replace(' ', '<br/>');
         redText.innerHTML = formattedText;
         cyanText.innerHTML = formattedText;
     }
 }
 
-// 3D Parallax Tilt Effect for loader
+
 let tiltWrapper;
 let currentRotateX = 0;
 let currentRotateY = 0;
@@ -180,7 +180,7 @@ async function preload() {
 
     await loadScript('scr/js/api.js?v=' + Date.now());
 
-    // Start API call, but don't await it yet! Let it run concurrently.
+
     let statePromise = null;
     try {
         if (typeof API !== 'undefined') {
@@ -227,7 +227,7 @@ async function preload() {
                     img.style.height = '100%';
                     img.style.borderRadius = '50%';
                     img.style.objectFit = 'cover';
-                    avatarContainer.innerHTML = ''; // Clear previous content
+                    avatarContainer.innerHTML = '';
                     avatarContainer.appendChild(img);
                 }
             }

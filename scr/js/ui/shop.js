@@ -116,7 +116,7 @@ const Shop = {
 
             const imgDiv = document.createElement('div');
             imgDiv.className = 'boost-image';
-            imgDiv.innerHTML = this.getIconSVG(boost.icon); // safe: hardcoded SVGs
+            imgDiv.innerHTML = this.getIconSVG(boost.icon);
             item.appendChild(imgDiv);
 
             const infoDiv = document.createElement('div');

@@ -417,7 +417,7 @@
                 currentY = 0;
             });
 
-            // Mouse equivalents for desktop testing
+
             topupMenu.addEventListener('mousedown', (e) => {
                 const target = e.target;
                 if (target.closest('.topup-exchange-currency') || target.closest('.topup-row-input')) return;

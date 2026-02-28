@@ -721,7 +721,7 @@ window.Game = (function () {
 
                 const iconDiv = document.createElement('div');
                 iconDiv.className = 'boost-timer-icon';
-                iconDiv.innerHTML = iconSVG; // safe as getIconSVG returns hardcoded strings
+                iconDiv.innerHTML = iconSVG;
 
                 const textDiv = document.createElement('div');
                 textDiv.className = 'boost-timer-text';
@@ -759,7 +759,7 @@ window.Game = (function () {
 
                     const iconDiv = document.createElement('div');
                     iconDiv.className = 'boost-timer-icon';
-                    iconDiv.innerHTML = iconSVG; // safe
+                    iconDiv.innerHTML = iconSVG;
 
                     const textDiv = document.createElement('div');
                     textDiv.className = 'boost-timer-text';
@@ -797,7 +797,7 @@ window.Game = (function () {
 
                     const iconDiv = document.createElement('div');
                     iconDiv.className = 'boost-timer-icon';
-                    iconDiv.innerHTML = iconSVG; // safe
+                    iconDiv.innerHTML = iconSVG;
 
                     const textDiv = document.createElement('div');
                     textDiv.className = 'boost-timer-text';
