@@ -39,11 +39,22 @@ const i18n = (function () {
             }
         }
 
-        console.log(langCode);
+        // Браузерный fallback
+        if (!langCode || langCode === 'en') {
+            const browserLang = navigator.language || navigator.userLanguage;
+            if (browserLang) {
+                langCode = browserLang;
+            }
+        }
+
+        console.debug("User language detected:", langCode);
 
         tgLangCode = langCode;
 
-        if (langCode === 'ru' || langCode === 'be' || langCode === 'uk' || langCode === 'kk') {
+        // Нормализация языка (убираем регион: ru-RU -> ru)
+        const normalizedLang = (langCode || 'en').split('-')[0].toLowerCase();
+
+        if (normalizedLang === 'ru' || normalizedLang === 'be' || normalizedLang === 'uk' || normalizedLang === 'kk') {
             currentLang = 'ru';
         } else {
             currentLang = 'en';
@@ -68,15 +79,21 @@ const i18n = (function () {
     }
 
     function translate(key, params = {}) {
-        const dict = TRANSLATIONS[currentLang] || TRANSLATIONS['en'];
+        const allTranslations = (typeof TRANSLATIONS !== 'undefined') ? TRANSLATIONS : {};
+        const dict = allTranslations[currentLang] || allTranslations['en'] || {};
         let text = dict[key];
 
         if (text === undefined) {
-            text = TRANSLATIONS['en'][key] || key;
+            text = (allTranslations['en'] && allTranslations['en'][key]) ? allTranslations['en'][key] : key;
         }
 
+        if (typeof text !== 'string') {
+            return text;
+        }
+
+        // Безопасная подстановка параметров без RegExp инъекций
         for (const [param, value] of Object.entries(params)) {
-            text = text.replace(new RegExp(`{${param}}`, 'g'), value);
+            text = text.split(`{${param}}`).join(value);
         }
 
         return text;
@@ -87,13 +104,24 @@ const i18n = (function () {
         elements.forEach(el => {
             const key = el.getAttribute('data-i18n');
 
+            // Чтение JSON параметров
+            let params = {};
+            const paramsAttr = el.getAttribute('data-i18n-params');
+            if (paramsAttr) {
+                try { params = JSON.parse(paramsAttr); } catch (e) { }
+            }
+
+            const translatedText = translate(key, params);
 
             if (el.hasAttribute('data-i18n-html')) {
-                el.innerHTML = translate(key);
+                el.innerHTML = translatedText;
+            } else if (el.hasAttribute('placeholder') || el.tagName.toLowerCase() === 'textarea') {
+                el.placeholder = translatedText;
             } else if (el.tagName.toLowerCase() === 'input' && el.type === 'placeholder') {
-                el.placeholder = translate(key);
+                // Старая логика в fallback
+                el.placeholder = translatedText;
             } else {
-                el.textContent = translate(key);
+                el.textContent = translatedText;
             }
         });
     }
@@ -101,6 +129,7 @@ const i18n = (function () {
     return {
         init: init,
         t: translate,
-        getLang: () => currentLang
+        getLang: () => currentLang,
+        refresh: applyTranslationsToDOM
     };
 })();
