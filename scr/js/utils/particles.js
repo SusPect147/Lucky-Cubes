@@ -40,11 +40,13 @@
         reset() {
             this.x = Math.random() * w;
             this.y = Math.random() * h;
-            // Larger size
-            this.size = Math.random() * 2 + 1.5;
-            // Slower movement
-            this.speedX = (Math.random() - 0.5) * 0.8;
-            this.speedY = (Math.random() - 0.5) * 0.8;
+            // Very small size
+            this.size = Math.random() * 0.7 + 0.3;
+            // Give them a constant drifting direction
+            this.baseSpeedX = (Math.random() - 0.5) * 0.5;
+            this.baseSpeedY = (Math.random() - 0.5) * 0.5;
+            this.speedX = this.baseSpeedX;
+            this.speedY = this.baseSpeedY;
             // Transparent
             this.opacity = Math.random() * 0.15 + 0.05;
         }
@@ -64,27 +66,25 @@
                 if (distance < 150 && distance > 0) {
                     const force = (150 - distance) / 150; // 0 to 1
                     // Add velocity outwards from the click center
-                    repulsionX = (dx / distance) * force * 5;
-                    repulsionY = (dy / distance) * force * 5;
+                    repulsionX = (dx / distance) * force * 4;
+                    repulsionY = (dy / distance) * force * 4;
                 }
             }
 
-            // Chaotic Brownian-like motion + Repulsion
-            this.speedX += (Math.random() - 0.5) * 0.2 + repulsionX;
-            this.speedY += (Math.random() - 0.5) * 0.2 + repulsionY;
+            // Drift with slight brownian motion + Repulsion
+            this.speedX += (Math.random() - 0.5) * 0.05 + repulsionX;
+            this.speedY += (Math.random() - 0.5) * 0.05 + repulsionY;
 
-            // Apply friction to slowly return to normal speeds after a burst
-            this.speedX *= 0.95;
-            this.speedY *= 0.95;
+            // Apply friction towards their base drift speed
+            this.speedX = this.speedX * 0.95 + this.baseSpeedX * 0.05;
+            this.speedY = this.speedY * 0.95 + this.baseSpeedY * 0.05;
 
-            // Base max speed, but allow temporary spikes from clicks
-            const baseSpeed = 1.0;
-            if (timeSinceClick > 500) {
-                if (this.speedX > baseSpeed) this.speedX = baseSpeed;
-                if (this.speedX < -baseSpeed) this.speedX = -baseSpeed;
-                if (this.speedY > baseSpeed) this.speedY = baseSpeed;
-                if (this.speedY < -baseSpeed) this.speedY = -baseSpeed;
-            }
+            // Optional cap if repulsion throws them too fast
+            const maxSpeed = 3.0;
+            if (this.speedX > maxSpeed) this.speedX = maxSpeed;
+            if (this.speedX < -maxSpeed) this.speedX = -maxSpeed;
+            if (this.speedY > maxSpeed) this.speedY = maxSpeed;
+            if (this.speedY < -maxSpeed) this.speedY = -maxSpeed;
 
 
             this.x += this.speedX;
