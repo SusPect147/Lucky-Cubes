@@ -30,10 +30,13 @@
         reset() {
             this.x = Math.random() * w;
             this.y = Math.random() * h;
-            this.size = Math.random() * 2 + 1; // 1px to 3px radius
-            this.speedX = (Math.random() - 0.5) * 1.5;
-            this.speedY = (Math.random() - 0.5) * 1.5;
-            this.opacity = Math.random() * 0.4 + 0.15; // 0.15 to 0.55 opacity
+            // Very small size
+            this.size = Math.random() * 0.8 + 0.3;
+            // Slower movement
+            this.speedX = (Math.random() - 0.5) * 0.8;
+            this.speedY = (Math.random() - 0.5) * 0.8;
+            // Much more transparent
+            this.opacity = Math.random() * 0.15 + 0.05;
         }
 
         update() {
@@ -62,9 +65,6 @@
             ctx.save();
             ctx.globalAlpha = this.opacity;
             ctx.fillStyle = '#ffffff';
-            // Optional slight glow for better visibility on dark backgrounds
-            ctx.shadowBlur = 3;
-            ctx.shadowColor = 'rgba(255, 255, 255, 0.5)';
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
             ctx.fill();
