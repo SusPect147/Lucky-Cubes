@@ -10,7 +10,54 @@
     function truncateAddress(address) {
         if (!address) return '—';
         if (address.length <= 12) return address;
-        return address.slice(0, 6) + '…' + address.slice(-4);
+        return address.slice(0, 4) + '…' + address.slice(-4);
+    }
+
+    function crc16(data) {
+        const poly = 0x1021;
+        let reg = 0;
+        const message = new Uint8Array(data.length + 2);
+        message.set(data);
+        for (let byte of message) {
+            let mask = 0x80;
+            while (mask > 0) {
+                reg <<= 1;
+                if (byte & mask) reg += 1;
+                mask >>= 1;
+                if (reg > 0xffff) {
+                    reg &= 0xffff;
+                    reg ^= poly;
+                }
+            }
+        }
+        return new Uint8Array([Math.floor(reg / 256), reg % 256]);
+    }
+
+    function rawToUserFriendly(rawStr, isTestnet = false) {
+        try {
+            const parts = rawStr.split(':');
+            if (parts.length !== 2) return rawStr;
+            const wc = parseInt(parts[0], 10);
+            const hex = parts[1];
+
+            const tag = isTestnet ? 0x91 : 0x51;
+            const payload = new Uint8Array(34);
+            payload[0] = tag;
+            payload[1] = wc === -1 ? 0xff : wc;
+
+            for (let i = 0, c = 0; c < hex.length; c += 2, i++) {
+                payload[2 + i] = parseInt(hex.substr(c, 2), 16);
+            }
+
+            const crc = crc16(payload);
+            const full = new Uint8Array(36);
+            full.set(payload);
+            full.set(crc, 34);
+
+            return btoa(String.fromCharCode.apply(null, full)).replace(/\+/g, '-').replace(/\//g, '_');
+        } catch (e) {
+            return rawStr;
+        }
     }
 
     function updateWalletUI(wallet) {
@@ -29,10 +76,10 @@
             const rawAddr = wallet.account.address || '';
             let parsedAddr = rawAddr;
             try {
-                if (typeof TON_CONNECT_UI !== 'undefined' && TON_CONNECT_UI.toUserFriendlyAddress) {
-                    parsedAddr = TON_CONNECT_UI.toUserFriendlyAddress(rawAddr, wallet.account.chain === '-3');
-                } else if (typeof TonConnectUI !== 'undefined' && TonConnectUI.toUserFriendlyAddress) {
-                    parsedAddr = TonConnectUI.toUserFriendlyAddress(rawAddr, wallet.account.chain === '-3');
+                if (wallet.account.chain === '-3') {
+                    parsedAddr = rawToUserFriendly(rawAddr, true);
+                } else {
+                    parsedAddr = rawToUserFriendly(rawAddr, false);
                 }
             } catch (e) {
                 console.warn('[Wallet] Address parsing issue:', e);
@@ -291,6 +338,13 @@
 
             const topupOverlay = document.getElementById('topup-menu-overlay');
             if (topupOverlay) topupOverlay.classList.remove('visible');
+
+            if (window.API && window.API.call) {
+                const boc = result && result.boc ? result.boc : '';
+                window.API.call('/api/donate', { amount: amountTON, coins: amountLUCU, boc: boc })
+                    .then(res => console.log('Topup recorded:', res))
+                    .catch(err => console.error('Failed to record topup:', err));
+            }
 
         }).catch(function (e) {
             if (e && e.message && e.message.indexOf('cancel') !== -1) return;
