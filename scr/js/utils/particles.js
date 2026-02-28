@@ -4,6 +4,7 @@
 
     let w, h;
     let particles = [];
+    let shockwaves = [];
     let clickX = -1000;
     let clickY = -1000;
     let clickTime = 0;
@@ -12,6 +13,13 @@
         clickX = e.clientX;
         clickY = e.clientY;
         clickTime = Date.now();
+        shockwaves.push({
+            x: clickX,
+            y: clickY,
+            radius: 10,
+            opacity: 0.6,
+            maxRadius: 150
+        });
     });
 
     function initSize() {
@@ -129,6 +137,29 @@
                 p.update();
                 p.draw();
             });
+
+            // Update and draw shockwaves
+            for (let i = shockwaves.length - 1; i >= 0; i--) {
+                let wave = shockwaves[i];
+
+                // Expand radius and fade out
+                wave.radius += 5;
+                wave.opacity -= 0.02;
+
+                if (wave.opacity <= 0 || wave.radius >= wave.maxRadius) {
+                    shockwaves.splice(i, 1);
+                    continue;
+                }
+
+                // Draw the shockwave ring
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(255, 255, 255, ${wave.opacity})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                ctx.restore();
+            }
 
             requestAnimationFrame(animate);
         }
