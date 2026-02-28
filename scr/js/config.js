@@ -51,7 +51,7 @@ const CONFIG = {
     rainbowLambda: 0.0005,
     rainbowRollsMin: 5,
     rainbowRollsMax: 10,
-    particleCount: 35,
+    particleCount: 20,
 
 
     QUESTS: [
