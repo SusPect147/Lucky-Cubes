@@ -291,6 +291,86 @@
         const topupOverlay = document.getElementById('topup-menu-overlay');
         const openBtn = document.getElementById('btn-profile-topup-open');
         const closeBtn = document.getElementById('topup-menu-close-btn');
+        const topupMenu = document.querySelector('.topup-menu');
+
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+
+        function closeMenu() {
+            if (topupOverlay) {
+                topupOverlay.classList.remove('visible');
+                if (topupMenu) {
+                    topupMenu.style.transform = '';
+                    topupMenu.style.transition = '';
+                }
+            }
+        }
+
+        if (topupMenu) {
+            topupMenu.addEventListener('touchstart', (e) => {
+                const target = e.target;
+                if (target.closest('.topup-exchange-currency') || target.closest('.topup-row-input')) return;
+
+                startY = e.touches[0].clientY;
+                isDragging = true;
+                topupMenu.style.transition = 'none';
+            }, { passive: true });
+
+            topupMenu.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                currentY = e.touches[0].clientY;
+                const deltaY = currentY - startY;
+
+                if (deltaY > 0) {
+                    e.preventDefault();
+                    topupMenu.style.transform = `translateY(${deltaY}px)`;
+                }
+            }, { passive: false });
+
+            topupMenu.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                topupMenu.style.transition = '';
+
+                const deltaY = currentY - startY;
+                if (deltaY > 100) {
+                    closeMenu();
+                } else {
+                    topupMenu.style.transform = '';
+                }
+                currentY = 0;
+            });
+
+            // Mouse equivalents for desktop testing
+            topupMenu.addEventListener('mousedown', (e) => {
+                const target = e.target;
+                if (target.closest('.topup-exchange-currency') || target.closest('.topup-row-input')) return;
+                startY = e.clientY;
+                isDragging = true;
+                topupMenu.style.transition = 'none';
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                currentY = e.clientY;
+                const deltaY = currentY - startY;
+                if (deltaY > 0) {
+                    topupMenu.style.transform = `translateY(${deltaY}px)`;
+                }
+            });
+            document.addEventListener('mouseup', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                topupMenu.style.transition = '';
+                const deltaY = currentY - startY;
+                if (deltaY > 100) {
+                    closeMenu();
+                } else {
+                    topupMenu.style.transform = '';
+                }
+                currentY = 0;
+            });
+        }
 
         if (openBtn && topupOverlay) {
             openBtn.addEventListener('click', function () {
@@ -298,13 +378,11 @@
             });
         }
         if (closeBtn && topupOverlay) {
-            closeBtn.addEventListener('click', function () {
-                topupOverlay.classList.remove('visible');
-            });
+            closeBtn.addEventListener('click', closeMenu);
         }
         if (topupOverlay) {
-            topupOverlay.addEventListener('click', function (e) {
-                if (e.target === topupOverlay) topupOverlay.classList.remove('visible');
+            topupOverlay.addEventListener('mousedown', function (e) {
+                if (e.target === topupOverlay) closeMenu();
             });
         }
 
@@ -329,36 +407,26 @@
 
         const lucuInput = document.getElementById('topup-amount-lucu-main');
         const tonInput = document.getElementById('topup-amount-ton-main');
-        const rateText = document.getElementById('topup-rate-equivalent');
-        const btnAmount = document.getElementById('topup-btn-amount');
 
-        if (lucuInput && tonInput && rateText && btnAmount) {
+        if (lucuInput && tonInput) {
             function updateFromLucu() {
                 let lucu = parseInt(lucuInput.value, 10);
                 if (isNaN(lucu) || lucu <= 0) {
                     tonInput.value = '';
-                    rateText.textContent = `0 TON`;
-                    btnAmount.textContent = `0`;
                     return;
                 }
                 let ton = calculateTonFromLucu(lucu);
                 tonInput.value = ton;
-                rateText.textContent = `${ton} TON`;
-                btnAmount.textContent = `${ton}`;
             }
 
             function updateFromTon() {
                 let ton = parseFloat(tonInput.value);
                 if (isNaN(ton) || ton <= 0) {
                     lucuInput.value = '';
-                    rateText.textContent = `0 TON`;
-                    btnAmount.textContent = `0`;
                     return;
                 }
                 let lucu = calculateLucuFromTon(ton);
                 lucuInput.value = lucu;
-                rateText.textContent = `${ton} TON`;
-                btnAmount.textContent = `${ton}`;
             }
 
             lucuInput.addEventListener('input', updateFromLucu);

@@ -177,6 +177,7 @@
 
         <div class="topup-menu-overlay" id="topup-menu-overlay">
             <div class="topup-menu">
+                <div class="topup-drag-handle"></div>
                 <div class="topup-menu-header">
                     <div class="topup-tabs">
                         <button class="topup-tab-btn" data-tab="stars">
@@ -194,13 +195,6 @@
                             TON
                         </button>
                     </div>
-                    <button class="topup-menu-close-btn" id="topup-menu-close-btn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
                 </div>
 
                 <div class="topup-content" id="topup-content">
@@ -209,16 +203,30 @@
                     </div>
 
                     <div class="topup-tab-pane active" id="topup-tab-ton">
+                        <div class="topup-exchange-amount-label">Введите сумму</div>
                         <div class="topup-exchange-card">
-                            <div class="topup-exchange-amount-label">Введите сумму</div>
-                            <div class="topup-exchange-currency">
-                                <input type="number" id="topup-amount-ton-main" value="0.3" min="0.01" step="0.01">
-                                <span>TON</span>
+                            <div class="topup-exchange-row">
+                                <span class="topup-row-label">Вы отдаете:</span>
+                                <div class="topup-row-input">
+                                    <input type="number" id="topup-amount-ton-main" value="0.3" min="0.01" step="0.01">
+                                    <span>TON</span>
+                                </div>
                             </div>
-                            <div class="topup-exchange-rate-dynamic">
-                                <input type="number" id="topup-amount-lucu-main" value="100" min="1" step="1">
-                                <span class="topup-amount-lucu-label">$LUCU = </span>
-                                <span id="topup-rate-equivalent">0.3 TON</span>
+
+                            <div class="topup-exchange-divider">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <polyline points="19 12 12 19 5 12"></polyline>
+                                </svg>
+                            </div>
+
+                            <div class="topup-exchange-row">
+                                <span class="topup-row-label">Итоговая сумма:</span>
+                                <div class="topup-row-input">
+                                    <input type="number" id="topup-amount-lucu-main" value="100" min="1" step="1">
+                                    <span>$LUCU</span>
+                                </div>
                             </div>
                         </div>
 
