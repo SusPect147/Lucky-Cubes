@@ -2,6 +2,7 @@ const Leaderboard = {
     currentTab: 'coins',
     data: null,
     myId: null,
+    lastLoadTime: 0,
 
     init: function () {
         try {
@@ -35,11 +36,22 @@ const Leaderboard = {
                     return;
                 }
                 this.data = data;
+                this.lastLoadTime = Date.now();
                 this.render();
             })
             .catch(err => {
                 console.error('Leaderboard load failed:', err);
             });
+    },
+
+    openLeaderboard: function () {
+        const now = Date.now();
+        // Refresh if data is older than 60 seconds (60000 ms) or null
+        if (!this.data || now - this.lastLoadTime > 60000) {
+            this.load();
+        } else {
+            this.render();
+        }
     },
 
     getPlaceHTML: function (index) {

@@ -36,6 +36,9 @@ function showLeaderboardScreen() {
     hideInventoryMenu();
     hideQuestMenu();
     updateLeaderboardYourScore();
+    if (typeof Leaderboard !== 'undefined' && typeof Leaderboard.openLeaderboard === 'function') {
+        Leaderboard.openLeaderboard();
+    }
     gameContentEl.classList.add('leaderboard-open');
     var btn = document.getElementById('leaderboard-menu-btn');
     if (btn) btn.classList.add('active');
@@ -129,7 +132,7 @@ function hideInventoryMenu() {
 function initInventoryTabs() {
     const inventoryTabBtns = document.querySelectorAll('.inventory-tab-btn');
     inventoryTabBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             inventoryTabBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             const tab = this.dataset.tab;
@@ -157,7 +160,7 @@ function hideShopMenu() {
 function initShopTabs() {
     const shopTabBtns = document.querySelectorAll('.shop-tab-btn');
     shopTabBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             shopTabBtns.forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             const tab = this.dataset.tab;
