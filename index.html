@@ -208,10 +208,10 @@
                     </div>
 
                     <div class="topup-tab-pane active" id="topup-tab-ton">
-                        <div class="topup-exchange-amount-label">Введите сумму</div>
+                        <div class="topup-exchange-amount-label" data-i18n="topup_enter_amount">Введите сумму</div>
                         <div class="topup-exchange-card">
                             <div class="topup-exchange-row">
-                                <span class="topup-row-label">Вы отдаете:</span>
+                                <span class="topup-row-label" data-i18n="topup_you_give">Вы отдаете:</span>
                                 <div class="topup-row-input">
                                     <input type="number" id="topup-amount-ton-main" class="topup-input-main"
                                         placeholder="0" value="0.2" step="0.01" min="0">
@@ -228,7 +228,7 @@
                             </div>
 
                             <div class="topup-exchange-row">
-                                <span class="topup-row-label">Итоговая сумма:</span>
+                                <span class="topup-row-label" data-i18n="topup_total_amount">Итоговая сумма:</span>
                                 <div class="topup-row-input">
                                     <input type="number" id="topup-amount-lucu-main" class="topup-input-main"
                                         placeholder="0" value="500" step="1" min="0">
@@ -251,15 +251,16 @@
                                             d="M12.7238 1.00488H3.27565C1.53846 1.00488 0.437395 2.87874 1.31137 4.39358L7.14243 14.5002C7.52294 15.1601 8.47652 15.1601 8.85703 14.5002L14.6893 4.39358C15.5621 2.88116 14.461 1.00488 12.725 1.00488H12.7238ZM7.13769 11.4694L5.86778 9.01168L2.80363 3.53153C2.60149 3.18078 2.85116 2.7313 3.27446 2.7313H7.1365V11.4705L7.13769 11.4694ZM13.1935 3.53035L10.1305 9.01287L8.86059 11.4694V2.73011H12.7226C13.1459 2.73011 13.3956 3.17959 13.1935 3.53035Z" />
                                     </svg></span>
                             </div>
-                            <button class="topup-wallet-reconnect" id="topup-wallet-reconnect-btn">Переподключить
+                            <button class="topup-wallet-reconnect" id="topup-wallet-reconnect-btn"
+                                data-i18n="topup_reconnect">Переподключить
                                 &gt;</button>
                         </div>
-                        <button class="topup-wallet-connect-btn" id="topup-wallet-connect-btn"
-                            style="display:none;">Подключить TON кошелек</button>
+                        <button class="topup-wallet-connect-btn" id="topup-wallet-connect-btn" style="display:none;"
+                            data-i18n="connect_wallet">Подключить TON кошелек</button>
 
                         <div class="topup-submit-wrapper">
                             <button class="topup-submit-btn" id="topup-ton-submit-btn">
-                                <span class="topup-btn-text">Оплатить</span>
+                                <span class="topup-btn-text" data-i18n="topup_pay">Оплатить</span>
                                 <span class="topup-btn-value" id="topup-btn-amount">0.2</span>
                                 <span class="topup-btn-currency">TON</span>
                             </button>
