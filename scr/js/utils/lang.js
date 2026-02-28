@@ -104,6 +104,7 @@ const TRANSLATIONS = {
         'Quest timers slow down or stop (2-5 min)': 'Quest timers slow down or stop (2-5 min)',
         'Faster cube response for 5-15 seconds': 'Faster cube response for 5-15 seconds',
         leaderboard_your_rank: "#{rank} {name}",
+        change_language: "Change language (RU)",
     },
     ru: {
         loading: '{loaded}/{total} загружено',
@@ -210,5 +211,6 @@ const TRANSLATIONS = {
         'Quest timers slow down or stop (2-5 min)': 'Таймеры квестов замедляются (2-5 мин)',
         'Faster cube response for 5-15 seconds': 'Ускоренный отзыв кубика на 5-15 секунд',
         leaderboard_your_rank: "#{rank} {name}",
+        change_language: "Сменить язык (EN)",
     }
 };

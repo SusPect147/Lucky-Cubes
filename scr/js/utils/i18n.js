@@ -45,15 +45,18 @@ const i18n = (function () {
 
         console.debug("User language detected:", langCode);
 
-        tgLangCode = langCode;
+        tgLangCode = langCode || 'en';
 
-        // Нормализация языка (убираем регион: ru-RU -> ru)
-        const normalizedLang = (langCode || 'en').split('-')[0].toLowerCase();
-
-        if (normalizedLang === 'ru' || normalizedLang === 'be' || normalizedLang === 'uk' || normalizedLang === 'kk') {
-            currentLang = 'ru';
+        const overrideLang = localStorage.getItem('user_lang_override');
+        if (overrideLang && (overrideLang === 'ru' || overrideLang === 'en')) {
+            currentLang = overrideLang;
         } else {
-            currentLang = 'en';
+            const normalizedLang = tgLangCode.split('-')[0].toLowerCase();
+            if (normalizedLang === 'ru' || normalizedLang === 'be' || normalizedLang === 'uk' || normalizedLang === 'kk') {
+                currentLang = 'ru';
+            } else {
+                currentLang = 'en';
+            }
         }
 
         document.documentElement.setAttribute('lang', currentLang);
@@ -95,6 +98,16 @@ const i18n = (function () {
         return text;
     }
 
+    function setLang(lang) {
+        if (lang === 'ru' || lang === 'en') {
+            localStorage.setItem('user_lang_override', lang);
+            currentLang = lang;
+            document.documentElement.setAttribute('lang', currentLang);
+            applyTranslationsToDOM();
+            updateVersionDisplay();
+        }
+    }
+
     function applyTranslationsToDOM() {
         const elements = document.querySelectorAll('[data-i18n]');
         elements.forEach(el => {
@@ -126,6 +139,7 @@ const i18n = (function () {
         init: init,
         t: translate,
         getLang: () => currentLang,
+        setLang: setLang,
         refresh: applyTranslationsToDOM
     };
 })();

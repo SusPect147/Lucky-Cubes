@@ -149,6 +149,15 @@ animateTilt();
 async function preload() {
     i18n.init();
 
+    const langBtn = document.getElementById('loading-lang-btn');
+    if (langBtn) {
+        langBtn.style.display = 'block';
+        langBtn.addEventListener('click', () => {
+            const current = i18n.getLang();
+            i18n.setLang(current === 'en' ? 'ru' : 'en');
+        });
+    }
+
     try {
         if (CONFIG.ANALYTICS_TOKEN && window.telegramAnalytics) {
             window.telegramAnalytics.init({

@@ -152,3 +152,28 @@
     z-index: 3;
     mix-blend-mode: exclusion;
 }
+
+.loading-lang-btn {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.loading-lang-btn:active {
+    transform: translateX(-50%) scale(0.95);
+    background: rgba(40, 40, 40, 0.5);
+}
