@@ -1,6 +1,7 @@
 const CONFIG = {
     API_URL: 'https://my-cubes-server.onrender.com',
     BOT_USERNAME: 'my_cubes_bot',
+    ANALYTICS_TOKEN: 'eyJhcHBfbmFtZSI6Im15X2N1YmVzIiwiYXBwX3VybCI6Imh0dHBzOi8vdC5tZS9teV9jdWJlc19ib3QiLCJhcHBfZG9tYWluIjoiaHR0cHM6Ly9zdXNwZWN0MTQ3LmdpdGh1Yi5pby9MdWNreS1DdWJlcy8ifQ==!0eQe9FB+XUXXCA/D+ktu5/hrE35adIVvy2oFylvw/q0=',
     assetsPath: 'assets/UI/cubics/classic_skins/',
     assets: [
         'first-cubic.tgs',

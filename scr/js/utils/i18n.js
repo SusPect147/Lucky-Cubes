@@ -39,12 +39,8 @@ const i18n = (function () {
             }
         }
 
-        // Браузерный fallback
-        if (!langCode || langCode === 'en') {
-            const browserLang = navigator.language || navigator.userLanguage;
-            if (browserLang) {
-                langCode = browserLang;
-            }
+        if (!langCode) {
+            langCode = 'en'; // По умолчанию 'en'
         }
 
         console.debug("User language detected:", langCode);

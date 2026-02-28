@@ -149,6 +149,18 @@ animateTilt();
 async function preload() {
     i18n.init();
 
+    try {
+        if (CONFIG.ANALYTICS_TOKEN && window.telegramAnalytics) {
+            window.telegramAnalytics.init({
+                token: CONFIG.ANALYTICS_TOKEN,
+                appName: 'my_cubes'
+            });
+            console.log("Analytics initialized successfully.");
+        }
+    } catch (e) {
+        console.error("Analytics initialization failed:", e);
+    }
+
     const tgsAssets = CONFIG.assets || [];
 
     totalAssets = SCRIPTS_TO_LOAD.length + tgsAssets.length + IMAGES_TO_LOAD.length;
