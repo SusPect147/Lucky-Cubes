@@ -292,7 +292,7 @@
         }
     }
 
-    const baseLucu = 1000;
+    const baseLucu = 500;
     const baseTon = 0.2;
     const discountExponent = 0.95;
 
