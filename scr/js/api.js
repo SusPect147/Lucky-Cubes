@@ -2,9 +2,10 @@
     try {
         const verEl = document.querySelector('.app-version-display');
         const searchStr = window.location.search || '';
-        if (verEl && !verEl.textContent.includes('1.0.9') && !searchStr.includes('cb=1.0.9')) {
+        // If the version element does not contain v1.1.3, OR the URL doesn't have cb=1.1.3, reload.
+        if (verEl && !verEl.textContent.includes('1.1.3') && !searchStr.includes('cb=1.1.3')) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.0.9');
+            url.searchParams.set('cb', '1.1.3');
             window.location.replace(url.toString());
         }
     } catch (e) { }
@@ -90,12 +91,36 @@ async function call(endpoint, body) {
             console.error('API error:', resp.status);
             try {
                 const errBody = await resp.json();
+                if (errBody && errBody.versionMismatch) {
+                    // Server told us we're outdated, force reload
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('cb', '1.1.3');
+                    window.location.replace(url.toString());
+                    return null;
+                }
                 return errBody;
             } catch (e) {
                 return null;
             }
         }
-        return await resp.json();
+
+        const data = await resp.json();
+        // Fallback check: if server returned versionMismatch in a 200 OK (unlikely but possible)
+        if (data && data.versionMismatch) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('cb', '1.1.3');
+            window.location.replace(url.toString());
+            return null;
+        }
+
+        if (data && data.appVersion && data.appVersion !== '1.1.3') {
+            const url = new URL(window.location.href);
+            url.searchParams.set('cb', '1.1.3');
+            window.location.replace(url.toString());
+            return null;
+        }
+
+        return data;
     } catch (e) {
         console.error('API call failed:', e);
         return null;

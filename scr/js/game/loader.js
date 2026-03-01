@@ -95,11 +95,16 @@ function preloadImage(src) {
 const loadingScreen = document.getElementById('loading-screen');
 const gameContent = document.getElementById('game-content');
 
-function updateLoadingText() {
+function updateLoadingText(banned = false) {
     const redText = document.getElementById('loading-text-red');
     const cyanText = document.getElementById('loading-text-cyan');
 
     if (redText && cyanText) {
+        if (banned) {
+            redText.innerHTML = "BANNED";
+            cyanText.innerHTML = "BANNED";
+            return;
+        }
         const rawText = i18n.t('loading', { loaded: loadedCount, total: totalAssets });
 
         const formattedText = rawText.toUpperCase().replace(' ', '<br/>');
@@ -237,6 +242,10 @@ async function preload() {
     try {
         if (statePromise) {
             serverState = await statePromise;
+            if (serverState && serverState.isBanned) {
+                updateLoadingText(true);
+                return;
+            }
         }
     } catch (e) {
         console.error('Failed awaiting statePromise:', e);
