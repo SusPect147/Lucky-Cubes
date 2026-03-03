@@ -41,11 +41,13 @@
 }
 
 .overlay-text.responsive-loading-text {
-    font-size: clamp(3rem, 18vw, 8rem);
+    font-size: clamp(2.5rem, 15vw, 7rem);
     font-weight: 900;
     line-height: 1.1;
     letter-spacing: 4px;
-    white-space: nowrap;
+    white-space: normal;
+    max-width: 95vw;
+    overflow-wrap: break-word;
 }
 
 #loading-cube-img {

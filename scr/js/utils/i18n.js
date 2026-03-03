@@ -43,7 +43,6 @@ const i18n = (function () {
             langCode = 'en';
         }
 
-        console.debug("User language detected:", langCode);
 
         tgLangCode = langCode || 'en';
 

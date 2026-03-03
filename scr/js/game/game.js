@@ -237,7 +237,6 @@ window.Game = (function () {
 
         const safetyTimeout = setTimeout(() => {
             if (isRolling) {
-                console.warn('RollCube timeout - resetting state');
                 isRolling = false;
             }
         }, 10000);
@@ -1122,7 +1121,6 @@ window.Game = (function () {
 
             const safetyTimeout = setTimeout(() => {
                 if (isRolling) {
-                    console.warn('Roll timeout - resetting state');
                     isRolling = false;
                     if (centerGif) {
                         centerGif.style.pointerEvents = 'auto';
@@ -1286,7 +1284,6 @@ window.Game = (function () {
                 } else {
                     const fallbackTimeout = setTimeout(() => {
                         if (isRolling) {
-                            console.warn('Animation fallback - forcing completion');
                             handlers.forEach(clear => {
                                 try {
                                     clear();

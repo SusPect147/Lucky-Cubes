@@ -173,7 +173,6 @@ async function preload() {
                 token: CONFIG.ANALYTICS_TOKEN,
                 appName: 'my_cubes'
             });
-            console.log("Analytics initialized successfully.");
         }
     } catch (e) {
         console.error("Analytics initialization failed:", e);
@@ -227,8 +226,16 @@ async function preload() {
     if (lbPromise) {
         try {
             const lb = await lbPromise;
-            if (lb && lb.leaderboard) {
-                const lbAvatars = lb.leaderboard.map(p => p.avatar_url).filter(url => url && !url.includes('missing'));
+            if (lb) {
+                const allEntries = [...(lb.byCoins || []), ...(lb.byMin || [])];
+                const seen = new Set();
+                const lbAvatars = [];
+                for (const p of allEntries) {
+                    if (p.photo_url && !p.photo_url.includes('missing') && !seen.has(p.photo_url)) {
+                        seen.add(p.photo_url);
+                        lbAvatars.push(p.photo_url);
+                    }
+                }
                 if (lbAvatars.length > 0) {
                     totalAssets += lbAvatars.length;
                     updateLoadingText();
@@ -275,6 +282,30 @@ async function preload() {
         }
     } catch (e) {
         console.error('Failed awaiting statePromise:', e);
+    }
+
+    if (!serverState) {
+        const retryDelay = 3000;
+        const maxRetries = 3;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            await new Promise(r => setTimeout(r, retryDelay));
+            try {
+                if (typeof API !== 'undefined') {
+                    serverState = await API.call('/api/state', null);
+                    if (serverState && serverState.isBanned) {
+                        updateLoadingText(true);
+                        return;
+                    }
+                    if (serverState) break;
+                }
+            } catch (e) {
+                console.error('Retry ' + attempt + ' failed:', e);
+            }
+        }
+    }
+
+    if (!serverState) {
+        return;
     }
 
     loadingScreen.style.opacity = '0';

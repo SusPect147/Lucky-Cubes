@@ -82,7 +82,6 @@
                     parsedAddr = rawToUserFriendly(rawAddr, false);
                 }
             } catch (e) {
-                console.warn('[Wallet] Address parsing issue:', e);
             }
 
             if (addressEl) addressEl.textContent = truncateAddress(parsedAddr);
@@ -146,7 +145,6 @@
                 updateWalletUI(currentWallet);
             }
         } catch (e) {
-            console.warn('[Wallet]', e.message);
         }
     }
 
@@ -158,7 +156,6 @@
         try {
             tonConnectUI.openModal();
         } catch (e) {
-            console.warn('[Wallet]', e.message);
         }
     }
 
@@ -167,7 +164,6 @@
         try {
             tonConnectUI.disconnect();
         } catch (e) {
-            console.warn('[Wallet]', e.message);
         }
     }
 
@@ -194,12 +190,12 @@
             if (window.API && window.API.call) {
                 const boc = result && result.boc ? result.boc : '';
                 window.API.call('/api/donate', { amount: amountTON, boc: boc })
-                    .then(res => console.log('Donation recorded:', res))
+                    .then(res => { })
                     .catch(err => console.error('Failed to record donation:', err));
             }
         }).catch(function (e) {
             if (e && e.message && e.message.indexOf('cancel') !== -1) return;
-            console.warn('[Wallet] Transaction error:', e);
+            console.error('[Wallet] Transaction error:', e);
         });
     }
 
@@ -346,7 +342,7 @@
                 const boc = result && result.boc ? result.boc : '';
                 window.API.call('/api/donate', { amount: amountTON, coins: amountLUCU, boc: boc })
                     .then(res => {
-                        console.log('Topup recorded:', res);
+                        ;
                         if (submitBtn) {
                             submitBtn.style.opacity = '1';
                             submitBtn.style.pointerEvents = 'auto';
@@ -378,7 +374,7 @@
 
         }).catch(function (e) {
             if (e && e.message && e.message.indexOf('cancel') !== -1) return;
-            console.warn('[Wallet] Transaction error:', e);
+            console.error('[Wallet] Transaction error:', e);
         });
     }
 
@@ -640,7 +636,7 @@
                                     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openInvoice) {
                                         window.Telegram.WebApp.openInvoice(res.invoiceUrl, function (status) {
                                             if (status === 'paid') {
-                                                console.log('Invoice paid');
+                                                ;
                                             }
                                         });
                                     } else {
