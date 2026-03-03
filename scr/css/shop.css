@@ -31,12 +31,13 @@
     max-height: calc(85vh - 40px);
     height: 85vh !important;
 
-    background: rgba(15, 15, 15, 0.644);
-    backdrop-filter: blur(20px);
+    background: rgba(30, 30, 45, 0.65);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
     border-radius: 28px;
     padding: 20px;
     color: #ffffff;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.15);
 
     display: flex;

@@ -181,7 +181,42 @@
 
                 <div class="topup-content" id="topup-content">
                     <div class="topup-tab-pane" id="topup-tab-stars" style="display:none;">
-                        <div class="topup-coming-soon">Coming SOON</div>
+                        <div class="topup-exchange-amount-label" data-i18n="topup_enter_amount">Введите сумму</div>
+                        <div class="topup-exchange-card">
+                            <div class="topup-exchange-row">
+                                <span class="topup-row-label" data-i18n="topup_you_give">Вы отдаете:</span>
+                                <div class="topup-row-input">
+                                    <input type="number" id="topup-amount-stars-main" class="topup-input-main"
+                                        placeholder="0" value="50" step="1" min="1">
+                                    <span>Stars</span>
+                                </div>
+                            </div>
+
+                            <div class="topup-exchange-divider">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <polyline points="19 12 12 19 5 12"></polyline>
+                                </svg>
+                            </div>
+
+                            <div class="topup-exchange-row">
+                                <span class="topup-row-label" data-i18n="topup_total_amount">Итоговая сумма:</span>
+                                <div class="topup-row-input">
+                                    <input type="number" id="topup-amount-lucu-stars" class="topup-input-main"
+                                        placeholder="0" value="500" step="1" min="0">
+                                    <span>$LUCU</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="topup-submit-wrapper" style="margin-top: 20px;">
+                            <button class="topup-submit-btn" id="topup-stars-submit-btn">
+                                <span class="topup-btn-text" data-i18n="topup_pay">Оплатить</span>
+                                <span class="topup-btn-value" id="topup-btn-stars-amount">50</span>
+                                <span class="topup-btn-currency">Stars</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="topup-tab-pane active" id="topup-tab-ton">

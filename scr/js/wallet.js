@@ -296,6 +296,20 @@
     const baseTon = 0.2;
     const discountExponent = 0.95;
 
+    const baseStars = 50;
+
+    function calculateStarsFromLucu(lucu) {
+        if (lucu <= 0) return 0;
+        let stars = baseStars * Math.pow((lucu / baseLucu), discountExponent);
+        return Math.ceil(stars);
+    }
+
+    function calculateLucuFromStars(stars) {
+        if (stars <= 0) return 0;
+        let lucu = baseLucu * Math.pow((stars / baseStars), 1 / discountExponent);
+        return Math.floor(lucu);
+    }
+
     function calculateTonFromLucu(lucu) {
         if (lucu <= 0) return 0;
         let ton = baseTon * Math.pow((lucu / baseLucu), discountExponent);
@@ -524,6 +538,50 @@
             updateFromLucu();
         }
 
+        const lucuStarsInput = document.getElementById('topup-amount-lucu-stars');
+        const starsInput = document.getElementById('topup-amount-stars-main');
+        const btnStarsAmount = document.getElementById('topup-btn-stars-amount');
+
+        if (lucuStarsInput && starsInput && btnStarsAmount) {
+            function updateFromLucuStars() {
+                let lucu = parseInt(lucuStarsInput.value, 10);
+                if (isNaN(lucu) || lucu <= 0) {
+                    starsInput.value = '';
+                    btnStarsAmount.textContent = `0`;
+                    return;
+                }
+                let stars = calculateStarsFromLucu(lucu);
+                if (stars > 100000) {
+                    stars = 100000;
+                    starsInput.value = stars;
+                    lucuStarsInput.value = calculateLucuFromStars(stars);
+                } else {
+                    starsInput.value = stars;
+                }
+                btnStarsAmount.textContent = `${starsInput.value}`;
+            }
+
+            function updateFromStars() {
+                let stars = parseInt(starsInput.value, 10);
+                if (isNaN(stars) || stars <= 0) {
+                    lucuStarsInput.value = '';
+                    btnStarsAmount.textContent = `0`;
+                    return;
+                }
+                if (stars > 100000) {
+                    stars = 100000;
+                    starsInput.value = stars;
+                }
+                let lucu = calculateLucuFromStars(stars);
+                lucuStarsInput.value = lucu;
+                btnStarsAmount.textContent = `${stars}`;
+            }
+
+            lucuStarsInput.addEventListener('input', updateFromLucuStars);
+            starsInput.addEventListener('input', updateFromStars);
+            updateFromLucuStars();
+        }
+
         const topupConnectBtn = document.getElementById('topup-wallet-connect-btn');
         const topupReconnectBtn = document.getElementById('topup-wallet-reconnect-btn');
         if (topupConnectBtn) {
@@ -551,6 +609,43 @@
                 const lucu = parseInt(lucuInput.value, 10);
                 if (ton > 0 && lucu > 0) {
                     sendTopupTransaction(ton, lucu);
+                }
+            });
+        }
+
+        const submitStarsBtn = document.getElementById('topup-stars-submit-btn');
+        if (submitStarsBtn) {
+            submitStarsBtn.addEventListener('click', function () {
+                const stars = parseInt(starsInput.value, 10);
+                const lucu = parseInt(lucuStarsInput.value, 10);
+                if (stars > 0 && lucu > 0) {
+                    if (window.API && window.API.call) {
+                        submitStarsBtn.style.opacity = '0.5';
+                        submitStarsBtn.style.pointerEvents = 'none';
+                        window.API.call('/api/buy-stars', { stars: stars, coins: lucu })
+                            .then(res => {
+                                submitStarsBtn.style.opacity = '1';
+                                submitStarsBtn.style.pointerEvents = 'auto';
+                                if (res.invoiceUrl) {
+                                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openInvoice) {
+                                        window.Telegram.WebApp.openInvoice(res.invoiceUrl, function (status) {
+                                            if (status === 'paid') {
+                                                console.log('Invoice paid');
+                                            }
+                                        });
+                                    } else {
+                                        window.open(res.invoiceUrl, '_blank');
+                                    }
+                                } else {
+                                    alert(res.error || 'Failed to generate invoice');
+                                }
+                            })
+                            .catch(err => {
+                                submitStarsBtn.style.opacity = '1';
+                                submitStarsBtn.style.pointerEvents = 'auto';
+                                console.error('Failed to buy stars:', err);
+                            });
+                    }
                 }
             });
         }

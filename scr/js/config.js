@@ -61,6 +61,7 @@ const CONFIG = {
         { id: 'subscribe_lucky', type: 'social', name: 'Subscribe to Lucky Cubes!', xp: 700, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'user' },
         { id: 'subscribe_rayan', type: 'social', name: 'Subscribe to Rayan\'s Channel!', xp: 700, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'user' },
         { id: 'donate_100', type: 'social', name: 'Donate 100 Stars', xp: 1200, target: 1, current: 0, completed: false, claimed: false, social: true, icon: 'heart' },
+        { id: 'invite_3', type: 'social', name: 'Invite 3 Friends', xp: 1500, target: 3, current: 0, completed: false, claimed: false, social: true, icon: 'user' },
 
     ],
 };
