@@ -49,14 +49,16 @@ async function loadTGS(path) {
                 const xhr = new XMLHttpRequest();
                 xhr.open('GET', path, true);
                 xhr.responseType = 'arraybuffer';
+                const timeout = setTimeout(() => reject(new Error('XHR timeout')), 8000);
                 xhr.onload = () => {
+                    clearTimeout(timeout);
                     if (xhr.status === 200 || xhr.status === 0) {
                         resolve(xhr.response);
                     } else {
                         reject(new Error('XHR failed: ' + xhr.status));
                     }
                 };
-                xhr.onerror = () => reject(new Error('XHR network error'));
+                xhr.onerror = () => { clearTimeout(timeout); reject(new Error('XHR network error')); };
                 xhr.send();
             });
         }
@@ -73,8 +75,10 @@ function loadScript(src) {
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
         script.src = src;
-        script.onload = () => resolve(true);
+        const timeout = setTimeout(() => resolve(false), 8000);
+        script.onload = () => { clearTimeout(timeout); resolve(true); };
         script.onerror = () => {
+            clearTimeout(timeout);
             console.error('Failed to load script:', src);
             resolve(false);
         };
@@ -85,10 +89,10 @@ function loadScript(src) {
 function preloadImage(src) {
     return new Promise((resolve) => {
         const img = new Image();
-        img.onload = () => resolve(true);
-        img.onerror = () => resolve(false);
+        const timeout = setTimeout(() => resolve(true), 8000);
+        img.onload = () => { clearTimeout(timeout); resolve(true); };
+        img.onerror = () => { clearTimeout(timeout); resolve(false); };
         img.src = src;
-        setTimeout(() => resolve(false), 5000);
     });
 }
 
@@ -187,12 +191,14 @@ async function preload() {
 
 
     let statePromise = null;
+    let lbPromise = null;
     try {
         if (typeof API !== 'undefined') {
             statePromise = API.call('/api/state', null).catch(e => {
                 console.error('Failed to fetch server state:', e);
                 return null;
             });
+            lbPromise = API.call('/api/leaderboard?limit=50', null).catch(() => null);
         }
     } catch (e) {
         console.error('API call initialization failed:', e);
@@ -216,6 +222,26 @@ async function preload() {
         await preloadImage(IMAGES_TO_LOAD[i]);
         loadedCount++;
         updateLoadingText();
+    }
+
+    if (lbPromise) {
+        try {
+            const lb = await lbPromise;
+            if (lb && lb.leaderboard) {
+                const lbAvatars = lb.leaderboard.map(p => p.avatar_url).filter(url => url && !url.includes('missing'));
+                if (lbAvatars.length > 0) {
+                    totalAssets += lbAvatars.length;
+                    updateLoadingText();
+                    for (let i = 0; i < lbAvatars.length; i++) {
+                        await preloadImage(lbAvatars[i]);
+                        loadedCount++;
+                        updateLoadingText();
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Error preloading leaderboard:', e);
+        }
     }
 
     try {

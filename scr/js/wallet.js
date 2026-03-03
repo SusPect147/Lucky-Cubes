@@ -335,39 +335,45 @@
         };
 
         tonConnectUI.sendTransaction(transaction).then(function (result) {
-            let currentCoins = 0;
-            if (window.Game && window.Game.getCoinCount) {
-                currentCoins = window.Game.getCoinCount();
-            } else {
-                const curCoin = localStorage.getItem('coins');
-                if (curCoin !== null) {
-                    currentCoins = parseInt(curCoin, 10);
-                    if (isNaN(currentCoins)) currentCoins = 0;
-                }
+            const submitBtn = document.getElementById('topup-ton-submit-btn');
+            if (submitBtn) {
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.pointerEvents = 'none';
+                submitBtn.textContent = 'Verifying...';
             }
-            currentCoins += amountLUCU;
-
-            const profBalance = document.getElementById('profile-balance');
-            if (profBalance) profBalance.textContent = currentCoins.toFixed(2) + ' $LUCU';
-
-            if (typeof updateUI === 'function') {
-                updateUI(currentCoins, window.Game && window.Game.applyServerState ? 0 : 0);
-            }
-
-            const topupOverlay = document.getElementById('topup-menu-overlay');
-            if (topupOverlay) topupOverlay.classList.remove('visible');
 
             if (window.API && window.API.call) {
                 const boc = result && result.boc ? result.boc : '';
                 window.API.call('/api/donate', { amount: amountTON, coins: amountLUCU, boc: boc })
                     .then(res => {
                         console.log('Topup recorded:', res);
+                        if (submitBtn) {
+                            submitBtn.style.opacity = '1';
+                            submitBtn.style.pointerEvents = 'auto';
+                            submitBtn.textContent = 'Pay';
+                        }
+
+                        const topupOverlay = document.getElementById('topup-menu-overlay');
+                        if (topupOverlay) topupOverlay.classList.remove('visible');
+
                         if (res && res.totalCoins !== undefined && window.Game && window.Game.applyServerState) {
                             window.Game.applyServerState(res);
+                            const profBalance = document.getElementById('profile-balance');
                             if (profBalance) profBalance.textContent = res.totalCoins.toFixed(2) + ' $LUCU';
+                            alert('Success! Purchase was added to your account.');
+                        } else {
+                            alert(res && res.error ? res.error : 'There was an issue processing your transaction.');
                         }
                     })
-                    .catch(err => console.error('Failed to record topup:', err));
+                    .catch(err => {
+                        console.error('Failed to record topup:', err);
+                        if (submitBtn) {
+                            submitBtn.style.opacity = '1';
+                            submitBtn.style.pointerEvents = 'auto';
+                            submitBtn.textContent = 'Pay';
+                        }
+                        alert('Network error validating transaction. Please check your balance or try again.');
+                    });
             }
 
         }).catch(function (e) {
@@ -626,6 +632,10 @@
                             .then(res => {
                                 submitStarsBtn.style.opacity = '1';
                                 submitStarsBtn.style.pointerEvents = 'auto';
+                                if (!res) {
+                                    alert('Network error or server unavailable');
+                                    return;
+                                }
                                 if (res.invoiceUrl) {
                                     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openInvoice) {
                                         window.Telegram.WebApp.openInvoice(res.invoiceUrl, function (status) {
