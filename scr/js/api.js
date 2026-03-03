@@ -3,9 +3,9 @@
         const verEl = document.querySelector('.app-version-display');
         const searchStr = window.location.search || '';
         // If the version element does not contain v1.1.6, OR the URL doesn't have cb=1.1.6, reload.
-        if (verEl && !verEl.textContent.includes('1.1.6') && !searchStr.includes('cb=1.1.6')) {
+        if (verEl && !verEl.textContent.includes('1.1.9') && !searchStr.includes('cb=1.1.9')) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.1.6');
+            url.searchParams.set('cb', '1.1.9');
             window.location.replace(url.toString());
         }
     } catch (e) { }
@@ -94,7 +94,7 @@ async function call(endpoint, body) {
                 if (errBody && errBody.versionMismatch) {
                     // Server told us we're outdated, force reload
                     const url = new URL(window.location.href);
-                    url.searchParams.set('cb', '1.1.6');
+                    url.searchParams.set('cb', '1.1.9');
                     window.location.replace(url.toString());
                     return null;
                 }
@@ -108,14 +108,14 @@ async function call(endpoint, body) {
         // Fallback check: if server returned versionMismatch in a 200 OK (unlikely but possible)
         if (data && data.versionMismatch) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.1.6');
+            url.searchParams.set('cb', '1.1.9');
             window.location.replace(url.toString());
             return null;
         }
 
-        if (data && data.appVersion && data.appVersion !== '1.1.6') {
+        if (data && data.appVersion && data.appVersion !== '1.1.9') {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.1.6');
+            url.searchParams.set('cb', '1.1.9');
             window.location.replace(url.toString());
             return null;
         }

@@ -237,9 +237,17 @@ async function preload() {
 
     const tgsAssets = CONFIG.assets || [];
 
-    totalAssets = SCRIPTS_TO_LOAD.length + tgsAssets.length + IMAGES_TO_LOAD.length;
+    // +1 for the server state fetch (last step)
+    totalAssets = SCRIPTS_TO_LOAD.length + tgsAssets.length + IMAGES_TO_LOAD.length + 1;
     loadedCount = 0;
     updateLoadingText();
+
+    function fetchWithTimeout(promise, ms) {
+        const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('timeout')), ms)
+        );
+        return Promise.race([promise, timeout]);
+    }
 
     await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -267,13 +275,18 @@ async function preload() {
         loadedCount++;
         updateLoadingText();
     }
-    for (let i = 0; i < tgsAssets.length; i++) {
-        if (skipRequested) break;
-        const name = tgsAssets[i].replace('.tgs', '');
-        const data = await loadTGS(CONFIG.assetsPath + tgsAssets[i]);
-        if (data) animationCache[name] = data;
-        loadedCount++;
-        updateLoadingText();
+
+    // Load TGS assets in parallel batches of 4 for speed
+    const TGS_BATCH_SIZE = 4;
+    for (let i = 0; i < tgsAssets.length && !skipRequested; i += TGS_BATCH_SIZE) {
+        const batch = tgsAssets.slice(i, i + TGS_BATCH_SIZE);
+        await Promise.all(batch.map(async (asset) => {
+            const name = asset.replace('.tgs', '');
+            const data = await loadTGS(CONFIG.assetsPath + asset);
+            if (data) animationCache[name] = data;
+            loadedCount++;
+            updateLoadingText();
+        }));
     }
 
     for (let i = 0; i < IMAGES_TO_LOAD.length; i++) {
@@ -333,9 +346,10 @@ async function preload() {
         }
     } catch (e) { console.error('Error loading avatar:', e); }
 
+    // Await server state with a 5s timeout — this is the last counted asset
     try {
         if (statePromise) {
-            serverState = await statePromise;
+            serverState = await fetchWithTimeout(statePromise, 5000);
             if (serverState && serverState.isBanned) {
                 updateLoadingText(true);
                 return;
@@ -345,15 +359,18 @@ async function preload() {
         console.error('Failed awaiting statePromise:', e);
     }
 
+    // Fast retries: 2 attempts with 1s delay
     if (!serverState && !skipRequested) {
-        const retryDelay = 3000;
-        const maxRetries = 3;
+        const maxRetries = 2;
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             if (skipRequested) break;
-            await new Promise(r => setTimeout(r, retryDelay));
+            await new Promise(r => setTimeout(r, 1000));
             try {
                 if (typeof API !== 'undefined') {
-                    serverState = await API.call('/api/state', null);
+                    serverState = await fetchWithTimeout(
+                        API.call('/api/state', null),
+                        4000
+                    );
                     if (serverState && serverState.isBanned) {
                         updateLoadingText(true);
                         return;
@@ -366,9 +383,12 @@ async function preload() {
         }
     }
 
-    if (!serverState && !skipRequested) {
-        return;
-    }
+    // Count the server state step as loaded regardless of outcome
+    loadedCount++;
+    updateLoadingText();
+
+    // Proceed to game even if server state is unavailable
+    // (Game.init handles null serverState gracefully)
 
     await performExitTransition();
 }
