@@ -180,7 +180,7 @@
         var amountNano = BigInt(Math.round(amountTON * 1e9)).toString();
 
         var transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 600,
+            validUntil: Math.floor(Date.now() / 1000) + 300,
             messages: [
                 {
                     address: DONATE_ADDRESS,
@@ -325,7 +325,7 @@
     function sendTopupTransaction(amountTON, amountLUCU) {
         var amountNano = BigInt(Math.round(amountTON * 1e9)).toString();
         var transaction = {
-            validUntil: Math.floor(Date.now() / 1000) + 600,
+            validUntil: Math.floor(Date.now() / 1000) + 300,
             messages: [
                 {
                     address: DONATE_ADDRESS,
