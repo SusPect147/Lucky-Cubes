@@ -105,6 +105,7 @@ const TRANSLATIONS = {
         'Faster cube response for 5-15 seconds': 'Faster cube response for 5-15 seconds',
         leaderboard_your_rank: "#{rank} {name}",
         change_language: "Change language (RU)",
+        skip_loading: "Skip >>",
     },
     ru: {
         loading: '{loaded}/{total} загружено',
@@ -212,5 +213,6 @@ const TRANSLATIONS = {
         'Faster cube response for 5-15 seconds': 'Ускоренный отзыв кубика на 5-15 секунд',
         leaderboard_your_rank: "#{rank} {name}",
         change_language: "Сменить язык (EN)",
+        skip_loading: "Пропустить >>",
     }
 };

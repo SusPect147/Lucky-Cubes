@@ -167,6 +167,63 @@ async function preload() {
         });
     }
 
+    let isExiting = false;
+    const skipBtn = document.getElementById('loading-skip-btn');
+    let skipRequested = false;
+
+    async function performExitTransition() {
+        if (isExiting) return;
+        isExiting = true;
+
+        const cubeImg = document.getElementById('loading-cube-img');
+        const cubeWrapper = document.getElementById('interactive-cube-wrapper');
+        if (cubeImg) {
+            cubeImg.style.transition = 'opacity 0.4s ease-out';
+            cubeImg.style.opacity = '0';
+        }
+        if (cubeWrapper) {
+            cubeWrapper.style.transition = 'opacity 0.4s ease-out';
+            cubeWrapper.style.opacity = '0';
+        }
+
+        await new Promise(r => setTimeout(r, 400));
+        loadingScreen.classList.add('glitch-exit');
+
+        await new Promise(r => setTimeout(r, 800));
+        loadingScreen.style.transition = 'opacity 0.5s ease-out';
+        loadingScreen.style.opacity = '0';
+        await new Promise(r => setTimeout(r, 500));
+
+        loadingScreen.style.display = 'none';
+        gameContent.style.opacity = '0';
+        gameContent.style.display = 'block';
+        gameContent.style.transition = 'opacity 0.5s ease-in';
+        requestAnimationFrame(() => {
+            gameContent.style.opacity = '1';
+        });
+        if (typeof Game !== 'undefined' && Game.init) {
+            Game.init(serverState);
+        }
+        if (typeof Inventory !== 'undefined' && Inventory.init) {
+            Inventory.init();
+        }
+    }
+
+    if (skipBtn) {
+        setTimeout(() => {
+            if (!isExiting && loadingScreen.style.display !== 'none') {
+                skipBtn.style.display = 'block';
+            }
+        }, 7000);
+
+        skipBtn.addEventListener('click', async () => {
+            skipRequested = true;
+            skipBtn.style.display = 'none';
+            if (langBtn) langBtn.style.display = 'none';
+            await performExitTransition();
+        });
+    }
+
     try {
         if (CONFIG.ANALYTICS_TOKEN && window.telegramAnalytics) {
             window.telegramAnalytics.init({
@@ -204,12 +261,14 @@ async function preload() {
     }
 
     for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
+        if (skipRequested) break;
         if (SCRIPTS_TO_LOAD[i] === 'scr/js/api.js') continue;
         await loadScript(SCRIPTS_TO_LOAD[i] + '?v=' + Date.now());
         loadedCount++;
         updateLoadingText();
     }
     for (let i = 0; i < tgsAssets.length; i++) {
+        if (skipRequested) break;
         const name = tgsAssets[i].replace('.tgs', '');
         const data = await loadTGS(CONFIG.assetsPath + tgsAssets[i]);
         if (data) animationCache[name] = data;
@@ -218,6 +277,7 @@ async function preload() {
     }
 
     for (let i = 0; i < IMAGES_TO_LOAD.length; i++) {
+        if (skipRequested) break;
         await preloadImage(IMAGES_TO_LOAD[i]);
         loadedCount++;
         updateLoadingText();
@@ -240,6 +300,7 @@ async function preload() {
                     totalAssets += lbAvatars.length;
                     updateLoadingText();
                     for (let i = 0; i < lbAvatars.length; i++) {
+                        if (skipRequested) break;
                         await preloadImage(lbAvatars[i]);
                         loadedCount++;
                         updateLoadingText();
@@ -284,10 +345,11 @@ async function preload() {
         console.error('Failed awaiting statePromise:', e);
     }
 
-    if (!serverState) {
+    if (!serverState && !skipRequested) {
         const retryDelay = 3000;
         const maxRetries = 3;
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            if (skipRequested) break;
             await new Promise(r => setTimeout(r, retryDelay));
             try {
                 if (typeof API !== 'undefined') {
@@ -304,43 +366,9 @@ async function preload() {
         }
     }
 
-    if (!serverState) {
+    if (!serverState && !skipRequested) {
         return;
     }
 
-    // Stage 1: fade out the cube image
-    const cubeImg = document.getElementById('loading-cube-img');
-    const cubeWrapper = document.getElementById('interactive-cube-wrapper');
-    if (cubeImg) {
-        cubeImg.style.transition = 'opacity 0.4s ease-out';
-        cubeImg.style.opacity = '0';
-    }
-    if (cubeWrapper) {
-        cubeWrapper.style.transition = 'opacity 0.4s ease-out';
-        cubeWrapper.style.opacity = '0';
-    }
-
-    // Stage 2: after 400ms, amplify glitch for 800ms (add class)
-    await new Promise(r => setTimeout(r, 400));
-    loadingScreen.classList.add('glitch-exit');
-
-    // Stage 3: after 800ms, fade out entire screen
-    await new Promise(r => setTimeout(r, 800));
-    loadingScreen.style.transition = 'opacity 0.5s ease-out';
-    loadingScreen.style.opacity = '0';
-    await new Promise(r => setTimeout(r, 500));
-
-    loadingScreen.style.display = 'none';
-    gameContent.style.opacity = '0';
-    gameContent.style.display = 'block';
-    gameContent.style.transition = 'opacity 0.5s ease-in';
-    requestAnimationFrame(() => {
-        gameContent.style.opacity = '1';
-    });
-    if (typeof Game !== 'undefined' && Game.init) {
-        Game.init(serverState);
-    }
-    if (typeof Inventory !== 'undefined' && Inventory.init) {
-        Inventory.init();
-    }
+    await performExitTransition();
 }
