@@ -331,7 +331,12 @@ async function preload() {
     await new Promise(r => setTimeout(r, 500));
 
     loadingScreen.style.display = 'none';
+    gameContent.style.opacity = '0';
     gameContent.style.display = 'block';
+    gameContent.style.transition = 'opacity 0.5s ease-in';
+    requestAnimationFrame(() => {
+        gameContent.style.opacity = '1';
+    });
     if (typeof Game !== 'undefined' && Game.init) {
         Game.init(serverState);
     }

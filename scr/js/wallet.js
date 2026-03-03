@@ -636,7 +636,20 @@
                                     if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openInvoice) {
                                         window.Telegram.WebApp.openInvoice(res.invoiceUrl, function (status) {
                                             if (status === 'paid') {
-                                                ;
+                                                const topupOverlay = document.getElementById('topup-menu-overlay');
+                                                if (topupOverlay) topupOverlay.classList.remove('visible');
+                                                if (window.API && window.API.call) {
+                                                    window.API.call('/api/state', null).then(st => {
+                                                        if (st && window.Game && window.Game.applyServerState) {
+                                                            window.Game.applyServerState(st);
+                                                            const profBalance = document.getElementById('profile-balance');
+                                                            if (profBalance && st.totalCoins !== undefined) {
+                                                                profBalance.textContent = st.totalCoins.toFixed(2) + ' $LUCU';
+                                                            }
+                                                        }
+                                                    }).catch(() => { });
+                                                }
+                                                alert('Success! $LUCU has been added to your balance.');
                                             }
                                         });
                                     } else {

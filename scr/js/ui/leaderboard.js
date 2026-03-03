@@ -144,8 +144,8 @@ const Leaderboard = {
             const rowBar = document.createElement('div');
             rowBar.className = 'leaderboard-row-bar';
             if (isMe) {
-                rowBar.style.border = '1px solid rgba(220,53,69,0.3)';
-                rowBar.style.background = 'rgba(220,53,69,0.08)';
+                rowBar.style.border = '1px solid rgba(255,255,255,0.35)';
+                rowBar.style.background = 'rgba(255,255,255,0.08)';
             }
 
             const avatarContainer = document.createElement('div');

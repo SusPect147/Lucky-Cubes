@@ -42,7 +42,7 @@ const Quests = {
             if (q.claimed && q.social) {
                 item.classList.add('claimed');
                 percentageText = '';
-            } else if (q.id === 'subscribe_rayan' || q.id === 'donate_100') {
+            } else if (q.id === 'subscribe_rayan') {
                 item.classList.add('disabled-quest');
                 percentageText = '';
             } else if (q.completed && !q.claimed) {
@@ -102,7 +102,7 @@ const Quests = {
             pctDiv.textContent = percentageText;
             item.appendChild(pctDiv);
 
-            if (!q.claimed && q.id !== 'subscribe_rayan' && q.id !== 'donate_100') {
+            if (!q.claimed && q.id !== 'subscribe_rayan') {
                 if (q.completed || q.social) {
                     const clickHandler = (e) => {
                         if (e.currentTarget === item) {
@@ -116,6 +116,29 @@ const Quests = {
                                     } else {
                                         window.open(url, '_blank');
                                     }
+                                } else if (q.id === 'donate_100') {
+                                    if (window.API && window.API.call) {
+                                        window.API.call('/api/donate-stars', { stars: 100 })
+                                            .then(res => {
+                                                if (res && res.invoiceUrl) {
+                                                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openInvoice) {
+                                                        window.Telegram.WebApp.openInvoice(res.invoiceUrl, function (status) {
+                                                            if (status === 'paid') {
+                                                                window.API.call('/api/state', null).then(st => {
+                                                                    if (st && window.Game && window.Game.applyServerState) {
+                                                                        window.Game.applyServerState(st);
+                                                                    }
+                                                                }).catch(() => { });
+                                                            }
+                                                        });
+                                                    } else {
+                                                        window.open(res.invoiceUrl, '_blank');
+                                                    }
+                                                }
+                                            })
+                                            .catch(err => console.error('Donate stars error:', err));
+                                    }
+                                    return;
                                 }
                             }
 
