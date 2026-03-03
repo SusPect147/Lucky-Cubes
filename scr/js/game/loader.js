@@ -308,15 +308,34 @@ async function preload() {
         return;
     }
 
+    // Stage 1: fade out the cube image
+    const cubeImg = document.getElementById('loading-cube-img');
+    const cubeWrapper = document.getElementById('interactive-cube-wrapper');
+    if (cubeImg) {
+        cubeImg.style.transition = 'opacity 0.4s ease-out';
+        cubeImg.style.opacity = '0';
+    }
+    if (cubeWrapper) {
+        cubeWrapper.style.transition = 'opacity 0.4s ease-out';
+        cubeWrapper.style.opacity = '0';
+    }
+
+    // Stage 2: after 400ms, amplify glitch for 800ms (add class)
+    await new Promise(r => setTimeout(r, 400));
+    loadingScreen.classList.add('glitch-exit');
+
+    // Stage 3: after 800ms, fade out entire screen
+    await new Promise(r => setTimeout(r, 800));
+    loadingScreen.style.transition = 'opacity 0.5s ease-out';
     loadingScreen.style.opacity = '0';
-    setTimeout(() => {
-        loadingScreen.style.display = 'none';
-        gameContent.style.display = 'block';
-        if (typeof Game !== 'undefined' && Game.init) {
-            Game.init(serverState);
-        }
-        if (typeof Inventory !== 'undefined' && Inventory.init) {
-            Inventory.init();
-        }
-    }, 600);
+    await new Promise(r => setTimeout(r, 500));
+
+    loadingScreen.style.display = 'none';
+    gameContent.style.display = 'block';
+    if (typeof Game !== 'undefined' && Game.init) {
+        Game.init(serverState);
+    }
+    if (typeof Inventory !== 'undefined' && Inventory.init) {
+        Inventory.init();
+    }
 }
