@@ -5,7 +5,7 @@
     z-index: 15;
     width: 48px;
     height: 48px;
-    background: rgba(20, 20, 25, 0.5);
+    background: rgba(16, 12, 30, 0.5);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 12px;
@@ -14,7 +14,7 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 12px rgba(8, 4, 20, 0.4);
 }
 
 @media (min-width: 800px) {
@@ -25,7 +25,7 @@
 }
 
 .boost-timer-button:hover {
-    background: rgba(30, 30, 35, 0.6);
+    background: rgba(22, 18, 40, 0.6);
     border-color: rgba(255, 255, 255, 0.25);
     transform: scale(1.05);
 }
@@ -38,7 +38,7 @@
 }
 
 .boost-timer-button.active {
-    background: rgba(40, 40, 50, 0.6);
+    background: rgba(28, 22, 48, 0.6);
     border-color: rgba(255, 255, 255, 0.3);
 }
 
@@ -47,7 +47,7 @@
     top: calc(2% + 80px + 20px + 56px);
     left: 4%;
     z-index: 15;
-    background: rgba(20, 20, 25, 0.5);
+    background: rgba(16, 12, 30, 0.5);
     backdrop-filter: blur(18px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 16px;
@@ -56,7 +56,7 @@
     max-width: 280px;
     max-height: 400px;
     overflow-y: auto;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 24px rgba(8, 4, 20, 0.5);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
@@ -92,7 +92,7 @@
 }
 
 .boost-timer-item {
-    background: rgba(30, 30, 35, 0.6);
+    background: rgba(22, 18, 40, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     padding: 10px 12px;
@@ -103,7 +103,7 @@
 }
 
 .boost-timer-item:hover {
-    background: rgba(35, 35, 40, 0.7);
+    background: rgba(26, 22, 44, 0.7);
     border-color: rgba(255, 255, 255, 0.15);
 }
 
@@ -114,7 +114,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(50, 50, 60, 0.5);
+    background: rgba(30, 24, 52, 0.5);
     border-radius: 8px;
     padding: 6px;
 }
@@ -169,35 +169,34 @@
         width: 44px;
         height: 44px;
     }
-    
+
     .boost-timer-button svg {
         width: 22px;
         height: 22px;
     }
-    
+
     .boost-timers-panel {
         top: calc(2% + 80px + 20px + 56px);
         min-width: 200px;
         max-width: 240px;
         padding: 10px;
     }
-    
+
     .boost-timer-item {
         padding: 8px 10px;
         gap: 10px;
     }
-    
+
     .boost-timer-icon {
         width: 32px;
         height: 32px;
     }
-    
+
     .boost-timer-name {
         font-size: 0.7rem;
     }
-    
+
     .boost-timer-time {
         font-size: 0.75rem;
     }
 }
-

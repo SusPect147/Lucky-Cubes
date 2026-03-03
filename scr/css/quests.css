@@ -1,7 +1,7 @@
 .quest-menu-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(6, 4, 15, 0.72);
     z-index: 50;
     display: flex;
     align-items: center;
@@ -26,13 +26,13 @@
     max-height: calc(100vh - 40px);
     height: auto !important;
 
-    background: rgba(30, 30, 45, 0.65);
+    background: rgba(22, 18, 42, 0.65);
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
     border-radius: 28px;
     padding: 20px;
     color: #ffffff;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 40px rgba(8, 4, 20, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.15);
 
     display: flex;
@@ -117,11 +117,11 @@
 .quest-item {
     display: flex;
     align-items: center;
-    background: rgba(10, 10, 10, 0.7);
+    background: rgba(15, 12, 30, 0.65);
     padding: 12px 15px;
     border-radius: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(140, 130, 200, 0.12);
+    box-shadow: 0 4px 14px rgba(8, 4, 22, 0.5);
     position: relative;
     overflow: hidden;
     flex-basis: 100%;
@@ -132,7 +132,7 @@
 .quest-icon-placeholder {
     width: 48px;
     height: 48px;
-    background: rgba(50, 50, 60, 0.5);
+    background: rgba(30, 24, 52, 0.5);
     border-radius: 14px;
     display: flex;
     align-items: center;

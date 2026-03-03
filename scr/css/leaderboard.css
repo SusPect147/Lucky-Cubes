@@ -329,7 +329,7 @@
     right: -6px;
     width: 20px;
     height: 20px;
-    background: #1a1a1a;
+    background: rgba(18, 14, 35, 0.9);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
@@ -341,7 +341,7 @@
 }
 
 .donate-edit-badge:hover {
-    background: #333;
+    background: rgba(25, 18, 45, 0.8);
 }
 
 .donate-custom-input {
@@ -482,8 +482,10 @@
     gap: 12px;
     padding: 14px 16px;
     border-radius: 18px;
-    background: rgba(55, 55, 60, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(30, 24, 52, 0.85);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgba(140, 130, 200, 0.1);
     min-height: 56px;
 }
 
@@ -625,8 +627,10 @@
     gap: 12px;
     padding: 12px 14px;
     border-radius: 18px;
-    background: rgba(45, 45, 50, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(28, 22, 48, 0.88);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    border: 1px solid rgba(140, 130, 200, 0.08);
 }
 
 .leaderboard-avatar {
