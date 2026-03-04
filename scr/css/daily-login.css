@@ -233,6 +233,11 @@
     flex-shrink: 0;
 }
 
+.squad-create-btn-small svg {
+    width: 18px;
+    height: 18px;
+}
+
 .squad-create-btn-small:hover {
     background: rgba(255, 255, 255, 0.15);
     color: #fff;
@@ -251,6 +256,11 @@
     cursor: pointer;
     transition: background 0.2s;
     margin-left: 8px;
+}
+
+.squad-share-btn svg {
+    width: 16px;
+    height: 16px;
 }
 
 .squad-share-btn:hover {

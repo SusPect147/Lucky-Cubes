@@ -60,6 +60,11 @@ const Squads = {
         if (shareBtn) {
             shareBtn.addEventListener('click', () => this.shareSquad());
         }
+
+        const deleteBtn = document.getElementById('squad-delete-btn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => this.deleteSquad());
+        }
     },
 
     showCreateForm: function () {
@@ -80,13 +85,17 @@ const Squads = {
     createSquad: function () {
         const nameInput = document.getElementById('squad-name-input');
         const linkInput = document.getElementById('squad-link-input');
+        const emojiInput = document.getElementById('squad-emoji-input');
+        const colorInput = document.getElementById('squad-color-input');
         if (!nameInput || !linkInput) return;
 
         const name = nameInput.value.trim();
         const link = linkInput.value.trim();
+        const emoji = emojiInput ? (emojiInput.value.trim() || '👑') : '👑';
+        const color = colorInput ? (colorInput.value.trim() || '#7c4dff') : '#7c4dff';
 
-        if (!name || name.length < 2 || name.length > 32) {
-            alert('Squad name must be 2–32 characters');
+        if (!name || name.length < 2 || name.length > 5) {
+            alert('Squad name must be 2–5 characters');
             return;
         }
 
@@ -96,7 +105,12 @@ const Squads = {
             submitBtn.style.pointerEvents = 'none';
         }
 
-        API.call('/api/squad-create', { name: name, channelLink: link })
+        API.call('/api/squad-create', {
+            name: name,
+            channelLink: link,
+            avatarEmoji: emoji,
+            avatarColor: color
+        })
             .then(resp => {
                 if (submitBtn) {
                     submitBtn.style.opacity = '1';
@@ -149,6 +163,7 @@ const Squads = {
         const createBtn = document.getElementById('squad-create-btn');
         const formEl = document.getElementById('squad-create-form');
         const shareBtn = document.getElementById('squad-share-btn');
+        const deleteBtn = document.getElementById('squad-delete-btn');
         if (!infoEl || !this.squadData) return;
 
         if (createBtn) createBtn.style.display = 'none';
@@ -156,30 +171,62 @@ const Squads = {
 
         const nameEl = infoEl.querySelector('.squad-info-name');
         const membersEl = infoEl.querySelector('.squad-info-members');
+        const iconEl = infoEl.querySelector('.squad-info-icon');
+
         if (nameEl) nameEl.textContent = this.squadData.name || '';
+        if (iconEl) {
+            iconEl.textContent = this.squadData.avatarEmoji || '👑';
+            const color = this.squadData.avatarColor || '#7c4dff';
+            // Extract rgb or just use hex with opacity via CSS trick or just solid background
+            iconEl.style.background = `linear-gradient(135deg, ${color}cc, ${color}80)`;
+        }
+
         if (membersEl) {
             const count = this.squadData.memberCount || 1;
             membersEl.textContent = i18n.t('squad_members').replace('{count}', count);
         }
         infoEl.style.display = 'flex';
 
-        // Show share button if user is the owner
-        if (shareBtn) {
-            // Need user_id, it might be in Game.state or initData Unsafe
-            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-            if (tgUser && this.squadData.owner === String(tgUser.id)) {
-                shareBtn.style.display = 'flex';
-            } else {
-                shareBtn.style.display = 'none';
-            }
-        }
+        // Show share and delete buttons if user is the owner
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        const isOwner = tgUser && this.squadData.owner === String(tgUser.id);
+
+        if (shareBtn) shareBtn.style.display = isOwner ? 'flex' : 'none';
+        if (deleteBtn) deleteBtn.style.display = isOwner ? 'flex' : 'none';
     },
 
     renderNoSquad: function () {
         const infoEl = document.getElementById('squad-info');
         const createBtn = document.getElementById('squad-create-btn');
+        const formEl = document.getElementById('squad-create-form');
         if (infoEl) infoEl.style.display = 'none';
+        if (formEl) formEl.style.display = 'none';
         if (createBtn) createBtn.style.display = 'flex';
+    },
+
+    deleteSquad: function () {
+        if (!confirm('Are you sure you want to delete your squad? This cannot be undone.')) return;
+
+        const deleteBtn = document.getElementById('squad-delete-btn');
+        if (deleteBtn) deleteBtn.style.opacity = '0.5';
+
+        API.call('/api/squad-delete', {})
+            .then(resp => {
+                if (deleteBtn) deleteBtn.style.opacity = '1';
+                if (!resp || resp.error) {
+                    alert(resp ? resp.error : 'Failed to delete squad');
+                    return;
+                }
+                this.squadData = null;
+                if (typeof Game !== 'undefined' && Game.state) {
+                    Game.state.squad = null;
+                }
+                this.renderNoSquad();
+                this.loadTopSquads();
+            })
+            .catch(() => {
+                if (deleteBtn) deleteBtn.style.opacity = '1';
+            });
     },
 
     shareSquad: function () {
@@ -241,13 +288,17 @@ const Squads = {
             const bar = document.createElement('div');
             bar.className = 'leaderboard-row-bar';
 
-            // Avatar (Letter avatar)
+            // Avatar
             const avatar = document.createElement('div');
             avatar.className = 'leaderboard-avatar';
-            avatar.style.fontSize = '18px';
+            avatar.style.fontSize = '20px';
             avatar.style.fontWeight = '700';
-            avatar.style.color = 'rgba(255,255,255,0.8)';
-            avatar.textContent = (squad.name && squad.name.length > 0) ? squad.name[0].toUpperCase() : 'S';
+
+            const em = squad.avatarEmoji || '👑';
+            const color = squad.avatarColor || '#7c4dff';
+
+            avatar.textContent = em;
+            avatar.style.background = `linear-gradient(135deg, ${color}cc, ${color}80)`;
             bar.appendChild(avatar);
 
             // Name

@@ -3,9 +3,9 @@
         const verEl = document.querySelector('.app-version-display');
         const searchStr = window.location.search || '';
         // If the version element does not contain v1.1.6, OR the URL doesn't have cb=1.1.6, reload.
-        if (verEl && !verEl.textContent.includes('1.2.0') && !searchStr.includes('cb=1.2.0')) {
+        if (verEl && !verEl.textContent.includes('1.2.1') && !searchStr.includes('cb=1.2.1')) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.2.0');
+            url.searchParams.set('cb', '1.2.1');
             window.location.replace(url.toString());
         }
     } catch (e) { }
