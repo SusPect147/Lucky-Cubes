@@ -51,6 +51,17 @@ const Inventory = {
             return;
         }
 
+        if (activeTab.dataset.tab === 'cases') {
+            const divState = document.createElement('div');
+            divState.className = 'inventory-empty-state';
+            const divText = document.createElement('div');
+            divText.className = 'inventory-empty-text';
+            divText.textContent = i18n.t('empty_cases');
+            divState.appendChild(divText);
+            content.appendChild(divState);
+            return;
+        }
+
         const boostIds = Object.keys(this.boosts);
         if (boostIds.length === 0) {
             const divState = document.createElement('div');

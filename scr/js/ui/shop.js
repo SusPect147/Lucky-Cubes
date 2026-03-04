@@ -65,6 +65,33 @@ const Shop = {
         }
     ],
 
+    cases: [
+        {
+            id: 'starter_case',
+            name: 'Starter Case',
+            priceLucu: 200,
+            priceStars: 8,
+            priceTon: 0.08,
+            imageUrl: ''
+        },
+        {
+            id: 'lucky_case',
+            name: 'Lucky Case',
+            priceLucu: 500,
+            priceStars: 20,
+            priceTon: 0.2,
+            imageUrl: ''
+        },
+        {
+            id: 'premium_case',
+            name: 'Premium Case',
+            priceLucu: 1500,
+            priceStars: 60,
+            priceTon: 0.6,
+            imageUrl: ''
+        }
+    ],
+
     getIconSVG: function (iconType) {
         if (iconType === 'dice') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg>';
         if (iconType === 'star') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
@@ -80,15 +107,25 @@ const Shop = {
     switchTab: function (tab) {
         const skinsEmpty = document.getElementById('shop-skins-empty');
         const boostsList = document.getElementById('shop-boosts-list');
+        const casesList = document.getElementById('shop-cases-list');
 
         if (tab === 'skins') {
             if (skinsEmpty) skinsEmpty.style.display = 'flex';
             if (boostsList) boostsList.style.display = 'none';
+            if (casesList) casesList.style.display = 'none';
         } else if (tab === 'boosts') {
             if (skinsEmpty) skinsEmpty.style.display = 'none';
             if (boostsList) {
                 boostsList.style.display = 'grid';
                 this.renderBoosts();
+            }
+            if (casesList) casesList.style.display = 'none';
+        } else if (tab === 'cases') {
+            if (skinsEmpty) skinsEmpty.style.display = 'none';
+            if (boostsList) boostsList.style.display = 'none';
+            if (casesList) {
+                casesList.style.display = 'flex';
+                this.renderCases();
             }
         }
     },
@@ -225,5 +262,49 @@ const Shop = {
         if (activeTab) {
             this.switchTab(activeTab.dataset.tab);
         }
+    },
+
+    renderCases: function () {
+        const casesList = document.getElementById('shop-cases-list');
+        if (!casesList) return;
+        casesList.innerHTML = '';
+
+        this.cases.forEach(caseItem => {
+            const card = document.createElement('div');
+            card.className = 'case-item';
+            card.dataset.id = caseItem.id;
+
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'case-image';
+            if (caseItem.imageUrl) {
+                const img = document.createElement('img');
+                img.src = caseItem.imageUrl;
+                img.alt = caseItem.name;
+                imgDiv.appendChild(img);
+            } else {
+                imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
+            }
+            card.appendChild(imgDiv);
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'case-info';
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'case-name';
+            nameDiv.textContent = i18n.t(caseItem.name);
+            infoDiv.appendChild(nameDiv);
+
+            const priceDiv = document.createElement('div');
+            priceDiv.className = 'case-prices';
+            priceDiv.innerHTML = `
+                <span class="case-price-tag case-price-lucu">${caseItem.priceLucu} $LUCU</span>
+                <span class="case-price-tag case-price-stars">⭐ ${caseItem.priceStars} Stars</span>
+                <span class="case-price-tag case-price-ton">${caseItem.priceTon} TON</span>
+            `;
+            infoDiv.appendChild(priceDiv);
+
+            card.appendChild(infoDiv);
+            casesList.appendChild(card);
+        });
     }
 };

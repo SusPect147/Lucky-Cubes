@@ -292,7 +292,7 @@
     const baseTon = 0.2;
     const discountExponent = 0.95;
 
-    const baseStars = 50;
+    const baseStars = 20;
 
     function calculateStarsFromLucu(lucu) {
         if (lucu <= 0) return 0;

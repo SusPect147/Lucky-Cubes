@@ -74,7 +74,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
 }
 
 .leaderboard-screen .leaderboard-content {
@@ -84,14 +84,14 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
 }
 
 .profile-balance-section {
     text-align: center;
     margin-top: 0px;
     margin-bottom: 4px;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
 }
 
 .profile-balance-label {
@@ -151,7 +151,7 @@
     color: #fff;
     font-size: 0.9rem;
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
 }
@@ -180,7 +180,7 @@
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(140, 130, 200, 0.18);
     font-size: 0.9rem;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
 }
 
 .profile-wallet-label {
@@ -218,7 +218,7 @@
     color: #dc3545;
     font-size: 0.88rem;
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
 }
@@ -236,7 +236,7 @@
     color: rgba(0, 180, 255, 0.9);
     font-size: 0.78rem;
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
     cursor: pointer;
     transition: background 0.2s;
 }
@@ -276,7 +276,7 @@
     width: 100%;
     font-size: 0.78rem;
     color: rgba(255, 255, 255, 0.5);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
     margin-bottom: 2px;
 }
 
@@ -297,7 +297,7 @@
     color: #fff;
     font-size: 0.82rem;
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
     display: flex;
@@ -357,7 +357,7 @@
     color: #fff;
     font-size: 0.82rem;
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
     text-align: center;
     outline: none;
     z-index: 1;
@@ -409,7 +409,7 @@
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
 }
 
 .leaderboard-title {
@@ -447,7 +447,7 @@
     color: rgba(255, 255, 255, 0.9);
     font-size: 0.95rem;
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -528,7 +528,7 @@
     color: #ff6b6b;
     font-size: 0.95rem;
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
     cursor: pointer;
     flex-shrink: 0;
     transition: opacity 0.2s;
@@ -616,7 +616,7 @@
     z-index: 1;
     font-size: 0.95rem;
     font-weight: 700;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
     color: #fff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
@@ -743,7 +743,7 @@ img.leaderboard-avatar {
     color: #fff;
     font-size: 1.05rem;
     line-height: 1.45;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
 }
 
 .leaderboard-badge {
@@ -824,7 +824,7 @@ img.leaderboard-avatar {
 .leaderboard-credit-label {
     color: rgba(255, 255, 255, 0.65);
     font-size: 0.95rem;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Rubik', sans-serif;
 }
 
 .leaderboard-credit-cards {

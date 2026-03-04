@@ -309,6 +309,12 @@ window.Game = (function () {
                 }
 
                 updateUI(coinCount, currentMin);
+
+                // Story Share: trigger popup if new min < 0.9
+                if (serverResult.newMin && serverResult.currentMin > 0 && serverResult.currentMin < 0.9) {
+                    Game.showStorySharePopup(serverResult.currentMin);
+                }
+
                 if (serverResult.quests) {
                     syncQuestsFromServer(serverResult.quests);
                 }
@@ -481,6 +487,23 @@ window.Game = (function () {
             if (typeof Leaderboard !== 'undefined' && Leaderboard.init) {
                 Leaderboard.init();
             }
+
+            // Initialize Daily Login
+            if (typeof DailyLogin !== 'undefined') {
+                const dailyData = state ? state.dailyLogin : null;
+                DailyLogin.init(dailyData);
+                if (dailyData && !dailyData.claimedToday) {
+                    setTimeout(() => DailyLogin.show(), 800);
+                }
+            }
+
+            // Initialize Squads
+            if (typeof Squads !== 'undefined') {
+                Squads.init();
+                if (state && state.squad) {
+                    Squads.loadSquadInfo(state.squad);
+                }
+            }
         },
         claimQuest: claimQuest,
         rollCube: rollCube,
@@ -506,6 +529,58 @@ window.Game = (function () {
             }
             if (resp.quests) {
                 syncQuestsFromServer(resp.quests);
+            }
+
+            // Update daily login state
+            if (resp.dailyLogin && typeof DailyLogin !== 'undefined') {
+                DailyLogin.streak = resp.dailyLogin.streak || 0;
+                DailyLogin.claimedToday = resp.dailyLogin.claimedToday || false;
+            }
+        },
+
+        showStorySharePopup: function (minVal) {
+            const overlay = document.getElementById('story-share-overlay');
+            const minDisplay = document.getElementById('story-share-min-val');
+            if (!overlay) return;
+            if (minDisplay) minDisplay.textContent = minVal.toFixed(6);
+            overlay.classList.add('visible');
+
+            const shareBtn = document.getElementById('story-share-btn');
+            const skipBtn = document.getElementById('story-share-skip-btn');
+
+            const closePopup = () => overlay.classList.remove('visible');
+
+            if (skipBtn) {
+                skipBtn.onclick = closePopup;
+            }
+
+            if (shareBtn) {
+                shareBtn.onclick = () => {
+                    // Try Telegram Story sharing
+                    if (window.Telegram && window.Telegram.WebApp) {
+                        const tgApp = window.Telegram.WebApp;
+                        const storyText = `I just rolled ${minVal.toFixed(6)} in Lucky Cubes! 🎲🍀 Can you beat this?`;
+
+                        if (typeof tgApp.shareToStory === 'function') {
+                            tgApp.shareToStory('https://t.me/my_cubes_bot/my_cubes', {
+                                text: storyText
+                            });
+                        } else if (typeof tgApp.openTelegramLink === 'function') {
+                            tgApp.openTelegramLink('https://t.me/my_cubes_bot/my_cubes');
+                        }
+                    }
+
+                    // Claim reward from server
+                    apiCall('/api/claim-story-reward', {
+                        initData: getInitData(),
+                    }).then(resp => {
+                        if (resp && !resp.error) {
+                            Game.applyServerState(resp);
+                        }
+                    }).catch(() => { });
+
+                    closePopup();
+                };
             }
         },
         resetRollingState: function () {
