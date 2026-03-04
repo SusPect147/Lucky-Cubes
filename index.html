@@ -8,19 +8,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="scr/css/base.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/animations.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/background.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/cube.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/menu.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/quests.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/shop.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/inventory.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/loading.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/responsive.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/boost-timers.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/leaderboard.css?v=1.1.9">
-    <link rel="stylesheet" href="scr/css/daily-login.css?v=1.1.9">
+    <link rel="stylesheet" href="scr/css/base.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/animations.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/background.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/cube.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/menu.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/quests.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/shop.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/inventory.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/loading.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/responsive.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/boost-timers.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/leaderboard.css?v=1.2.0">
+    <link rel="stylesheet" href="scr/css/daily-login.css?v=1.2.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -38,7 +38,7 @@
     <div id="loading-screen">
         <div class="app-version-display"
             style="position: absolute; bottom: 10px; right: 10px; font-size: 10px; color: rgba(255, 255, 255, 0.3); z-index: 9999; font-family: 'Rubik', sans-serif; pointer-events: none;">
-            v1.1.9</div>
+            v1.2.0</div>
 
         <div class="loading-center">
 
@@ -462,15 +462,24 @@
                 </div>
                 <div class="squad-section">
                     <div class="squad-section-title" data-i18n="squad_title">Squads</div>
-                    <div id="squad-info" class="squad-info" style="display:none;">
-                        <div class="squad-info-icon">👑</div>
-                        <div class="squad-info-details">
-                            <div class="squad-info-name"></div>
-                            <div class="squad-info-members"></div>
+
+                    <div class="squad-header-actions">
+                        <div class="squad-search-box">
+                            <svg class="squad-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="squad-search-input" placeholder="Search squads...">
                         </div>
+                        <button class="squad-create-btn-small" id="squad-create-btn" title="Create Squad">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
                     </div>
-                    <button type="button" class="squad-create-btn" id="squad-create-btn" data-i18n="squad_create">Create
-                        Squad</button>
+
                     <div class="squad-create-form" id="squad-create-form">
                         <input type="text" class="squad-input" id="squad-name-input" maxlength="32"
                             placeholder="Squad name">
@@ -481,6 +490,32 @@
                                 Squad</button>
                             <button class="squad-cancel-btn" id="squad-cancel-btn">✖</button>
                         </div>
+                    </div>
+
+                    <div class="squad-filters leaderboard-filter-btns" style="margin-top:12px;">
+                        <button class="leaderboard-filter-btn active" id="squad-filter-members">By Members</button>
+                        <button class="leaderboard-filter-btn" id="squad-filter-lucu">By LUCU</button>
+                    </div>
+
+                    <div id="squad-info" class="squad-info" style="display:none;">
+                        <div class="squad-info-icon">👑</div>
+                        <div class="squad-info-details">
+                            <div class="squad-info-name"></div>
+                            <div class="squad-info-members"></div>
+                        </div>
+                        <button class="squad-share-btn" id="squad-share-btn" style="display:none;" title="Share Squad">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="18" cy="5" r="3"></circle>
+                                <circle cx="6" cy="12" r="3"></circle>
+                                <circle cx="18" cy="19" r="3"></circle>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="squads-list-container" style="margin-top:12px;">
+                        <div id="squads-list" class="leaderboard-list"></div>
                     </div>
                 </div>
             </div>
@@ -533,6 +568,7 @@
 
     <div class="daily-login-overlay" id="daily-login-overlay">
         <div class="daily-login-popup">
+            <div class="daily-login-drag-handle"></div>
             <div class="daily-login-header">
                 <div class="daily-login-title" data-i18n="daily_login_title">Daily Rewards</div>
                 <button class="daily-login-close-btn" id="daily-login-close-btn">✖</button>

@@ -36,6 +36,40 @@ const DailyLogin = {
                 if (e.target === overlay) this.close();
             });
         }
+
+        const popup = document.querySelector('.daily-login-popup');
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+
+        if (popup) {
+            popup.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+                isDragging = true;
+                popup.style.transition = 'none';
+            }, { passive: true });
+
+            popup.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                currentY = e.touches[0].clientY;
+                const deltaY = currentY - startY;
+                if (deltaY > 0) {
+                    popup.style.transform = `translateY(${deltaY}px)`;
+                }
+            }, { passive: true });
+
+            popup.addEventListener('touchend', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                popup.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+                const deltaY = currentY - startY;
+                if (deltaY > 100) {
+                    this.close();
+                } else {
+                    popup.style.transform = 'translateY(0)';
+                }
+            });
+        }
     },
 
     show: function () {
@@ -49,7 +83,9 @@ const DailyLogin = {
 
     close: function () {
         const overlay = document.getElementById('daily-login-overlay');
+        const popup = document.querySelector('.daily-login-popup');
         if (overlay) overlay.classList.remove('visible');
+        if (popup) setTimeout(() => popup.style.transform = '', 400);
     },
 
     renderCalendar: function () {

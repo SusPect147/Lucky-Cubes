@@ -69,25 +69,22 @@ const Shop = {
         {
             id: 'starter_case',
             name: 'Starter Case',
-            priceLucu: 200,
-            priceStars: 8,
-            priceTon: 0.08,
+            price: 200,
+            currency: 'lucu',
             imageUrl: ''
         },
         {
             id: 'lucky_case',
             name: 'Lucky Case',
-            priceLucu: 500,
-            priceStars: 20,
-            priceTon: 0.2,
+            price: 20,
+            currency: 'stars',
             imageUrl: ''
         },
         {
             id: 'premium_case',
             name: 'Premium Case',
-            priceLucu: 1500,
-            priceStars: 60,
-            priceTon: 0.6,
+            price: 0.6,
+            currency: 'ton',
             imageUrl: ''
         }
     ],
@@ -296,11 +293,15 @@ const Shop = {
 
             const priceDiv = document.createElement('div');
             priceDiv.className = 'case-prices';
-            priceDiv.innerHTML = `
-                <span class="case-price-tag case-price-lucu">${caseItem.priceLucu} $LUCU</span>
-                <span class="case-price-tag case-price-stars">⭐ ${caseItem.priceStars} Stars</span>
-                <span class="case-price-tag case-price-ton">${caseItem.priceTon} TON</span>
-            `;
+            let priceTag = '';
+            if (caseItem.currency === 'lucu') {
+                priceTag = `<span class="case-price-tag case-price-lucu">${caseItem.price} $LUCU</span>`;
+            } else if (caseItem.currency === 'stars') {
+                priceTag = `<span class="case-price-tag case-price-stars">⭐ ${caseItem.price} Stars</span>`;
+            } else if (caseItem.currency === 'ton') {
+                priceTag = `<span class="case-price-tag case-price-ton">${caseItem.price} TON</span>`;
+            }
+            priceDiv.innerHTML = priceTag;
             infoDiv.appendChild(priceDiv);
 
             card.appendChild(infoDiv);
