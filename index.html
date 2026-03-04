@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="scr/css/boost-timers.css?v=1.2.2">
     <link rel="stylesheet" href="scr/css/leaderboard.css?v=1.2.2">
     <link rel="stylesheet" href="scr/css/daily-login.css?v=1.2.2">
+    <link rel="stylesheet" href="scr/css/squads-modal.css?v=1.2.2">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -457,9 +458,27 @@
                     <button type="button" class="leaderboard-btn leaderboard-btn-credit" data-i18n="give_money">Give me
                         money</button>
                 </div>
-                <div class="squad-section">
-                    <div class="squad-section-title" data-i18n="squad_title">Squads</div>
+                <button class="profile-about-clans-btn" id="profile-about-clans-btn" data-i18n="about_clans">Про
+                    кланы</button>
+            </div>
+        </div>
 
+        <div class="squad-menu-overlay" id="squad-menu-overlay">
+            <div class="squad-menu">
+                <div class="squad-menu-header">
+                    <div class="squad-menu-title-wrapper">
+                        <div class="squad-menu-title" data-i18n="about_clans">Про кланы</div>
+                    </div>
+                    <button class="squad-menu-close-btn" id="squad-menu-close-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="squad-content">
                     <div class="squad-header-actions">
                         <div class="squad-search-box">
                             <svg class="squad-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -480,14 +499,28 @@
                     <div class="squad-create-form" id="squad-create-form">
                         <input type="text" class="squad-input" id="squad-name-input" maxlength="5"
                             placeholder="Squad name (2-5 letters)">
-                        <input type="text" class="squad-input" id="squad-link-input"
-                            placeholder="Telegram channel link">
-                        <div class="squad-avatar-setup" style="display:flex; gap:8px;">
-                            <input type="text" class="squad-input" id="squad-emoji-input" maxlength="2"
-                                placeholder="Emoji" style="width: 70px; text-align:center;">
-                            <input type="color" id="squad-color-input" value="#7c4dff"
-                                style="flex:1; height: 44px; border-radius: 12px; border: none; background: transparent; cursor: pointer;">
+
+                        <div class="squad-selector-label" data-i18n="choose_emoji">Выберите эмодзи</div>
+                        <div class="squad-emoji-grid" id="squad-emoji-grid">
+                            <button class="squad-emoji-btn active" data-emoji="👑">👑</button>
+                            <button class="squad-emoji-btn" data-emoji="👻">👻</button>
+                            <button class="squad-emoji-btn" data-emoji="👽">👽</button>
+                            <button class="squad-emoji-btn" data-emoji="🤖">🤖</button>
+                            <button class="squad-emoji-btn" data-emoji="👾">👾</button>
+                            <button class="squad-emoji-btn" data-emoji="🤠">🤠</button>
                         </div>
+
+                        <div class="squad-selector-label" data-i18n="choose_color">Выберите цвет</div>
+                        <div class="squad-color-grid" id="squad-color-grid">
+                            <button class="squad-color-btn active" data-color="#7c4dff"
+                                style="background:#7c4dff;"></button>
+                            <button class="squad-color-btn" data-color="#ff4d4f" style="background:#ff4d4f;"></button>
+                            <button class="squad-color-btn" data-color="#1890ff" style="background:#1890ff;"></button>
+                            <button class="squad-color-btn" data-color="#52c41a" style="background:#52c41a;"></button>
+                            <button class="squad-color-btn" data-color="#faad14" style="background:#faad14;"></button>
+                            <button class="squad-color-btn" data-color="#ff00ff" style="background:#ff00ff;"></button>
+                        </div>
+
                         <div class="squad-form-btns">
                             <button class="squad-submit-btn" id="squad-submit-btn" data-i18n="squad_create">Create
                                 Squad</button>

@@ -65,37 +65,102 @@ const Squads = {
         if (deleteBtn) {
             deleteBtn.addEventListener('click', () => this.deleteSquad());
         }
+
+        // --- NEW MODAL & UI BINDINGS ---
+        const aboutClansBtn = document.getElementById('profile-about-clans-btn');
+        if (aboutClansBtn) {
+            aboutClansBtn.addEventListener('click', () => this.showMenu());
+        }
+
+        const closeMenuBtn = document.getElementById('squad-menu-close-btn');
+        if (closeMenuBtn) {
+            closeMenuBtn.addEventListener('click', () => this.hideMenu());
+        }
+
+        const overlay = document.getElementById('squad-menu-overlay');
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) this.hideMenu();
+            });
+        }
+
+        // Emoji & Color Selector Logic
+        this.selectedEmoji = '👑';
+        this.selectedColor = '#7c4dff';
+
+        const emojiBtns = document.querySelectorAll('.squad-emoji-btn');
+        emojiBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                emojiBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.selectedEmoji = btn.getAttribute('data-emoji') || '👑';
+            });
+        });
+
+        const colorBtns = document.querySelectorAll('.squad-color-btn');
+        colorBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                colorBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.selectedColor = btn.getAttribute('data-color') || '#7c4dff';
+            });
+        });
+    },
+
+    showMenu: function () {
+        const overlay = document.getElementById('squad-menu-overlay');
+        if (overlay) {
+            overlay.classList.add('visible');
+            this.loadTopSquads();
+
+            // Check if user has a squad; if so, load user squad details right away
+            if (typeof Game !== 'undefined' && Game.state && Game.state.squad) {
+                this.loadSquadInfo(Game.state.squad);
+            }
+        }
+    },
+
+    hideMenu: function () {
+        const overlay = document.getElementById('squad-menu-overlay');
+        if (overlay) {
+            overlay.classList.remove('visible');
+        }
     },
 
     showCreateForm: function () {
         const form = document.getElementById('squad-create-form');
         const createBtn = document.getElementById('squad-create-btn');
+        const listContainer = document.querySelector('.squads-list-container');
+        const filters = document.querySelector('.squad-filters');
+
         if (form) form.style.display = 'flex';
-        // createBtn is small now, we can hide it or let it be
         if (createBtn) createBtn.style.opacity = '0.5';
+        if (listContainer) listContainer.style.display = 'none';
+        if (filters) filters.style.display = 'none';
     },
 
     hideCreateForm: function () {
         const form = document.getElementById('squad-create-form');
         const createBtn = document.getElementById('squad-create-btn');
+        const listContainer = document.querySelector('.squads-list-container');
+        const filters = document.querySelector('.squad-filters');
+
         if (form) form.style.display = 'none';
         if (createBtn) createBtn.style.opacity = '1';
+        if (listContainer) listContainer.style.display = 'block';
+        if (filters) filters.style.display = 'flex';
     },
 
     createSquad: function () {
         const nameInput = document.getElementById('squad-name-input');
-        const linkInput = document.getElementById('squad-link-input');
-        const emojiInput = document.getElementById('squad-emoji-input');
-        const colorInput = document.getElementById('squad-color-input');
-        if (!nameInput || !linkInput) return;
+        if (!nameInput) return;
 
         const name = nameInput.value.trim();
-        const link = linkInput.value.trim();
-        const emoji = emojiInput ? (emojiInput.value.trim() || '👑') : '👑';
-        const color = colorInput ? (colorInput.value.trim() || '#7c4dff') : '#7c4dff';
+        const emoji = this.selectedEmoji || '👑';
+        const color = this.selectedColor || '#7c4dff';
 
         if (!name || name.length < 2 || name.length > 5) {
-            alert('Squad name must be 2–5 characters');
+            alert(i18n.t('squad_name_error') || 'Squad name must be 2–5 characters');
             return;
         }
 
@@ -107,7 +172,6 @@ const Squads = {
 
         API.call('/api/squad-create', {
             name: name,
-            channelLink: link,
             avatarEmoji: emoji,
             avatarColor: color
         })
@@ -130,7 +194,6 @@ const Squads = {
                 this.hideCreateForm();
                 this.renderSquadInfo();
                 nameInput.value = '';
-                linkInput.value = '';
                 this.loadTopSquads(); // refresh list
             })
             .catch(err => {
