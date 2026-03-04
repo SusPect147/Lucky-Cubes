@@ -127,6 +127,9 @@ const TRANSLATIONS = {
         leaderboard_your_rank: "#{rank} {name}",
         change_language: "Change language (RU)",
         skip_loading: "Skip >>",
+        "about_clans": "About Clans",
+        "choose_emoji": "Choose Emoji",
+        "choose_color": "Choose Color"
     },
     ru: {
         loading: '{loaded}/{total} загружено',
@@ -256,5 +259,8 @@ const TRANSLATIONS = {
         leaderboard_your_rank: "#{rank} {name}",
         change_language: "Сменить язык (EN)",
         skip_loading: "Пропустить >>",
+        "about_clans": "Про кланы",
+        "choose_emoji": "Выберите эмодзи",
+        "choose_color": "Выберите цвет"
     }
 };

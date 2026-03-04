@@ -143,19 +143,6 @@ const i18n = (function () {
     };
 })();
 
-const TRANSLATIONS = {
-    en: {
-        "about_clans": "About Clans",
-        "choose_emoji": "Choose Emoji",
-        "choose_color": "Choose Color"
-    },
-    ru: {
-        "about_clans": "Про кланы",
-        "choose_emoji": "Выберите эмодзи",
-        "choose_color": "Выберите цвет"
-    }
-};
-
 try {
     if (typeof window.TRANSLATIONS === "undefined" && typeof TRANSLATIONS !== "undefined") {
         window.TRANSLATIONS = TRANSLATIONS;
