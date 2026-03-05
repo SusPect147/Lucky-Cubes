@@ -2,10 +2,10 @@
     try {
         const verEl = document.querySelector('.app-version-display');
         const searchStr = window.location.search || '';
-        // If the version element does not contain v1.2.2, OR the URL doesn't have cb=1.2.2, reload.
-        if (verEl && !verEl.textContent.includes('1.2.2') && !searchStr.includes('cb=1.2.2')) {
+        // If the version element does not contain v1.3.0, OR the URL doesn't have cb=1.3.0, reload.
+        if (verEl && !verEl.textContent.includes('1.3.0') && !searchStr.includes('cb=1.3.0')) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.2.2');
+            url.searchParams.set('cb', '1.3.0');
             window.location.replace(url.toString());
         }
     } catch (e) { }
@@ -94,7 +94,7 @@ async function call(endpoint, body) {
                 if (errBody && errBody.versionMismatch) {
                     // Server told us we're outdated, force reload
                     const url = new URL(window.location.href);
-                    url.searchParams.set('cb', '1.2.2');
+                    url.searchParams.set('cb', '1.3.0');
                     window.location.replace(url.toString());
                     return null;
                 }
@@ -108,14 +108,14 @@ async function call(endpoint, body) {
         // Fallback check: if server returned versionMismatch in a 200 OK (unlikely but possible)
         if (data && data.versionMismatch) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.2.2');
+            url.searchParams.set('cb', '1.3.0');
             window.location.replace(url.toString());
             return null;
         }
 
-        if (data && data.appVersion && data.appVersion !== '1.2.2') {
+        if (data && data.appVersion && data.appVersion !== '1.3.0') {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.2.2');
+            url.searchParams.set('cb', '1.3.0');
             window.location.replace(url.toString());
             return null;
         }

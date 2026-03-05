@@ -122,6 +122,8 @@ const Squads = {
 
     hideMenu: function () {
         const overlay = document.getElementById('squad-menu-overlay');
+        const menu = document.querySelector('.squad-menu');
+
         if (overlay) {
             overlay.classList.remove('visible');
         }
