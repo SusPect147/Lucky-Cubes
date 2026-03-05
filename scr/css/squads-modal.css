@@ -2,7 +2,7 @@
 .squad-menu-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(6, 4, 15, 0.72);
+    background: rgba(6, 4, 12, 0.72);
     z-index: 50;
     display: flex;
     align-items: center;
@@ -25,14 +25,14 @@
     max-width: 480px;
     max-height: calc(85vh - 40px);
     height: 85vh !important;
-    background: rgba(22, 18, 42, 0.65);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-radius: 28px;
+    background: rgba(28, 28, 32, 0.88);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border-radius: var(--radius-xl);
     padding: 20px;
-    color: #ffffff;
-    box-shadow: 0 12px 40px rgba(8, 4, 20, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-modal);
+    border: 1px solid var(--border-subtle);
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -47,7 +47,7 @@
         max-width: 360px;
         padding: 16px;
         gap: 12px;
-        border-radius: 20px;
+        border-radius: var(--radius-lg);
     }
 }
 
@@ -75,11 +75,10 @@
     font-size: 1.5rem;
     font-weight: 600;
     opacity: 0.9;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
 }
 
 .squad-menu-close-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     border: none;
     width: 36px;
     height: 36px;
@@ -93,13 +92,13 @@
 }
 
 .squad-menu-close-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.18);
 }
 
 .squad-menu-close-btn svg {
     width: 20px;
     height: 20px;
-    stroke: #ffffff;
+    stroke: var(--text-primary);
 }
 
 .squad-content {
@@ -109,7 +108,7 @@
     overflow-x: hidden;
     padding-right: 6px;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -118,32 +117,35 @@
 
 /* About Clans Button Profile */
 .profile-about-clans-btn {
-    background: linear-gradient(135deg, #1890ff, #52c41a);
-    color: #fff;
+    background: var(--accent);
+    color: #000;
     border: none;
     width: 100%;
-    padding: 20px;
-    border-radius: 24px;
-    font-size: 1.3rem;
+    padding: 18px;
+    border-radius: var(--radius-md);
+    font-size: 1.2rem;
     font-weight: 700;
     cursor: pointer;
-    transition: opacity 0.2s, transform 0.2s;
-    font-family: 'Rubik', sans-serif;
+    transition: opacity 0.2s, transform 0.1s;
+    font-family: 'Inter', sans-serif;
     margin-top: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 14px rgba(24, 144, 255, 0.4);
+    box-shadow: var(--shadow-card);
 }
 
 .profile-about-clans-btn:hover {
     opacity: 0.9;
-    transform: translateY(-2px);
+}
+
+.profile-about-clans-btn:active {
+    transform: scale(0.98);
 }
 
 /* Grids Setup */
 .squad-selector-label {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     font-size: 0.95rem;
     font-weight: 600;
     margin-bottom: -4px;
@@ -162,9 +164,9 @@
 .squad-color-btn {
     width: 100%;
     aspect-ratio: 1;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     border: 2px solid transparent;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-elevated);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -175,13 +177,12 @@
 
 .squad-emoji-btn:hover,
 .squad-color-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 .squad-emoji-btn.active,
 .squad-color-btn.active {
-    border-color: #fff;
-    background: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent);
+    background: rgba(232, 185, 49, 0.12);
+    box-shadow: 0 0 8px rgba(232, 185, 49, 0.15);
 }

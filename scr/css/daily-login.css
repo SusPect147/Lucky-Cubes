@@ -1,7 +1,7 @@
 .daily-login-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(6, 4, 15, 0.8);
+    background: rgba(6, 4, 12, 0.8);
     z-index: 70;
     display: flex;
     align-items: flex-end;
@@ -21,14 +21,14 @@
 .daily-login-popup {
     width: 100%;
     max-width: 420px;
-    background: rgba(22, 18, 42, 0.95);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-radius: 32px 32px 0 0;
+    background: rgba(28, 28, 32, 0.96);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     padding: 12px 24px 32px 24px;
-    color: #fff;
-    box-shadow: 0 -8px 32px rgba(8, 4, 20, 0.6);
-    border: 1px solid rgba(140, 130, 200, 0.16);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-modal);
+    border: 1px solid var(--border-subtle);
     border-bottom: none;
     transform: translateY(100%);
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -46,7 +46,7 @@
     width: 36px;
     height: 4px;
     border-radius: 2px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     margin: 0 auto;
     margin-bottom: -8px;
 }
@@ -61,11 +61,10 @@
 .daily-login-title {
     font-size: 1.3rem;
     font-weight: 700;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .daily-login-close-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     border: none;
     width: 32px;
     height: 32px;
@@ -74,13 +73,13 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #fff;
+    color: var(--text-primary);
     font-size: 1.1rem;
     transition: background 0.2s;
 }
 
 .daily-login-close-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .daily-login-grid {
@@ -91,9 +90,9 @@
 }
 
 .daily-day-cell {
-    background: rgba(30, 24, 52, 0.5);
-    border: 1px solid rgba(140, 130, 200, 0.12);
-    border-radius: 12px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
     padding: 10px 6px;
     display: flex;
     flex-direction: column;
@@ -108,9 +107,9 @@
 }
 
 .daily-day-cell.current {
-    border-color: rgba(255, 193, 7, 0.5);
-    background: rgba(255, 193, 7, 0.08);
-    box-shadow: 0 0 12px rgba(255, 193, 7, 0.15);
+    border-color: rgba(232, 185, 49, 0.45);
+    background: var(--accent-soft);
+    box-shadow: 0 0 10px rgba(232, 185, 49, 0.1);
 }
 
 .daily-day-cell.claimed {
@@ -120,14 +119,14 @@
 .daily-day-label {
     font-size: 0.7rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-secondary);
     text-transform: uppercase;
 }
 
 .daily-day-reward {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #ff6b7a;
+    color: var(--accent);
 }
 
 .daily-lucu {
@@ -137,7 +136,7 @@
 .daily-day-xp {
     font-size: 0.65rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
 }
 
 .daily-day-check {
@@ -145,22 +144,22 @@
     top: 4px;
     right: 6px;
     font-size: 0.7rem;
-    color: #4caf50;
+    color: var(--success);
     font-weight: 700;
 }
 
 .daily-login-claim-btn {
-    background: linear-gradient(135deg, #ffc107, #ff9800);
-    color: #1a1a2e;
+    background: var(--accent);
+    color: #000;
     border: none;
     width: 100%;
     padding: 14px;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
     transition: opacity 0.2s, transform 0.1s;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .daily-login-claim-btn:active {
@@ -176,7 +175,7 @@
 .squad-section-title {
     font-size: 1rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     margin-bottom: 10px;
 }
 
@@ -198,33 +197,33 @@
     left: 12px;
     width: 18px;
     height: 18px;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
 }
 
 .squad-search-box input {
     width: 100%;
-    background: rgba(30, 24, 52, 0.5);
-    border: 1px solid rgba(140, 130, 200, 0.2);
-    color: #fff;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
     padding: 12px 14px 12px 38px;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     font-size: 0.95rem;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
     outline: none;
     transition: border-color 0.2s;
 }
 
 .squad-search-box input:focus {
-    border-color: rgba(140, 130, 200, 0.5);
+    border-color: var(--border-active);
 }
 
 .squad-create-btn-small {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px dashed rgba(255, 255, 255, 0.25);
-    color: rgba(255, 255, 255, 0.7);
+    background: var(--bg-elevated);
+    border: 1px dashed var(--border-medium);
+    color: var(--text-secondary);
     width: 46px;
     height: 46px;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -239,17 +238,17 @@
 }
 
 .squad-create-btn-small:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
 }
 
 .squad-share-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     border: none;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
     width: 36px;
     height: 36px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -264,8 +263,8 @@
 }
 
 .squad-share-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
 }
 
 .squad-create-form {
@@ -275,23 +274,23 @@
 }
 
 .squad-input {
-    background: rgba(30, 24, 52, 0.5);
-    border: 1px solid rgba(140, 130, 200, 0.2);
-    color: #fff;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
     padding: 12px 14px;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
     outline: none;
     transition: border-color 0.2s;
 }
 
 .squad-input:focus {
-    border-color: rgba(140, 130, 200, 0.5);
+    border-color: var(--border-active);
 }
 
 .squad-input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-tertiary);
 }
 
 .squad-form-btns {
@@ -301,37 +300,37 @@
 
 .squad-submit-btn {
     flex: 1;
-    background: linear-gradient(135deg, #7c4dff, #651fff);
-    color: #fff;
+    background: var(--accent);
+    color: #000;
     border: none;
     padding: 12px;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     transition: opacity 0.2s;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .squad-cancel-btn {
-    background: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.7);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
     border: none;
     padding: 12px 16px;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .squad-info {
     display: none;
     align-items: center;
     gap: 12px;
-    background: rgba(15, 12, 30, 0.65);
-    border: 1px solid rgba(124, 77, 255, 0.2);
-    border-radius: 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     padding: 14px;
 }
 
@@ -339,8 +338,8 @@
     width: 40px;
     height: 40px;
     min-width: 40px;
-    background: linear-gradient(135deg, rgba(124, 77, 255, 0.3), rgba(101, 31, 255, 0.3));
-    border-radius: 10px;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -354,12 +353,12 @@
 .squad-info-name {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .squad-info-members {
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     margin-top: 2px;
 }
 
@@ -367,7 +366,7 @@
 .story-share-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(6, 4, 15, 0.8);
+    background: rgba(6, 4, 12, 0.8);
     z-index: 75;
     display: flex;
     align-items: center;
@@ -387,13 +386,13 @@
 .story-share-popup {
     width: 85%;
     max-width: 340px;
-    background: rgba(22, 18, 42, 0.92);
-    backdrop-filter: blur(25px);
-    border-radius: 24px;
+    background: rgba(28, 28, 32, 0.95);
+    backdrop-filter: var(--blur-medium);
+    border-radius: var(--radius-xl);
     padding: 28px 24px;
-    color: #fff;
-    box-shadow: 0 12px 40px rgba(8, 4, 20, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-modal);
+    border: 1px solid var(--border-subtle);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -418,36 +417,36 @@
 
 .story-share-text {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-secondary);
     line-height: 1.4;
 }
 
 .story-share-min {
     font-size: 1.8rem;
     font-weight: 800;
-    color: #ffd54f;
+    color: var(--accent);
 }
 
 .story-share-btn {
-    background: linear-gradient(135deg, #1da1f2, #0d8ecf);
-    color: #fff;
+    background: var(--accent);
+    color: #000;
     border: none;
     width: 100%;
     padding: 14px;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
     transition: opacity 0.2s;
 }
 
 .story-share-skip-btn {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
     font-size: 0.85rem;
     cursor: pointer;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
     padding: 8px;
 }

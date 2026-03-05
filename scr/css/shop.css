@@ -1,7 +1,7 @@
 .shop-menu-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(6, 4, 15, 0.72);
+    background: rgba(6, 4, 12, 0.72);
     z-index: 50;
     display: flex;
     align-items: center;
@@ -31,14 +31,14 @@
     max-height: calc(85vh - 40px);
     height: 85vh !important;
 
-    background: rgba(22, 18, 42, 0.65);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-radius: 28px;
+    background: rgba(28, 28, 32, 0.88);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border-radius: var(--radius-xl);
     padding: 20px;
-    color: #ffffff;
-    box-shadow: 0 12px 40px rgba(8, 4, 20, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-modal);
+    border: 1px solid var(--border-subtle);
 
     display: flex;
     flex-direction: column;
@@ -55,7 +55,7 @@
         max-width: 360px;
         padding: 16px;
         gap: 12px;
-        border-radius: 20px;
+        border-radius: var(--radius-lg);
     }
 
     .shop-menu-title {
@@ -110,7 +110,6 @@
     font-size: 1.5rem;
     font-weight: 600;
     opacity: 0.9;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
 }
 
 .shop-tabs {
@@ -119,11 +118,11 @@
 }
 
 .shop-tab-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.7);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
     padding: 6px 14px;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
@@ -131,18 +130,18 @@
 }
 
 .shop-tab-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
 }
 
 .shop-tab-btn.active {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--border-medium);
+    color: var(--text-primary);
 }
 
 .shop-menu-close-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     border: none;
     width: 36px;
     height: 36px;
@@ -156,13 +155,13 @@
 }
 
 .shop-menu-close-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.18);
 }
 
 .shop-menu-close-btn svg {
     width: 20px;
     height: 20px;
-    stroke: #ffffff;
+    stroke: var(--text-primary);
 }
 
 .shop-content {
@@ -172,7 +171,7 @@
     overflow-x: hidden;
     padding-right: 6px;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -180,16 +179,16 @@
 }
 
 .shop-content::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 
 .shop-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
 }
 
 .shop-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.35);
 }
 
 .shop-empty-state {
@@ -198,18 +197,17 @@
     justify-content: center;
     position: absolute;
     inset: 0 6px 0 0;
-    border: 2px dashed rgba(255, 255, 255, 0.2);
-    border-radius: 18px;
+    border: 2px dashed var(--border-medium);
+    border-radius: var(--radius-md);
     padding: 40px 20px;
     box-sizing: border-box;
 }
 
 .shop-empty-text {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-tertiary);
     font-size: 1rem;
     font-weight: 400;
     text-align: center;
-    opacity: 0.7;
 }
 
 .shop-boosts-list {
@@ -232,31 +230,29 @@
 }
 
 .boost-item {
-    background: rgba(15, 12, 30, 0.65);
-    border: 1px solid rgba(140, 130, 200, 0.12);
-    border-radius: 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     padding: 10px;
     display: flex;
     flex-direction: column;
     gap: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 14px rgba(8, 4, 22, 0.5);
+    box-shadow: var(--shadow-subtle);
     min-width: 0;
 }
 
 .boost-item:hover {
-    background: rgba(18, 14, 35, 0.75);
-    border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(8, 4, 22, 0.55);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--border-medium);
 }
 
 .boost-image {
     width: 100%;
     aspect-ratio: 1;
-    background: rgba(30, 24, 52, 0.5);
-    border-radius: 10px;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -267,7 +263,7 @@
 .boost-image svg {
     width: 50%;
     height: 50%;
-    stroke: #e0e0e0;
+    stroke: var(--text-secondary);
     opacity: 0.8;
 }
 
@@ -281,7 +277,7 @@
 .boost-description {
     font-size: 0.75rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
     line-height: 1.3;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -293,7 +289,7 @@
     gap: 4px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #dc3545;
+    color: var(--accent);
     flex-wrap: wrap;
 }
 
@@ -305,7 +301,7 @@
 .topup-menu-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(6, 4, 15, 0.72);
+    background: rgba(6, 4, 12, 0.72);
     z-index: 60;
     display: flex;
     align-items: flex-end;
@@ -324,21 +320,21 @@
 .topup-menu {
     width: 100%;
     max-width: 480px;
-    background: rgba(18, 14, 35, 0.92);
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    border-radius: 24px 24px 0 0;
+    background: rgba(28, 28, 32, 0.95);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     padding: 24px 20px 40px;
-    box-shadow: 0 -10px 40px rgba(8, 4, 20, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(140, 130, 200, 0.2);
+    box-shadow: var(--shadow-modal);
+    border: 1px solid var(--border-subtle);
     border-bottom: none;
     transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     display: flex;
     flex-direction: column;
     gap: 20px;
-    color: #fff;
-    font-family: 'Rubik', sans-serif;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
     box-sizing: border-box;
 }
 
@@ -349,7 +345,7 @@
 .topup-drag-handle {
     width: 40px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 2px;
     margin: -12px auto 16px;
     cursor: grab;
@@ -357,7 +353,7 @@
 }
 
 .topup-drag-handle:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .topup-drag-handle:active {
@@ -368,7 +364,7 @@
     display: flex;
     justify-content: center;
     position: relative;
-    border-bottom: 1px solid rgba(140, 130, 200, 0.2);
+    border-bottom: 1px solid var(--border-subtle);
     padding-bottom: 12px;
 }
 
@@ -379,14 +375,14 @@
     transform: translateY(-50%);
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-tertiary);
     cursor: pointer;
     padding: 8px;
     display: flex;
 }
 
 .topup-menu-close-btn:hover {
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .topup-tabs {
@@ -397,7 +393,7 @@
 .topup-tab-btn {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-tertiary);
     font-size: 1rem;
     font-weight: 600;
     display: flex;
@@ -407,11 +403,11 @@
     cursor: pointer;
     position: relative;
     transition: color 0.2s;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .topup-tab-btn.active {
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .topup-tab-btn.active::after {
@@ -421,7 +417,7 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: #fff;
+    background: var(--accent);
     border-radius: 2px;
 }
 
@@ -433,17 +429,16 @@
 .topup-coming-soon {
     text-align: center;
     padding: 60px 0;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
     font-size: 1.2rem;
     font-weight: 600;
 }
 
 .topup-exchange-card {
-    background: rgba(30, 24, 52, 0.45);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(140, 130, 200, 0.15);
-    border-radius: 16px;
+    background: var(--bg-elevated);
+    backdrop-filter: none;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     padding: 20px 24px;
     display: flex;
     flex-direction: column;
@@ -451,7 +446,7 @@
 }
 
 .topup-exchange-amount-label {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     font-size: 0.95rem;
     font-weight: 500;
     margin-bottom: 8px;
@@ -465,7 +460,7 @@
 }
 
 .topup-row-label {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-secondary);
     font-size: 1rem;
     font-weight: 500;
 }
@@ -476,13 +471,13 @@
     gap: 8px;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-primary);
 }
 
 .topup-row-input input {
     background: transparent;
     border: none;
-    color: #fff;
+    color: var(--text-primary);
     font-size: 1.5rem;
     font-weight: 700;
     width: 120px;
@@ -503,7 +498,7 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-tertiary);
     margin: 8px 0;
 }
 
@@ -511,19 +506,19 @@
 .topup-exchange-divider::after {
     content: '';
     flex: 1;
-    border-bottom: 2px dashed rgba(140, 130, 200, 0.25);
+    border-bottom: 1px dashed var(--border-medium);
 }
 
 .topup-exchange-divider svg {
     width: 20px;
     height: 20px;
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
 .topup-wallet-cell {
-    background: rgba(0, 152, 234, 0.15);
-    border: 1px solid rgba(0, 152, 234, 0.3);
-    border-radius: 12px;
+    background: rgba(0, 152, 234, 0.1);
+    border: 1px solid rgba(0, 152, 234, 0.25);
+    border-radius: var(--radius-md);
     padding: 18px 16px;
     display: flex;
     align-items: center;
@@ -541,17 +536,17 @@
 .topup-wallet-icon {
     width: 20px;
     height: 20px;
-    color: #0098ea;
+    color: var(--info);
 }
 
 .topup-wallet-address {
-    color: #fff;
+    color: var(--text-primary);
     font-weight: 600;
     font-size: 0.95rem;
 }
 
 .topup-wallet-balance {
-    color: #0098ea;
+    color: var(--info);
     font-weight: 600;
     margin-left: 6px;
     font-size: 0.9rem;
@@ -560,45 +555,45 @@
 .topup-wallet-reconnect {
     background: transparent;
     border: none;
-    color: #0098ea;
+    color: var(--info);
     font-size: 0.95rem;
     font-weight: 500;
     cursor: pointer;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .topup-wallet-connect-btn {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-medium);
     width: 100%;
     padding: 18px;
-    border-radius: 16px;
+    border-radius: var(--radius-md);
     font-size: 1.05rem;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
     margin-top: 16px;
     margin-bottom: 16px;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .topup-wallet-connect-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .topup-submit-btn {
-    background: linear-gradient(135deg, #c82333, #dc3545);
-    color: #fff;
+    background: var(--accent);
+    color: #000;
     border: none;
     width: 100%;
     padding: 18px;
-    border-radius: 16px;
+    border-radius: var(--radius-md);
     font-size: 1.2rem;
     font-weight: 700;
     cursor: pointer;
     transition: opacity 0.2s;
-    font-family: 'Rubik', sans-serif;
+    font-family: 'Inter', sans-serif;
     margin-top: 12px;
     display: flex;
     align-items: center;
@@ -615,7 +610,7 @@
 }
 
 .topup-submit-btn:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
 }
 
@@ -623,31 +618,31 @@
 .profile-balance-pill-wrapper {
     display: inline-flex;
     align-items: center;
-    background: rgba(22, 18, 42, 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(140, 130, 200, 0.22);
-    border-radius: 24px;
+    background: var(--bg-card);
+    backdrop-filter: var(--blur-light);
+    -webkit-backdrop-filter: var(--blur-light);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
     padding: 6px 6px 6px 20px;
     margin: 0 auto;
     gap: 16px;
 }
 
 .profile-balance-pill-text {
-    color: #fff;
+    color: var(--text-primary);
     font-size: 1.25rem;
     font-weight: 700;
-    font-family: 'Rubik', sans-serif;
-    letter-spacing: 0.5px;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.3px;
 }
 
 .profile-btn-plus {
     width: 36px;
     height: 36px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     border: none;
-    color: #fff;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -657,7 +652,7 @@
 }
 
 .profile-btn-plus:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.18);
 }
 
 /* --- Cases Cards --- */
@@ -672,29 +667,27 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    background: rgba(15, 12, 30, 0.65);
-    border: 1px solid rgba(140, 130, 200, 0.12);
-    border-radius: 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
     padding: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 14px rgba(8, 4, 22, 0.5);
+    box-shadow: var(--shadow-subtle);
     width: 100%;
 }
 
 .case-item:hover {
-    background: rgba(18, 14, 35, 0.75);
-    border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(8, 4, 22, 0.55);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--border-medium);
 }
 
 .case-image {
     width: 72px;
     height: 72px;
     min-width: 72px;
-    background: linear-gradient(135deg, rgba(60, 50, 100, 0.4), rgba(40, 30, 80, 0.5));
-    border-radius: 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -705,13 +698,13 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
 }
 
 .case-image svg {
     width: 36px;
     height: 36px;
-    stroke: rgba(180, 160, 255, 0.6);
+    stroke: var(--text-tertiary);
 }
 
 .case-info {
@@ -725,7 +718,7 @@
 .case-name {
     font-size: 1rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--text-primary);
     line-height: 1.2;
 }
 
@@ -739,24 +732,24 @@
     font-size: 0.72rem;
     font-weight: 600;
     padding: 3px 8px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     white-space: nowrap;
 }
 
 .case-price-lucu {
-    background: rgba(220, 53, 69, 0.2);
-    color: #ff6b7a;
-    border: 1px solid rgba(220, 53, 69, 0.3);
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid rgba(232, 185, 49, 0.25);
 }
 
 .case-price-stars {
-    background: rgba(255, 193, 7, 0.15);
+    background: rgba(255, 193, 7, 0.1);
     color: #ffd54f;
-    border: 1px solid rgba(255, 193, 7, 0.25);
+    border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
 .case-price-ton {
-    background: rgba(0, 152, 234, 0.15);
+    background: rgba(0, 152, 234, 0.1);
     color: #4fc3f7;
-    border: 1px solid rgba(0, 152, 234, 0.25);
+    border: 1px solid rgba(0, 152, 234, 0.2);
 }

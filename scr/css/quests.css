@@ -1,7 +1,7 @@
 .quest-menu-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(6, 4, 15, 0.72);
+    background: rgba(6, 4, 12, 0.72);
     z-index: 50;
     display: flex;
     align-items: center;
@@ -26,14 +26,14 @@
     max-height: calc(100vh - 40px);
     height: auto !important;
 
-    background: rgba(22, 18, 42, 0.65);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-radius: 28px;
+    background: rgba(28, 28, 32, 0.88);
+    backdrop-filter: var(--blur-medium);
+    -webkit-backdrop-filter: var(--blur-medium);
+    border-radius: var(--radius-xl);
     padding: 20px;
-    color: #ffffff;
-    box-shadow: 0 12px 40px rgba(8, 4, 20, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-modal);
+    border: 1px solid var(--border-subtle);
 
     display: flex;
     flex-direction: column;
@@ -61,7 +61,6 @@
     font-size: 1.5rem;
     font-weight: 600;
     opacity: 0.9;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
 }
 
 .quest-list {
@@ -71,27 +70,27 @@
     overflow-x: hidden;
     padding-right: 6px;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
 .quest-list::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 
 .quest-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 3px;
 }
 
 .quest-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.35);
 }
 
 .quest-menu-close-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     border: none;
     width: 36px;
     height: 36px;
@@ -105,23 +104,23 @@
 }
 
 .quest-menu-close-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.18);
 }
 
 .quest-menu-close-btn svg {
     width: 20px;
     height: 20px;
-    stroke: #ffffff;
+    stroke: var(--text-primary);
 }
 
 .quest-item {
     display: flex;
     align-items: center;
-    background: rgba(15, 12, 30, 0.65);
+    background: var(--bg-elevated);
     padding: 12px 15px;
-    border-radius: 18px;
-    border: 1px solid rgba(140, 130, 200, 0.12);
-    box-shadow: 0 4px 14px rgba(8, 4, 22, 0.5);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-subtle);
     position: relative;
     overflow: hidden;
     flex-basis: 100%;
@@ -132,8 +131,8 @@
 .quest-icon-placeholder {
     width: 48px;
     height: 48px;
-    background: rgba(30, 24, 52, 0.5);
-    border-radius: 14px;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -144,7 +143,7 @@
 .quest-icon-placeholder svg {
     width: 28px;
     height: 28px;
-    stroke: #e0e0e0;
+    stroke: var(--text-secondary);
 }
 
 .quest-info {
@@ -193,7 +192,7 @@
     flex-shrink: 0;
     font-size: clamp(0.55rem, 2.5vw, 0.85rem);
     font-weight: 400;
-    color: rgba(180, 180, 180, 0.6);
+    color: var(--text-tertiary);
 }
 
 .quest-marquee-content-wrapper .duplicate {
@@ -205,17 +204,17 @@
 }
 
 .quest-progress-bar-container {
-    height: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
     overflow: hidden;
     width: 100%;
 }
 
 .quest-progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #8a8a8a, #ffffff);
-    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), #f0d060);
+    border-radius: 3px;
     transition: width 0.4s ease;
 }
 
@@ -224,7 +223,7 @@
     font-weight: 500;
     margin-left: 15px;
     flex-shrink: 0;
-    color: rgba(224, 224, 224, 0.85);
+    color: var(--text-secondary);
 }
 
 .quest-item.completed {
@@ -274,7 +273,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 1.5rem;
     font-weight: 700;
     z-index: 2;
@@ -296,9 +295,9 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(80, 80, 80, 0.25);
+    background: rgba(80, 80, 80, 0.2);
     z-index: 1;
-    border-radius: 18px;
+    border-radius: var(--radius-md);
 }
 
 .quest-item.disabled-quest::after {
@@ -307,9 +306,9 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 1.4rem;
-    font-weight: 800;
+    font-weight: 700;
     text-shadow: none;
     z-index: 2;
     pointer-events: none;
@@ -319,14 +318,14 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(0, 150, 0, 0.25);
+    background: rgba(52, 199, 89, 0.2);
     z-index: 1;
-    border-radius: 18px;
+    border-radius: var(--radius-md);
     transition: background 0.3s;
 }
 
 .quest-item.completed:hover::before {
-    background: rgba(0, 150, 0, 0.4);
+    background: rgba(52, 199, 89, 0.3);
 }
 
 .quest-item.completed::after {
@@ -335,25 +334,24 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 1.8rem;
-    font-weight: 800;
+    font-weight: 700;
     text-shadow: none;
     z-index: 2;
     pointer-events: none;
 }
 
 .quest-claim-ready {
-    color: #4cff4c !important;
-    font-weight: 800 !important;
+    color: var(--success) !important;
+    font-weight: 700 !important;
     font-size: 1.1rem !important;
-    text-shadow: 0 0 8px rgba(76, 255, 76, 0.5);
     z-index: 3;
     position: relative;
-    animation: claimPulse 1.5s ease-in-out infinite;
+    animation: claimFade 2s ease-in-out infinite;
 }
 
-@keyframes claimPulse {
+@keyframes claimFade {
 
     0%,
     100% {
@@ -361,13 +359,13 @@
     }
 
     50% {
-        opacity: 0.6;
+        opacity: 0.55;
     }
 }
 
 .quest-item.social-active .quest-percentage {
-    color: #ffffff;
-    font-weight: 800;
+    color: var(--text-primary);
+    font-weight: 700;
     opacity: 1;
     text-shadow: none;
     background: none;
