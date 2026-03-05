@@ -66,6 +66,11 @@ const Squads = {
             deleteBtn.addEventListener('click', () => this.deleteSquad());
         }
 
+        const leaveBtn = document.getElementById('squad-leave-btn');
+        if (leaveBtn) {
+            leaveBtn.addEventListener('click', () => this.leaveSquad());
+        }
+
         // --- NEW MODAL & UI BINDINGS ---
         const aboutClansBtn = document.getElementById('profile-about-clans-btn');
         if (aboutClansBtn) {
@@ -258,6 +263,79 @@ const Squads = {
 
         if (shareBtn) shareBtn.style.display = isOwner ? 'flex' : 'none';
         if (deleteBtn) deleteBtn.style.display = isOwner ? 'flex' : 'none';
+
+        const leaveBtn = document.getElementById('squad-leave-btn');
+        if (leaveBtn) leaveBtn.style.display = isOwner ? 'none' : 'flex';
+
+        const membersContainer = document.getElementById('squad-members-container');
+        const membersListEl = document.getElementById('squad-members-list');
+
+        if (membersContainer && membersListEl) {
+            membersListEl.innerHTML = '';
+            if (this.squadData.memberDetails && this.squadData.memberDetails.length > 0) {
+                this.squadData.memberDetails.forEach(member => {
+                    const mRow = document.createElement('div');
+                    mRow.style.display = 'flex';
+                    mRow.style.alignItems = 'center';
+                    mRow.style.padding = '8px';
+                    mRow.style.background = 'rgba(0,0,0,0.2)';
+                    mRow.style.borderRadius = '8px';
+                    mRow.style.gap = '8px';
+
+                    const mAvatar = document.createElement('div');
+                    mAvatar.className = 'leaderboard-avatar';
+                    mAvatar.style.width = '30px';
+                    mAvatar.style.height = '30px';
+                    if (member.photo_url) {
+                        mAvatar.style.backgroundImage = `url(${member.photo_url})`;
+                        mAvatar.style.backgroundSize = 'cover';
+                    } else {
+                        mAvatar.style.background = '#444';
+                    }
+                    mRow.appendChild(mAvatar);
+
+                    const mInfo = document.createElement('div');
+                    mInfo.style.flex = '1';
+                    mInfo.style.display = 'flex';
+                    mInfo.style.flexDirection = 'column';
+
+                    const mName = document.createElement('span');
+                    mName.textContent = member.name;
+                    mName.style.fontSize = '0.9rem';
+                    mName.style.fontWeight = '600';
+                    mInfo.appendChild(mName);
+
+                    const mView = document.createElement('span');
+                    mView.innerHTML = `${member.coins} <span style="font-size:0.7em; color:rgba(255,255,255,0.5);">$LUCU</span>`;
+                    mView.style.fontSize = '0.8rem';
+                    mView.style.color = '#fff';
+                    mInfo.appendChild(mView);
+
+                    mRow.appendChild(mInfo);
+
+                    if (isOwner && member.id !== String(tgUser?.id)) {
+                        const mKick = document.createElement('button');
+                        mKick.textContent = 'Kick';
+                        mKick.style.background = 'rgba(220,53,69,0.2)';
+                        mKick.style.color = '#ff4d4f';
+                        mKick.style.border = '1px solid rgba(220,53,69,0.3)';
+                        mKick.style.borderRadius = '6px';
+                        mKick.style.padding = '4px 10px';
+                        mKick.style.fontSize = '0.75rem';
+                        mKick.style.cursor = 'pointer';
+                        mKick.addEventListener('click', () => {
+                            this.kickMember(member.id, member.name);
+                        });
+                        mRow.appendChild(mKick);
+                    }
+
+                    membersListEl.appendChild(mRow);
+                });
+                membersContainer.style.display = 'flex';
+            } else {
+                membersContainer.style.display = 'none';
+            }
+        }
     },
 
     renderNoSquad: function () {
@@ -291,6 +369,48 @@ const Squads = {
             })
             .catch(() => {
                 if (deleteBtn) deleteBtn.style.opacity = '1';
+            });
+    },
+
+    leaveSquad: function () {
+        if (!confirm('Are you sure you want to leave this squad?')) return;
+
+        const leaveBtn = document.getElementById('squad-leave-btn');
+        if (leaveBtn) leaveBtn.style.opacity = '0.5';
+
+        API.call('/api/squad-leave', {})
+            .then(resp => {
+                if (leaveBtn) leaveBtn.style.opacity = '1';
+                if (!resp || resp.error) {
+                    alert(resp ? resp.error : 'Failed to leave squad');
+                    return;
+                }
+                this.squadData = null;
+                if (typeof Game !== 'undefined' && Game.state) {
+                    Game.state.squad = null;
+                }
+                this.renderNoSquad();
+                this.loadTopSquads();
+            })
+            .catch(() => {
+                if (leaveBtn) leaveBtn.style.opacity = '1';
+            });
+    },
+
+    kickMember: function (targetUserId, memberName) {
+        if (!confirm(`Are you sure you want to kick ${memberName} from the squad?`)) return;
+
+        API.call('/api/squad-kick', { targetUserId: targetUserId })
+            .then(resp => {
+                if (!resp || resp.error) {
+                    alert(resp ? resp.error : `Failed to kick ${memberName}`);
+                    return;
+                }
+                // Refresh squad info to reflect kicked member
+                this.loadSquadInfo(this.squadData.id);
+            })
+            .catch(() => {
+                alert(`Error kicking ${memberName}`);
             });
     },
 
