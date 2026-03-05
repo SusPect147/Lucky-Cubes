@@ -147,7 +147,9 @@ const DailyLogin = {
     },
 
     claimReward: function () {
-        if (this.claimedToday) return;
+        if (this.claimedToday || this.isClaiming) return;
+
+        this.isClaiming = true;
 
         const claimBtn = document.getElementById('daily-login-claim-btn');
         if (claimBtn) {
@@ -163,6 +165,7 @@ const DailyLogin = {
                         claimBtn.style.pointerEvents = 'auto';
                     }
                     alert(resp ? resp.error : 'Failed to claim reward');
+                    this.isClaiming = false;
                     return;
                 }
 
@@ -175,13 +178,17 @@ const DailyLogin = {
 
                 this.renderCalendar();
 
-                setTimeout(() => this.close(), 1500);
+                setTimeout(() => {
+                    this.close();
+                    this.isClaiming = false;
+                }, 1500);
             })
             .catch(() => {
                 if (claimBtn) {
                     claimBtn.style.opacity = '1';
                     claimBtn.style.pointerEvents = 'auto';
                 }
+                this.isClaiming = false;
             });
     }
 };

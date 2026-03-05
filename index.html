@@ -499,28 +499,48 @@
                     </div>
 
                     <div class="squad-create-form" id="squad-create-form">
-                        <input type="text" class="squad-input" id="squad-name-input" maxlength="5"
-                            placeholder="Squad name (2-5 letters)">
+                        <div class="squad-create-card">
+                            <div class="squad-create-row">
+                                <span class="squad-row-label" data-i18n="squad_name_label">Squad Name:</span>
+                                <div class="squad-row-input">
+                                    <input type="text" class="squad-input-main" id="squad-name-input" maxlength="5"
+                                        placeholder="2-5 letters">
+                                </div>
+                            </div>
 
-                        <div class="squad-selector-label" data-i18n="choose_emoji">Выберите эмодзи</div>
-                        <div class="squad-emoji-grid" id="squad-emoji-grid">
-                            <button class="squad-emoji-btn active" data-emoji="👑">👑</button>
-                            <button class="squad-emoji-btn" data-emoji="👻">👻</button>
-                            <button class="squad-emoji-btn" data-emoji="👽">👽</button>
-                            <button class="squad-emoji-btn" data-emoji="🤖">🤖</button>
-                            <button class="squad-emoji-btn" data-emoji="👾">👾</button>
-                            <button class="squad-emoji-btn" data-emoji="🤠">🤠</button>
-                        </div>
+                            <div class="squad-create-divider"></div>
 
-                        <div class="squad-selector-label" data-i18n="choose_color">Выберите цвет</div>
-                        <div class="squad-color-grid" id="squad-color-grid">
-                            <button class="squad-color-btn active" data-color="#7c4dff"
-                                style="background:#7c4dff;"></button>
-                            <button class="squad-color-btn" data-color="#ff4d4f" style="background:#ff4d4f;"></button>
-                            <button class="squad-color-btn" data-color="#1890ff" style="background:#1890ff;"></button>
-                            <button class="squad-color-btn" data-color="#52c41a" style="background:#52c41a;"></button>
-                            <button class="squad-color-btn" data-color="#faad14" style="background:#faad14;"></button>
-                            <button class="squad-color-btn" data-color="#ff00ff" style="background:#ff00ff;"></button>
+                            <div class="squad-create-row-vertical">
+                                <span class="squad-row-label" data-i18n="choose_emoji">Выберите эмодзи:</span>
+                                <div class="squad-emoji-grid" id="squad-emoji-grid">
+                                    <button class="squad-emoji-btn active" data-emoji="👑">👑</button>
+                                    <button class="squad-emoji-btn" data-emoji="👻">👻</button>
+                                    <button class="squad-emoji-btn" data-emoji="👽">👽</button>
+                                    <button class="squad-emoji-btn" data-emoji="🤖">🤖</button>
+                                    <button class="squad-emoji-btn" data-emoji="👾">👾</button>
+                                    <button class="squad-emoji-btn" data-emoji="🤠">🤠</button>
+                                </div>
+                            </div>
+
+                            <div class="squad-create-divider"></div>
+
+                            <div class="squad-create-row-vertical">
+                                <span class="squad-row-label" data-i18n="choose_color">Выберите цвет:</span>
+                                <div class="squad-color-grid" id="squad-color-grid">
+                                    <button class="squad-color-btn active" data-color="#7c4dff"
+                                        style="background:#7c4dff;"></button>
+                                    <button class="squad-color-btn" data-color="#ff4d4f"
+                                        style="background:#ff4d4f;"></button>
+                                    <button class="squad-color-btn" data-color="#1890ff"
+                                        style="background:#1890ff;"></button>
+                                    <button class="squad-color-btn" data-color="#52c41a"
+                                        style="background:#52c41a;"></button>
+                                    <button class="squad-color-btn" data-color="#faad14"
+                                        style="background:#faad14;"></button>
+                                    <button class="squad-color-btn" data-color="#ff00ff"
+                                        style="background:#ff00ff;"></button>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="squad-form-btns">
