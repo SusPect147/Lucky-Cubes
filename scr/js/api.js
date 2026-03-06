@@ -2,10 +2,10 @@
     try {
         const verEl = document.querySelector('.app-version-display');
         const searchStr = window.location.search || '';
-        // If the version element does not contain v1.3.0, OR the URL doesn't have cb=1.3.0, reload.
-        if (verEl && !verEl.textContent.includes('1.3.0') && !searchStr.includes('cb=1.3.0')) {
+        // If the version element does not contain v1.3.1, OR the URL doesn't have cb=1.3.1, reload.
+        if (verEl && !verEl.textContent.includes('1.3.1') && !searchStr.includes('cb=1.3.1')) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.3.0');
+            url.searchParams.set('cb', '1.3.1');
             window.location.replace(url.toString());
         }
     } catch (e) { }

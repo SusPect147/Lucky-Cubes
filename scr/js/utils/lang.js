@@ -129,7 +129,18 @@ const TRANSLATIONS = {
         skip_loading: "Skip >>",
         "about_clans": "About Clans",
         "choose_emoji": "Choose Emoji",
-        "choose_color": "Choose Color"
+        "choose_color": "Choose Color",
+        squad_name_error: "Squad name must be 2–5 Latin characters.",
+        squad_name_label: "Squad Name:",
+        squad_members_list_title: "Members",
+        squad_search: "Search squads...",
+        squad_apply: "Apply",
+        squad_cancel_application: "Cancel App",
+        squad_applications: "Applications",
+        squad_accept: "Accept",
+        squad_reject: "Reject",
+        squad_kick: "Kick",
+        last_online: "Last seen: {time}"
     },
     ru: {
         loading: '{loaded}/{total} загружено',
@@ -261,6 +272,17 @@ const TRANSLATIONS = {
         skip_loading: "Пропустить >>",
         "about_clans": "Про кланы",
         "choose_emoji": "Выберите эмодзи",
-        "choose_color": "Выберите цвет"
+        "choose_color": "Выберите цвет",
+        squad_name_error: "Название сквада должно состоять из 2–5 латинских букв.",
+        squad_name_label: "Имя сквада:",
+        squad_members_list_title: "Участники",
+        squad_search: "Поиск сквадов...",
+        squad_apply: "Вступить",
+        squad_cancel_application: "Отменить",
+        squad_applications: "Заявки",
+        squad_accept: "Принять",
+        squad_reject: "Отклонить",
+        squad_kick: "Исключить",
+        last_online: "В сети: {time} назад"
     }
 };

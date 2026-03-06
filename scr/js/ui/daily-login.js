@@ -93,7 +93,7 @@ const DailyLogin = {
         if (!grid) return;
         grid.innerHTML = '';
 
-        const currentDay = this.streak + 1;
+        const currentDay = this.claimedToday ? this.streak : this.streak + 1;
 
         this.REWARDS.forEach(reward => {
             const cell = document.createElement('div');

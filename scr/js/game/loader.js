@@ -100,20 +100,23 @@ const loadingScreen = document.getElementById('loading-screen');
 const gameContent = document.getElementById('game-content');
 
 function updateLoadingText(banned = false) {
-    const redText = document.getElementById('loading-text-red');
-    const cyanText = document.getElementById('loading-text-cyan');
+    const mainText = document.getElementById('loading-text-main');
+    const progressFill = document.getElementById('loading-progress-fill');
 
-    if (redText && cyanText) {
+    if (mainText) {
         if (banned) {
-            redText.innerHTML = "BANNED";
-            cyanText.innerHTML = "BANNED";
+            mainText.innerHTML = "BANNED";
+            if (progressFill) progressFill.style.width = '0%';
             return;
         }
         const rawText = i18n.t('loading', { loaded: loadedCount, total: totalAssets });
 
-        const formattedText = rawText.toUpperCase().replace(' ', '<br/>');
-        redText.innerHTML = formattedText;
-        cyanText.innerHTML = formattedText;
+        mainText.innerHTML = rawText.toUpperCase();
+
+        if (progressFill && totalAssets > 0) {
+            const percentage = Math.min((loadedCount / totalAssets) * 100, 100);
+            progressFill.style.width = `${percentage}%`;
+        }
     }
 }
 

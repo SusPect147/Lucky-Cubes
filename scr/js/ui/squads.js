@@ -270,6 +270,15 @@ const Squads = {
         const membersContainer = document.getElementById('squad-members-container');
         const membersListEl = document.getElementById('squad-members-list');
 
+        const formatLastOnline = (ts) => {
+            if (!ts) return '';
+            const mins = Math.max(0, Math.floor((Date.now() / 1000 - ts) / 60));
+            if (mins < 60) return `${mins}m`;
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return `${hrs}h`;
+            return `${Math.floor(hrs / 24)}d`;
+        };
+
         if (membersContainer && membersListEl) {
             membersListEl.innerHTML = '';
             if (this.squadData.memberDetails && this.squadData.memberDetails.length > 0) {
@@ -311,6 +320,14 @@ const Squads = {
                     mView.style.color = '#fff';
                     mInfo.appendChild(mView);
 
+                    if (member.lastOnline) {
+                        const mOnline = document.createElement('div');
+                        mOnline.style.fontSize = '0.7rem';
+                        mOnline.style.color = 'rgba(255,255,255,0.5)';
+                        mOnline.textContent = (i18n.t('last_online') || 'Last seen: {time}').replace('{time}', formatLastOnline(member.lastOnline));
+                        mInfo.appendChild(mOnline);
+                    }
+
                     mRow.appendChild(mInfo);
 
                     if (isOwner && member.id !== String(tgUser?.id)) {
@@ -331,6 +348,70 @@ const Squads = {
 
                     membersListEl.appendChild(mRow);
                 });
+
+                // Add requests if owner
+                if (isOwner && this.squadData.requestDetails && this.squadData.requestDetails.length > 0) {
+                    const reqTitle = document.createElement('div');
+                    reqTitle.style.marginTop = '12px';
+                    reqTitle.style.marginBottom = '6px';
+                    reqTitle.style.fontSize = '0.85rem';
+                    reqTitle.style.color = 'rgba(255,255,255,0.5)';
+                    reqTitle.textContent = i18n.t('squad_applications') || 'Applications';
+                    membersListEl.appendChild(reqTitle);
+
+                    this.squadData.requestDetails.forEach(req => {
+                        const rRow = document.createElement('div');
+                        rRow.style.display = 'flex';
+                        rRow.style.alignItems = 'center';
+                        rRow.style.padding = '8px';
+                        rRow.style.background = 'rgba(255,165,0,0.1)';
+                        rRow.style.borderRadius = '8px';
+                        rRow.style.gap = '8px';
+
+                        const rInfo = document.createElement('div');
+                        rInfo.style.flex = '1';
+                        rInfo.style.display = 'flex';
+                        rInfo.style.flexDirection = 'column';
+
+                        const rName = document.createElement('span');
+                        rName.textContent = req.name;
+                        rName.style.fontSize = '0.9rem';
+                        rName.style.fontWeight = '600';
+                        rInfo.appendChild(rName);
+
+                        const rView = document.createElement('span');
+                        rView.innerHTML = `${req.coins} <span style="font-size:0.7em; color:rgba(255,255,255,0.5);">$LUCU</span>`;
+                        rView.style.fontSize = '0.8rem';
+                        rView.style.color = '#fff';
+                        rInfo.appendChild(rView);
+                        rRow.appendChild(rInfo);
+
+                        const rReject = document.createElement('button');
+                        rReject.textContent = '✖';
+                        rReject.style.background = 'rgba(220,53,69,0.2)';
+                        rReject.style.color = '#ff4d4f';
+                        rReject.style.border = 'none';
+                        rReject.style.borderRadius = '6px';
+                        rReject.style.padding = '4px 8px';
+                        rReject.style.cursor = 'pointer';
+                        rReject.addEventListener('click', () => this.resolveRequest(req.id, 'reject'));
+                        rRow.appendChild(rReject);
+
+                        const rAccept = document.createElement('button');
+                        rAccept.textContent = '✔';
+                        rAccept.style.background = 'rgba(40,167,69,0.2)';
+                        rAccept.style.color = '#28a745';
+                        rAccept.style.border = 'none';
+                        rAccept.style.borderRadius = '6px';
+                        rAccept.style.padding = '4px 8px';
+                        rAccept.style.cursor = 'pointer';
+                        rAccept.addEventListener('click', () => this.resolveRequest(req.id, 'accept'));
+                        rRow.appendChild(rAccept);
+
+                        membersListEl.appendChild(rRow);
+                    });
+                }
+
                 membersContainer.style.display = 'flex';
             } else {
                 membersContainer.style.display = 'none';
@@ -411,6 +492,38 @@ const Squads = {
             })
             .catch(() => {
                 alert(`Error kicking ${memberName}`);
+            });
+    },
+
+    resolveRequest: function (targetId, action) {
+        API.call('/api/squad-resolve-request', { targetUserId: targetId, action: action, squadId: this.squadData.id })
+            .then(resp => {
+                if (!resp || resp.error) {
+                    alert(resp ? resp.error : 'Failed to resolve request');
+                    return;
+                }
+                this.loadSquadInfo(this.squadData.id);
+            });
+    },
+
+    applyToSquad: function (squadId, btn) {
+        if (btn) {
+            btn.style.opacity = '0.5';
+            btn.style.pointerEvents = 'none';
+        }
+        API.call('/api/squad-request-join', { squadId: squadId })
+            .then(resp => {
+                if (!resp || resp.error) {
+                    alert(resp ? resp.error : 'Error sending application');
+                    if (btn) {
+                        btn.style.opacity = '1';
+                        btn.style.pointerEvents = 'auto';
+                    }
+                    return;
+                }
+                if (btn) {
+                    btn.textContent = 'Sent';
+                }
             });
     },
 
@@ -495,11 +608,39 @@ const Squads = {
             // Value
             const valueEl = document.createElement('div');
             valueEl.className = 'leaderboard-value';
+
+            const vWrap = document.createElement('div');
+            vWrap.style.display = 'flex';
+            vWrap.style.flexDirection = 'column';
+            vWrap.style.alignItems = 'flex-end';
+            vWrap.style.gap = '2px';
+
             if (this.currentSort === 'lucu') {
-                valueEl.innerHTML = `${(squad.totalCoins || 0).toFixed(0)} <span style="font-size:0.75rem; color:rgba(255,255,255,0.5);">$LUCU</span>`;
+                vWrap.innerHTML = `${(squad.totalCoins || 0).toFixed(0)} <span style="font-size:0.75rem; color:rgba(255,255,255,0.5);">$LUCU</span>`;
             } else {
-                valueEl.innerHTML = `${squad.memberCount || 1} <span style="font-size:0.75rem; color:rgba(255,255,255,0.5);">👤</span>`;
+                vWrap.innerHTML = `${squad.memberCount || 1} <span style="font-size:0.75rem; color:rgba(255,255,255,0.5);">👤</span>`;
             }
+            valueEl.appendChild(vWrap);
+
+            // Add apply button if player is not in a squad
+            if (!this.squadData && typeof Game !== 'undefined' && Game.state && !Game.state.squad) {
+                const applyBtn = document.createElement('button');
+                applyBtn.textContent = i18n.t('squad_apply') || 'Apply';
+                applyBtn.style.background = 'rgba(255,255,255,0.1)';
+                applyBtn.style.border = 'none';
+                applyBtn.style.color = '#fff';
+                applyBtn.style.fontSize = '0.7rem';
+                applyBtn.style.padding = '4px 8px';
+                applyBtn.style.borderRadius = '6px';
+                applyBtn.style.cursor = 'pointer';
+                applyBtn.style.marginTop = '4px';
+                applyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.applyToSquad(squad.id, applyBtn);
+                });
+                vWrap.appendChild(applyBtn);
+            }
+
             bar.appendChild(valueEl);
 
             row.appendChild(bar);
