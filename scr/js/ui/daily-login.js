@@ -72,8 +72,8 @@ const DailyLogin = {
         }
     },
 
-    show: function () {
-        if (this.claimedToday) return;
+    show: function (force = false) {
+        if (this.claimedToday && !force) return;
         const overlay = document.getElementById('daily-login-overlay');
         if (overlay) {
             this.renderCalendar();

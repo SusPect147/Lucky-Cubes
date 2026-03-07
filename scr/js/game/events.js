@@ -175,3 +175,11 @@ if (document.readyState === 'loading') {
     setTimeout(initBoostTimerButton, 100);
 }
 
+const profileDailyRewardsBtn = document.getElementById('profile-daily-rewards-btn');
+if (profileDailyRewardsBtn) {
+    profileDailyRewardsBtn.addEventListener('click', function () {
+        if (typeof DailyLogin !== 'undefined' && DailyLogin.show) {
+            DailyLogin.show(true);
+        }
+    });
+}
