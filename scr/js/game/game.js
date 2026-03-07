@@ -480,7 +480,7 @@ window.Game = (function () {
             if (state) {
                 syncQuestsFromServer(state.quests);
                 if (typeof Inventory !== 'undefined' && Inventory.loadFromServer) {
-                    Inventory.loadFromServer(state.inventory || {});
+                    Inventory.loadFromServer(state);
                 }
             }
 

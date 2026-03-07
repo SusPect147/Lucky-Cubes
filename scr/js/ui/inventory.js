@@ -1,12 +1,15 @@
 const Inventory = {
     boosts: {},
+    cases: {},
 
     init: function () {
         this.render();
     },
 
-    loadFromServer: function (inventoryData) {
-        this.boosts = inventoryData || {};
+    loadFromServer: function (serverState) {
+        if (!serverState) return;
+        this.boosts = serverState.inventory || {};
+        this.cases = serverState.cases || {};
         this.render();
     },
 
@@ -52,13 +55,75 @@ const Inventory = {
         }
 
         if (activeTab.dataset.tab === 'cases') {
-            const divState = document.createElement('div');
-            divState.className = 'inventory-empty-state';
-            const divText = document.createElement('div');
-            divText.className = 'inventory-empty-text';
-            divText.textContent = i18n.t('empty_cases');
-            divState.appendChild(divText);
-            content.appendChild(divState);
+            const caseIds = Object.keys(this.cases);
+            if (caseIds.length === 0) {
+                const divState = document.createElement('div');
+                divState.className = 'inventory-empty-state';
+                const divText = document.createElement('div');
+                divText.className = 'inventory-empty-text';
+                divText.textContent = i18n.t('empty_cases');
+                divState.appendChild(divText);
+                content.appendChild(divState);
+                return;
+            }
+
+            const casesList = document.createElement('div');
+            casesList.className = 'inventory-cases-list';
+            casesList.style.display = 'grid';
+
+            caseIds.forEach(caseId => {
+                const caseDef = Shop.cases.find(c => c.id === caseId);
+                if (!caseDef) return;
+
+                const count = this.cases[caseId];
+
+                const item = document.createElement('div');
+                item.className = 'inventory-case-item';
+                item.dataset.caseId = caseId;
+                item.style.position = 'relative';
+
+                const imgDiv = document.createElement('div');
+                imgDiv.className = 'case-image';
+                if (caseDef.imageUrl) {
+                    const img = document.createElement('img');
+                    img.src = caseDef.imageUrl;
+                    imgDiv.appendChild(img);
+                } else {
+                    imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
+                }
+
+                if (count > 1) {
+                    const countDiv = document.createElement('div');
+                    countDiv.className = 'boost-count';
+                    countDiv.textContent = count;
+                    imgDiv.appendChild(countDiv);
+                }
+                item.appendChild(imgDiv);
+
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'case-info';
+
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'case-name';
+                nameDiv.textContent = i18n.t(caseDef.name);
+                infoDiv.appendChild(nameDiv);
+
+                const useBtn = document.createElement('button');
+                useBtn.className = 'boost-use-btn case-use-btn';
+                useBtn.textContent = 'Open';
+                infoDiv.appendChild(useBtn);
+
+                item.appendChild(infoDiv);
+
+                useBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.openCase(caseId);
+                });
+
+                casesList.appendChild(item);
+            });
+
+            content.appendChild(casesList);
             return;
         }
 
@@ -144,10 +209,35 @@ const Inventory = {
                 if (typeof Game !== 'undefined' && Game.useBoost) {
                     Game.useBoost(boostId, resp.duration || 30000);
                 }
-                this.loadFromServer(resp.inventory || {});
+                this.loadFromServer(resp);
             })
             .catch(err => {
                 console.error('Use boost API error:', err);
+            });
+    },
+
+    openCase: function (caseId) {
+        if (!this.cases[caseId] || this.cases[caseId] <= 0) return;
+
+        API.call('/api/open-case', { caseId: caseId })
+            .then(resp => {
+                if (!resp || resp.error) {
+                    alert(resp ? resp.error : 'Failed to open case');
+                    return;
+                }
+
+                if (typeof Game !== 'undefined' && Game.applyServerState) {
+                    Game.applyServerState(resp);
+                }
+                this.loadFromServer(resp);
+
+                if (resp.reward) {
+                    const typeStr = resp.reward.type === 'coins' ? '$LUCU' : resp.reward.type;
+                    alert(`Unboxed: ${resp.reward.amount} ${typeStr}!`);
+                }
+            })
+            .catch(err => {
+                console.error('Open case failed:', err);
             });
     }
 };

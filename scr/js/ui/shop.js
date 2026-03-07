@@ -71,21 +71,21 @@ const Shop = {
             name: 'Starter Case',
             price: 200,
             currency: 'lucu',
-            imageUrl: ''
+            imageUrl: 'assets/UI/images/cases/1-case.png'
         },
         {
             id: 'lucky_case',
             name: 'Lucky Case',
             price: 20,
             currency: 'stars',
-            imageUrl: ''
+            imageUrl: 'assets/UI/images/cases/2-case.png'
         },
         {
             id: 'premium_case',
             name: 'Premium Case',
             price: 0.6,
             currency: 'ton',
-            imageUrl: ''
+            imageUrl: 'assets/UI/images/cases/3-case.png'
         }
     ],
 
@@ -245,13 +245,70 @@ const Shop = {
                 this.renderBoosts();
                 setTimeout(() => {
                     if (typeof Inventory !== 'undefined') {
-                        Inventory.loadFromServer(resp.inventory || {});
+                        Inventory.loadFromServer(resp);
                     }
                 }, 500);
             })
             .catch(err => {
                 console.error('Buy boost failed:', err);
             });
+    },
+
+    buyCase: function (caseId) {
+        const caseItem = this.cases.find(c => c.id === caseId);
+        if (!caseItem) return;
+
+        const processResponse = (resp) => {
+            if (!resp || resp.error) {
+                alert(resp ? resp.error : 'Request failed');
+                return;
+            }
+
+            if (resp.invoiceUrl) {
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openInvoice) {
+                    window.Telegram.WebApp.openInvoice(resp.invoiceUrl, function (status) {
+                        if (status === 'paid') {
+                            alert('Success! Case purchased.');
+                            if (window.API && window.API.call) {
+                                window.API.call('/api/state', null).then(st => {
+                                    if (st && window.Game && window.Game.applyServerState) {
+                                        window.Game.applyServerState(st);
+                                    }
+                                }).catch(() => { });
+                            }
+                        }
+                    });
+                } else {
+                    window.open(resp.invoiceUrl, '_blank');
+                }
+                return;
+            }
+
+            if (typeof Game !== 'undefined' && Game.applyServerState) {
+                Game.applyServerState(resp);
+            }
+            alert('Case purchased successfully!');
+        };
+
+        if (caseItem.currency === 'ton') {
+            if (typeof window.buyTonCase === 'function') {
+                window.buyTonCase(caseItem.price, caseId)
+                    .then(processResponse)
+                    .catch(e => console.error('Buy ton case failed:', e));
+            } else {
+                alert('Wallet integration not ready');
+            }
+        } else {
+            if (caseItem.currency === 'lucu' && typeof Game !== 'undefined' && Game.getCoinCount() < caseItem.price) {
+                alert('Not enough coins!');
+                return;
+            }
+            API.call('/api/buy-case', { caseId: caseId })
+                .then(processResponse)
+                .catch(err => {
+                    console.error('Buy case failed:', err);
+                });
+        }
     },
 
     render: function () {
@@ -305,6 +362,11 @@ const Shop = {
             infoDiv.appendChild(priceDiv);
 
             card.appendChild(infoDiv);
+
+            card.addEventListener('click', () => {
+                this.buyCase(caseItem.id);
+            });
+
             casesList.appendChild(card);
         });
     }

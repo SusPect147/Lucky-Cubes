@@ -200,6 +200,27 @@
         });
     }
 
+    window.buyTonCase = function (amountTON, caseId) {
+        if (!tonConnectUI || !tonConnectUI.wallet) {
+            alert('Please connect your TON wallet in the Profile section first.');
+            return Promise.reject('No wallet');
+        }
+        var amountNano = BigInt(Math.round(amountTON * 1e9)).toString();
+        var transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 300,
+            messages: [
+                {
+                    address: DONATE_ADDRESS,
+                    amount: amountNano
+                }
+            ]
+        };
+        return tonConnectUI.sendTransaction(transaction).then(function (result) {
+            const boc = result && result.boc ? result.boc : '';
+            return window.API.call('/api/buy-case', { caseId: caseId, boc: boc });
+        });
+    };
+
     function bindEvents() {
         var connectBtn = document.getElementById('profile-connect-wallet-btn');
         if (connectBtn) {
