@@ -254,13 +254,16 @@ async function preload() {
 
     await new Promise(resolve => setTimeout(resolve, 300));
 
+    // Load API separately since we need it for API calls
     await loadScript('scr/js/api.js?v=' + Date.now());
-
+    loadedCount++;
+    updateLoadingText();
 
     let statePromise = null;
     let lbPromise = null;
     try {
         if (typeof API !== 'undefined') {
+            // This will resolve instantly if the server injected the state during login via api.js improvements
             statePromise = API.call('/api/state', null).catch(e => {
                 console.error('Failed to fetch server state:', e);
                 return null;

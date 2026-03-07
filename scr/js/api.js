@@ -2,16 +2,17 @@
     try {
         const verEl = document.querySelector('.app-version-display');
         const searchStr = window.location.search || '';
-        // If the version element does not contain v1.3.1, OR the URL doesn't have cb=1.3.1, reload.
-        if (verEl && !verEl.textContent.includes('1.3.1') && !searchStr.includes('cb=1.3.1')) {
+        // If the version element does not contain v1.3.2, OR the URL doesn't have cb=1.3.2, reload.
+        if (verEl && !verEl.textContent.includes('1.3.2') && !searchStr.includes('cb=1.3.2')) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.3.1');
+            url.searchParams.set('cb', '1.3.2');
             window.location.replace(url.toString());
         }
     } catch (e) { }
 })();
 
 let jwtToken = null;
+let loginPromise = null;
 
 function getInitData() {
     try {
@@ -25,34 +26,64 @@ function getInitData() {
         return tgWebAppData;
     }
     return '';
-} async function login() {
-    const initData = getInitData();
-    const headers = { 'Content-Type': 'application/json' };
+}
 
-    try {
-        const resp = await fetch(CONFIG.API_URL + '/api/login', {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({ initData })
-        });
-        if (resp.ok) {
-            const data = await resp.json();
-            jwtToken = data.token;
-            return true;
-        }
-    } catch (e) {
-        console.error('Login failed:', e);
+async function login() {
+    if (loginPromise) {
+        return loginPromise;
     }
-    return false;
+
+    loginPromise = (async () => {
+        const initData = getInitData();
+        const headers = { 'Content-Type': 'application/json' };
+
+        try {
+            const resp = await fetch(CONFIG.API_URL + '/api/login', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ initData })
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                jwtToken = data.token;
+
+                // Cache the initial server state from login response
+                if (data.state) {
+                    window.initialServerState = data.state;
+                }
+
+                return true;
+            }
+        } catch (e) {
+            console.error('Login failed:', e);
+        }
+        return false;
+    })();
+
+    return loginPromise;
 }
 
 async function call(endpoint, body) {
     try {
+        // Fast intercept for the initial state call to avoid the RTT if we got it during login
+        if (endpoint === '/api/state' && window.initialServerState) {
+            const tempState = window.initialServerState;
+            window.initialServerState = null; // Consume it so future calls hit the network
+            return tempState;
+        }
+
         if (!jwtToken) {
             const success = await login();
             if (!success) {
                 console.error('Failed to authenticate');
                 return null;
+            }
+
+            // Re-check after login since the initial state might have just been populated by the newly finished login
+            if (endpoint === '/api/state' && window.initialServerState) {
+                const tempState = window.initialServerState;
+                window.initialServerState = null;
+                return tempState;
             }
         }
 
@@ -92,9 +123,8 @@ async function call(endpoint, body) {
             try {
                 const errBody = await resp.json();
                 if (errBody && errBody.versionMismatch) {
-                    // Server told us we're outdated, force reload
                     const url = new URL(window.location.href);
-                    url.searchParams.set('cb', '1.3.0');
+                    url.searchParams.set('cb', '1.3.1');
                     window.location.replace(url.toString());
                     return null;
                 }
@@ -105,17 +135,16 @@ async function call(endpoint, body) {
         }
 
         const data = await resp.json();
-        // Fallback check: if server returned versionMismatch in a 200 OK (unlikely but possible)
         if (data && data.versionMismatch) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.3.0');
+            url.searchParams.set('cb', '1.3.1');
             window.location.replace(url.toString());
             return null;
         }
 
-        if (data && data.appVersion && data.appVersion !== '1.3.0') {
+        if (data && data.appVersion && data.appVersion !== '1.3.1') {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.3.0');
+            url.searchParams.set('cb', '1.3.1');
             window.location.replace(url.toString());
             return null;
         }
