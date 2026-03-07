@@ -31,6 +31,25 @@ const Squads = {
                     }
                 }, 500);
             });
+            // Stop propagation to prevent game interacting with hotkeys like WASD
+            searchInput.addEventListener('keydown', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        // Custom Modal Overlay bindings
+        let customModalOverlay = document.getElementById('custom-modal-overlay');
+        if (!customModalOverlay) {
+            customModalOverlay = document.createElement('div');
+            customModalOverlay.className = 'custom-modal-overlay';
+            customModalOverlay.id = 'custom-modal-overlay';
+
+            const modalContent = document.createElement('div');
+            modalContent.className = 'custom-modal';
+            modalContent.id = 'custom-modal-content';
+
+            customModalOverlay.appendChild(modalContent);
+            document.body.appendChild(customModalOverlay);
         }
 
         const filterMembers = document.getElementById('squad-filter-members');
@@ -112,6 +131,33 @@ const Squads = {
         });
     },
 
+    openCustomModal: function (message, onConfirm, isConfirmMode = false) {
+        const overlay = document.getElementById('custom-modal-overlay');
+        const content = document.getElementById('custom-modal-content');
+        if (!overlay || !content) return;
+
+        content.innerHTML = `
+            <div class="custom-modal-title">${message}</div>
+            <div class="custom-modal-actions">
+                ${isConfirmMode ? '<button class="custom-modal-btn custom-modal-btn-cancel" id="custom-modal-cancel">Cancel</button>' : ''}
+                <button class="custom-modal-btn custom-modal-btn-confirm" id="custom-modal-ok">OK</button>
+            </div>
+        `;
+
+        overlay.classList.add('visible');
+
+        const okBtn = document.getElementById('custom-modal-ok');
+        const cancelBtn = document.getElementById('custom-modal-cancel');
+
+        const closeAndResolve = (confirmed) => {
+            overlay.classList.remove('visible');
+            if (confirmed && onConfirm) onConfirm();
+        };
+
+        if (okBtn) okBtn.onclick = () => closeAndResolve(true);
+        if (cancelBtn) cancelBtn.onclick = () => closeAndResolve(false);
+    },
+
     showMenu: function () {
         const overlay = document.getElementById('squad-menu-overlay');
         if (overlay) {
@@ -167,7 +213,7 @@ const Squads = {
         const color = this.selectedColor || '#7c4dff';
 
         if (!name || name.length < 2 || name.length > 5) {
-            alert(i18n.t('squad_name_error') || 'Squad name must be 2–5 characters');
+            this.openCustomModal(i18n.t('squad_name_error') || 'Squad name must be 2–5 characters');
             return;
         }
 
@@ -188,7 +234,7 @@ const Squads = {
                     submitBtn.style.pointerEvents = 'auto';
                 }
                 if (!resp || resp.error) {
-                    alert(resp ? resp.error : 'Failed to create squad');
+                    this.openCustomModal(resp ? resp.error : 'Failed to create squad');
                     return;
                 }
                 this.squadData = resp.squad;
@@ -434,77 +480,77 @@ const Squads = {
     },
 
     deleteSquad: function () {
-        if (!confirm('Are you sure you want to delete your squad? This cannot be undone.')) return;
+        this.openCustomModal('Are you sure you want to delete your squad? This cannot be undone.', () => {
+            const deleteBtn = document.getElementById('squad-delete-btn');
+            if (deleteBtn) deleteBtn.style.opacity = '0.5';
 
-        const deleteBtn = document.getElementById('squad-delete-btn');
-        if (deleteBtn) deleteBtn.style.opacity = '0.5';
-
-        API.call('/api/squad-delete', {})
-            .then(resp => {
-                if (deleteBtn) deleteBtn.style.opacity = '1';
-                if (!resp || resp.error) {
-                    alert(resp ? resp.error : 'Failed to delete squad');
-                    return;
-                }
-                this.squadData = null;
-                if (typeof Game !== 'undefined' && Game.state) {
-                    Game.state.squad = null;
-                }
-                this.renderNoSquad();
-                this.loadTopSquads();
-            })
-            .catch(() => {
-                if (deleteBtn) deleteBtn.style.opacity = '1';
-            });
+            API.call('/api/squad-delete', {})
+                .then(resp => {
+                    if (deleteBtn) deleteBtn.style.opacity = '1';
+                    if (!resp || resp.error) {
+                        this.openCustomModal(resp ? resp.error : 'Failed to delete squad');
+                        return;
+                    }
+                    this.squadData = null;
+                    if (typeof Game !== 'undefined' && Game.state) {
+                        Game.state.squad = null;
+                    }
+                    this.renderNoSquad();
+                    this.loadTopSquads();
+                })
+                .catch(() => {
+                    if (deleteBtn) deleteBtn.style.opacity = '1';
+                });
+        }, true);
     },
 
     leaveSquad: function () {
-        if (!confirm('Are you sure you want to leave this squad?')) return;
+        this.openCustomModal('Are you sure you want to leave this squad?', () => {
+            const leaveBtn = document.getElementById('squad-leave-btn');
+            if (leaveBtn) leaveBtn.style.opacity = '0.5';
 
-        const leaveBtn = document.getElementById('squad-leave-btn');
-        if (leaveBtn) leaveBtn.style.opacity = '0.5';
-
-        API.call('/api/squad-leave', {})
-            .then(resp => {
-                if (leaveBtn) leaveBtn.style.opacity = '1';
-                if (!resp || resp.error) {
-                    alert(resp ? resp.error : 'Failed to leave squad');
-                    return;
-                }
-                this.squadData = null;
-                if (typeof Game !== 'undefined' && Game.state) {
-                    Game.state.squad = null;
-                }
-                this.renderNoSquad();
-                this.loadTopSquads();
-            })
-            .catch(() => {
-                if (leaveBtn) leaveBtn.style.opacity = '1';
-            });
+            API.call('/api/squad-leave', {})
+                .then(resp => {
+                    if (leaveBtn) leaveBtn.style.opacity = '1';
+                    if (!resp || resp.error) {
+                        this.openCustomModal(resp ? resp.error : 'Failed to leave squad');
+                        return;
+                    }
+                    this.squadData = null;
+                    if (typeof Game !== 'undefined' && Game.state) {
+                        Game.state.squad = null;
+                    }
+                    this.renderNoSquad();
+                    this.loadTopSquads();
+                })
+                .catch(() => {
+                    if (leaveBtn) leaveBtn.style.opacity = '1';
+                });
+        }, true);
     },
 
     kickMember: function (targetUserId, memberName) {
-        if (!confirm(`Are you sure you want to kick ${memberName} from the squad?`)) return;
-
-        API.call('/api/squad-kick', { targetUserId: targetUserId })
-            .then(resp => {
-                if (!resp || resp.error) {
-                    alert(resp ? resp.error : `Failed to kick ${memberName}`);
-                    return;
-                }
-                // Refresh squad info to reflect kicked member
-                this.loadSquadInfo(this.squadData.id);
-            })
-            .catch(() => {
-                alert(`Error kicking ${memberName}`);
-            });
+        this.openCustomModal(`Are you sure you want to kick ${memberName} from the squad?`, () => {
+            API.call('/api/squad-kick', { targetUserId: targetUserId })
+                .then(resp => {
+                    if (!resp || resp.error) {
+                        this.openCustomModal(resp ? resp.error : `Failed to kick ${memberName}`);
+                        return;
+                    }
+                    // Refresh squad info to reflect kicked member
+                    this.loadSquadInfo(this.squadData.id);
+                })
+                .catch(() => {
+                    this.openCustomModal(`Error kicking ${memberName}`);
+                });
+        }, true);
     },
 
     resolveRequest: function (targetId, action) {
         API.call('/api/squad-resolve-request', { targetUserId: targetId, action: action, squadId: this.squadData.id })
             .then(resp => {
                 if (!resp || resp.error) {
-                    alert(resp ? resp.error : 'Failed to resolve request');
+                    this.openCustomModal(resp ? resp.error : 'Failed to resolve request');
                     return;
                 }
                 this.loadSquadInfo(this.squadData.id);
@@ -519,7 +565,7 @@ const Squads = {
         API.call('/api/squad-request-join', { squadId: squadId })
             .then(resp => {
                 if (!resp || resp.error) {
-                    alert(resp ? resp.error : 'Error sending application');
+                    this.openCustomModal(resp ? resp.error : 'Error sending application');
                     if (btn) {
                         btn.style.opacity = '1';
                         btn.style.pointerEvents = 'auto';
@@ -575,6 +621,17 @@ const Squads = {
             const row = document.createElement('div');
             row.className = 'leaderboard-row';
 
+            // Highlight player's current squad
+            if (this.squadData && squad.id === this.squadData.id) {
+                row.classList.add('leaderboard-row-me');
+                row.style.border = '1px solid rgba(255,255,255,0.35)';
+                row.style.background = 'rgba(255,255,255,0.08)';
+            } else if (!this.squadData && typeof Game !== 'undefined' && Game.state && Game.state.squad === squad.id) {
+                row.classList.add('leaderboard-row-me');
+                row.style.border = '1px solid rgba(255,255,255,0.35)';
+                row.style.background = 'rgba(255,255,255,0.08)';
+            }
+
             // Rank
             const placeCell = document.createElement('div');
             placeCell.className = 'leaderboard-place-cell';
@@ -604,6 +661,12 @@ const Squads = {
             avatar.style.background = `linear-gradient(135deg, ${color}cc, ${color}80)`;
             avatar.style.borderRadius = '50%';
             avatar.style.aspectRatio = '1/1';
+            avatar.style.width = '28px';
+            avatar.style.height = '28px';
+            avatar.style.display = 'flex';
+            avatar.style.alignItems = 'center';
+            avatar.style.justifyContent = 'center';
+            avatar.style.fontSize = '14px';
             bar.appendChild(avatar);
 
             // Name
