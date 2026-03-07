@@ -284,17 +284,22 @@ const Squads = {
             if (this.squadData.memberDetails && this.squadData.memberDetails.length > 0) {
                 this.squadData.memberDetails.forEach(member => {
                     const mRow = document.createElement('div');
+                    mRow.className = 'squad-member-row';
                     mRow.style.display = 'flex';
                     mRow.style.alignItems = 'center';
-                    mRow.style.padding = '8px';
-                    mRow.style.background = 'rgba(0,0,0,0.2)';
-                    mRow.style.borderRadius = '8px';
-                    mRow.style.gap = '8px';
+                    mRow.style.padding = '10px 12px';
+                    mRow.style.background = 'rgba(255,255,255,0.03)';
+                    mRow.style.borderRadius = '12px';
+                    mRow.style.gap = '12px';
+                    mRow.style.width = '100%';
+                    mRow.style.boxSizing = 'border-box';
 
                     const mAvatar = document.createElement('div');
                     mAvatar.className = 'leaderboard-avatar';
-                    mAvatar.style.width = '30px';
-                    mAvatar.style.height = '30px';
+                    mAvatar.style.width = '36px';
+                    mAvatar.style.height = '36px';
+                    mAvatar.style.borderRadius = '50%';
+                    mAvatar.style.flexShrink = '0';
                     if (member.photo_url) {
                         mAvatar.style.backgroundImage = `url(${member.photo_url})`;
                         mAvatar.style.backgroundSize = 'cover';
@@ -597,6 +602,8 @@ const Squads = {
 
             avatar.textContent = em;
             avatar.style.background = `linear-gradient(135deg, ${color}cc, ${color}80)`;
+            avatar.style.borderRadius = '50%';
+            avatar.style.aspectRatio = '1/1';
             bar.appendChild(avatar);
 
             // Name

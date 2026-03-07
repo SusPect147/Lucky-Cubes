@@ -207,7 +207,7 @@
 
 .boost-use-btn {
     background: var(--accent-soft);
-    border: 1px solid rgba(232, 185, 49, 0.3);
+    border: 1px solid rgba(255, 59, 48, 0.3);
     border-radius: var(--radius-sm);
     padding: 6px 12px;
     color: var(--accent);
@@ -219,8 +219,8 @@
 }
 
 .boost-use-btn:hover {
-    background: rgba(232, 185, 49, 0.18);
-    border-color: rgba(232, 185, 49, 0.4);
+    background: rgba(255, 59, 48, 0.18);
+    border-color: rgba(255, 59, 48, 0.4);
 }
 
 .boost-image {

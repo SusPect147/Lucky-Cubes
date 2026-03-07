@@ -70,7 +70,7 @@
 .cube-shadow {
     width: 60%;
     height: 20px;
-    background: rgba(232, 185, 49, 0.4);
+    background: rgba(255, 59, 48, 0.4);
     border-radius: 50%;
     filter: blur(15px);
     margin-top: 20px;
@@ -155,54 +155,52 @@
     background: linear-gradient(90deg, var(--accent) 0%, rgba(255, 255, 255, 0.9) 100%);
     border-radius: 8px;
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 20px rgba(232, 185, 49, 0.8), inset 0 0 5px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 20px rgba(255, 59, 48, 0.8), inset 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
 .loading-actions {
     position: absolute;
-    bottom: 40px;
+    bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
     align-items: center;
     width: 90%;
-    max-width: 320px;
+    max-width: 280px;
     z-index: 9999;
 }
 
 .loading-lang-btn {
     width: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(28, 28, 32, 0.5);
-    color: rgba(255, 255, 255, 0.9);
-    padding: 14px 24px;
-    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(28, 28, 32, 0.4);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 10px 20px;
+    border-radius: 12px;
     font-family: 'Inter', sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     cursor: pointer;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     outline: none;
     -webkit-tap-highlight-color: transparent;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .loading-lang-btn:hover {
-    background: rgba(45, 45, 50, 0.7);
-    border-color: rgba(255, 255, 255, 0.25);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    background: rgba(45, 45, 50, 0.6);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
 }
 
 .loading-lang-btn:active {
     transform: translateY(1px);
-    background: rgba(36, 36, 40, 0.8);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), inset 0 2px 5px rgba(0, 0, 0, 0.2);
+    background: rgba(36, 36, 40, 0.7);
 }
 
 /* Ambient glow effect injected behind the cube */
@@ -214,7 +212,7 @@
     transform: translate(-50%, -50%);
     width: 60vh;
     height: 60vh;
-    background: radial-gradient(circle, rgba(232, 185, 49, 0.08) 0%, rgba(232, 185, 49, 0) 70%);
+    background: radial-gradient(circle, rgba(255, 59, 48, 0.06) 0%, rgba(255, 59, 48, 0) 70%);
     z-index: 1;
     pointer-events: none;
     animation: ambientPulse 6s ease-in-out infinite alternate;

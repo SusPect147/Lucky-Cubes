@@ -739,7 +739,7 @@
 .case-price-lucu {
     background: var(--accent-soft);
     color: var(--accent);
-    border: 1px solid rgba(232, 185, 49, 0.25);
+    border: 1px solid rgba(255, 59, 48, 0.25);
 }
 
 .case-price-stars {

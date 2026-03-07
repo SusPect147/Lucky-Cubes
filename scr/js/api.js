@@ -124,7 +124,7 @@ async function call(endpoint, body) {
                 const errBody = await resp.json();
                 if (errBody && errBody.versionMismatch) {
                     const url = new URL(window.location.href);
-                    url.searchParams.set('cb', '1.3.1');
+                    url.searchParams.set('cb', '1.3.2');
                     window.location.replace(url.toString());
                     return null;
                 }
@@ -137,14 +137,14 @@ async function call(endpoint, body) {
         const data = await resp.json();
         if (data && data.versionMismatch) {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.3.1');
+            url.searchParams.set('cb', '1.3.2');
             window.location.replace(url.toString());
             return null;
         }
 
-        if (data && data.appVersion && data.appVersion !== '1.3.1') {
+        if (data && data.appVersion && data.appVersion !== '1.3.2') {
             const url = new URL(window.location.href);
-            url.searchParams.set('cb', '1.3.1');
+            url.searchParams.set('cb', '1.3.2');
             window.location.replace(url.toString());
             return null;
         }

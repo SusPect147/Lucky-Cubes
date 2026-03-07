@@ -193,6 +193,6 @@
 .squad-emoji-btn.active,
 .squad-color-btn.active {
     border-color: var(--accent);
-    background: rgba(232, 185, 49, 0.12);
-    box-shadow: 0 0 8px rgba(232, 185, 49, 0.15);
+    background: rgba(255, 59, 48, 0.12);
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.15);
 }

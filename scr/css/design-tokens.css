@@ -11,9 +11,9 @@
     --text-tertiary: rgba(255, 255, 255, 0.3);
 
     /* Accent */
-    --accent: #E8B931;
-    --accent-soft: rgba(232, 185, 49, 0.12);
-    --accent-hover: #d4a82a;
+    --accent: #FF3B30;
+    --accent-soft: rgba(255, 59, 48, 0.12);
+    --accent-hover: #E0352B;
 
     /* Borders */
     --border-subtle: rgba(255, 255, 255, 0.07);
