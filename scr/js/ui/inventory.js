@@ -68,7 +68,7 @@ const Inventory = {
             }
 
             const casesList = document.createElement('div');
-            casesList.className = 'inventory-cases-list';
+            casesList.className = 'inventory-boosts-list';
             casesList.style.display = 'grid';
 
             caseIds.forEach(caseId => {
@@ -78,7 +78,10 @@ const Inventory = {
                 const count = this.cases[caseId];
 
                 const item = document.createElement('div');
-                item.className = 'inventory-case-item';
+                item.className = 'inventory-boost-item';
+                if (caseId === 'starter_case') item.classList.add('case-item-lucu');
+                if (caseId === 'lucky_case') item.classList.add('case-item-stars');
+                if (caseId === 'premium_case') item.classList.add('case-item-ton');
                 item.dataset.caseId = caseId;
                 item.style.position = 'relative';
 
@@ -101,6 +104,8 @@ const Inventory = {
                     img.style.position = 'absolute';
                     img.style.top = '0';
                     img.style.left = '0';
+                    img.style.mixBlendMode = 'multiply';
+                    img.style.filter = 'contrast(1.2) brightness(1.2)';
                     imgDiv.appendChild(img);
                 } else {
                     imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
@@ -261,7 +266,11 @@ const Inventory = {
                             p.style.width = '8px';
                             p.style.height = '8px';
                             p.style.borderRadius = '50%';
-                            p.style.background = '#ffd54f';
+                            let pColor = '#ffffff';
+                            if (caseId === 'starter_case') pColor = '#dc3545';
+                            if (caseId === 'lucky_case') pColor = '#ffd54f';
+                            if (caseId === 'premium_case') pColor = '#4fc3f7';
+                            p.style.background = pColor;
                             p.style.zIndex = '100';
                             p.style.transition = 'all 1s cubic-bezier(0.1, 0.8, 0.2, 1)';
                             p.style.opacity = '1';

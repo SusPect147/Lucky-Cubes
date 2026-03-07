@@ -269,14 +269,22 @@ const Shop = {
                     window.Telegram.WebApp.openInvoice(resp.invoiceUrl, function (status) {
                         if (status === 'paid') {
                             if (window.showToast) window.showToast('Success! Case purchased.', 'success');
-                            if (window.API && window.API.call) {
-                                window.API.call('/api/state', null).then(st => {
-                                    if (st && window.Game && window.Game.applyServerState) {
-                                        window.Game.applyServerState(st);
-                                        if (typeof Inventory !== 'undefined') Inventory.loadFromServer(st);
-                                    }
-                                }).catch(() => { });
+
+                            if (typeof Inventory !== 'undefined') {
+                                Inventory.cases[caseId] = (Inventory.cases[caseId] || 0) + 1;
+                                Inventory.render();
                             }
+
+                            setTimeout(() => {
+                                if (window.API && window.API.call) {
+                                    window.API.call('/api/state', null).then(st => {
+                                        if (st && window.Game && window.Game.applyServerState) {
+                                            window.Game.applyServerState(st);
+                                            if (typeof Inventory !== 'undefined') Inventory.loadFromServer(st);
+                                        }
+                                    }).catch(() => { });
+                                }
+                            }, 2000);
                         }
                     });
                 } else {
@@ -302,8 +310,11 @@ const Shop = {
                     p.style.width = '6px';
                     p.style.height = '6px';
                     p.style.borderRadius = '50%';
-                    let colors = ['#ffd54f', '#4fc3f7', '#dc3545'];
-                    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    let pColor = '#ffffff';
+                    if (caseId === 'starter_case') pColor = '#dc3545';
+                    if (caseId === 'lucky_case') pColor = '#ffd54f';
+                    if (caseId === 'premium_case') pColor = '#4fc3f7';
+                    p.style.background = pColor;
                     p.style.zIndex = '100';
                     p.style.transition = 'all 0.8s ease-out';
                     p.style.opacity = '1';
@@ -355,6 +366,9 @@ const Shop = {
         this.cases.forEach(caseItem => {
             const card = document.createElement('div');
             card.className = 'case-item';
+            if (caseItem.id === 'starter_case') card.classList.add('case-item-lucu');
+            if (caseItem.id === 'lucky_case') card.classList.add('case-item-stars');
+            if (caseItem.id === 'premium_case') card.classList.add('case-item-ton');
             card.dataset.id = caseItem.id;
 
             const imgDiv = document.createElement('div');
@@ -377,6 +391,8 @@ const Shop = {
                 img.style.position = 'absolute';
                 img.style.top = '0';
                 img.style.left = '0';
+                img.style.mixBlendMode = 'multiply';
+                img.style.filter = 'contrast(1.2) brightness(1.2)';
                 imgDiv.appendChild(img);
             } else {
                 imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
