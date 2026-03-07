@@ -4,6 +4,10 @@ function initGameEvents() {
         if (centerGif) {
             centerGif.addEventListener('click', function (e) {
                 e.stopPropagation();
+                if (typeof API === 'undefined' || !API.call) {
+                    console.error('rollCube failed: API is not defined yet');
+                    return;
+                }
                 if (typeof Game !== 'undefined' && Game.rollCube) {
                     try {
                         Game.rollCube();

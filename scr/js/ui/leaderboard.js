@@ -29,6 +29,11 @@ const Leaderboard = {
     },
 
     load: function () {
+        if (typeof API === 'undefined' || !API.call) {
+            console.error('Leaderboard load failed: API is not defined yet');
+            return;
+        }
+
         API.call('/api/leaderboard', null)
             .then(data => {
                 if (!data) {

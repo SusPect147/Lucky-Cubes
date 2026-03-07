@@ -4,7 +4,7 @@ let totalAssets = 0;
 let serverState = null;
 
 const SCRIPTS_TO_LOAD = [
-    'scr/js/api.js',
+    'scr/js/backend.js',
     'scr/js/wallet.js',
     'scr/js/utils/input-handlers.js',
     'scr/js/utils/formatters.js',
@@ -273,7 +273,7 @@ async function preload() {
     await new Promise(resolve => setTimeout(resolve, 300));
 
     // Load API separately since we need it for API calls
-    await loadScriptWithRetry('scr/js/api.js?v=' + Date.now());
+    await loadScriptWithRetry('scr/js/backend.js?v=' + Date.now());
     loadedCount++;
     updateLoadingText();
 
@@ -281,7 +281,7 @@ async function preload() {
     let lbPromise = null;
     try {
         if (typeof API !== 'undefined') {
-            // This will resolve instantly if the server injected the state during login via api.js improvements
+            // This will resolve instantly if the server injected the state during login via backend.js improvements
             statePromise = API.call('/api/state', null).catch(e => {
                 console.error('Failed to fetch server state:', e);
                 return null;
@@ -294,7 +294,7 @@ async function preload() {
 
     for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
         if (skipRequested) break;
-        if (SCRIPTS_TO_LOAD[i] === 'scr/js/api.js') continue;
+        if (SCRIPTS_TO_LOAD[i] === 'scr/js/backend.js') continue;
         await loadScriptWithRetry(SCRIPTS_TO_LOAD[i] + '?v=' + Date.now());
         loadedCount++;
         updateLoadingText();

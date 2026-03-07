@@ -131,7 +131,8 @@
 
         try {
             tonConnectUI = new TonConnectUIClass({
-                manifestUrl: MANIFEST_URL
+                manifestUrl: MANIFEST_URL,
+                enableAnalytics: false
             });
 
             isInitialized = true;
