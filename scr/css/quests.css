@@ -124,9 +124,11 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--border-subtle);
     box-shadow: var(--shadow-subtle);
-    position: relative;
     overflow: hidden;
-    flex-basis: 100%;
+    align-self: center;
+    /* Center the quest blocks instead of full width */
+    width: max-content;
+    max-width: 100%;
     flex-shrink: 0 !important;
     min-height: 78px;
 }
@@ -216,7 +218,8 @@
 
 .quest-progress-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent), #f0d060);
+    background: linear-gradient(90deg, #8B0000, #ff3b30);
+    /* Dark red to pure red */
     border-radius: 3px;
     transition: width 0.4s ease;
 }

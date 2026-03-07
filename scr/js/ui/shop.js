@@ -71,21 +71,21 @@ const Shop = {
             name: 'Starter Case',
             price: 200,
             currency: 'lucu',
-            imageUrl: 'assets/UI/images/cases/1-case.png'
+            imageUrl: 'assets/UI/images/cases/1-case.webp'
         },
         {
             id: 'lucky_case',
             name: 'Lucky Case',
             price: 20,
             currency: 'stars',
-            imageUrl: 'assets/UI/images/cases/2-case.png'
+            imageUrl: 'assets/UI/images/cases/2-case.webp'
         },
         {
             id: 'premium_case',
             name: 'Premium Case',
             price: 0.6,
             currency: 'ton',
-            imageUrl: 'assets/UI/images/cases/3-case.png'
+            imageUrl: 'assets/UI/images/cases/3-case.webp'
         }
     ],
 
