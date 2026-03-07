@@ -83,18 +83,33 @@ const Inventory = {
                 item.style.position = 'relative';
 
                 const imgDiv = document.createElement('div');
-                imgDiv.className = 'case-image';
+                imgDiv.className = 'case-image-container';
+                imgDiv.style.width = '72px';
+                imgDiv.style.height = '72px';
+                imgDiv.style.minWidth = '72px';
+                imgDiv.style.display = 'flex';
+                imgDiv.style.alignItems = 'center';
+                imgDiv.style.justifyContent = 'center';
+                imgDiv.style.position = 'relative';
+
                 if (caseDef.imageUrl) {
                     const img = document.createElement('img');
                     img.src = caseDef.imageUrl;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'contain';
+                    img.style.position = 'absolute';
+                    img.style.top = '0';
+                    img.style.left = '0';
                     imgDiv.appendChild(img);
                 } else {
-                    imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
+                    imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
                 }
 
                 if (count > 1) {
                     const countDiv = document.createElement('div');
                     countDiv.className = 'boost-count';
+                    countDiv.style.zIndex = '10';
                     countDiv.textContent = count;
                     imgDiv.appendChild(countDiv);
                 }
@@ -117,7 +132,7 @@ const Inventory = {
 
                 useBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    this.openCase(caseId);
+                    this.openCase(caseId, item);
                 });
 
                 casesList.appendChild(item);
@@ -216,13 +231,13 @@ const Inventory = {
             });
     },
 
-    openCase: function (caseId) {
+    openCase: function (caseId, targetElement) {
         if (!this.cases[caseId] || this.cases[caseId] <= 0) return;
 
         API.call('/api/open-case', { caseId: caseId })
             .then(resp => {
                 if (!resp || resp.error) {
-                    alert(resp ? resp.error : 'Failed to open case');
+                    if (window.showToast) window.showToast(resp ? resp.error : 'Failed to open case', 'error');
                     return;
                 }
 
@@ -233,7 +248,42 @@ const Inventory = {
 
                 if (resp.reward) {
                     const typeStr = resp.reward.type === 'coins' ? '$LUCU' : resp.reward.type;
-                    alert(`Unboxed: ${resp.reward.amount} ${typeStr}!`);
+
+                    if (targetElement) {
+                        const rect = targetElement.getBoundingClientRect();
+                        const centerX = rect.left + rect.width / 2;
+                        const centerY = rect.top + rect.height / 2;
+                        for (let i = 0; i < 40; i++) {
+                            const p = document.createElement('div');
+                            p.style.position = 'fixed';
+                            p.style.left = `${centerX}px`;
+                            p.style.top = `${centerY}px`;
+                            p.style.width = '8px';
+                            p.style.height = '8px';
+                            p.style.borderRadius = '50%';
+                            p.style.background = '#ffd54f';
+                            p.style.zIndex = '100';
+                            p.style.transition = 'all 1s cubic-bezier(0.1, 0.8, 0.2, 1)';
+                            p.style.opacity = '1';
+                            document.body.appendChild(p);
+
+                            setTimeout(() => {
+                                const angle = Math.random() * Math.PI * 2;
+                                const distance = 100 + Math.random() * 100;
+                                p.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`;
+                                p.style.opacity = '0';
+                            }, 50);
+                            setTimeout(() => p.remove(), 1100);
+                        }
+                    }
+
+                    setTimeout(() => {
+                        if (window.showToast) {
+                            window.showToast(`Unboxed: ${resp.reward.amount} ${typeStr}!`, 'success');
+                        } else {
+                            alert(`Unboxed: ${resp.reward.amount} ${typeStr}!`);
+                        }
+                    }, 400);
                 }
             })
             .catch(err => {

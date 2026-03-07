@@ -258,9 +258,9 @@ const Shop = {
         const caseItem = this.cases.find(c => c.id === caseId);
         if (!caseItem) return;
 
-        const processResponse = (resp) => {
+        const processResponse = (resp, targetElement) => {
             if (!resp || resp.error) {
-                alert(resp ? resp.error : 'Request failed');
+                if (window.showToast) window.showToast(resp ? resp.error : 'Request failed', 'error');
                 return;
             }
 
@@ -268,11 +268,12 @@ const Shop = {
                 if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openInvoice) {
                     window.Telegram.WebApp.openInvoice(resp.invoiceUrl, function (status) {
                         if (status === 'paid') {
-                            alert('Success! Case purchased.');
+                            if (window.showToast) window.showToast('Success! Case purchased.', 'success');
                             if (window.API && window.API.call) {
                                 window.API.call('/api/state', null).then(st => {
                                     if (st && window.Game && window.Game.applyServerState) {
                                         window.Game.applyServerState(st);
+                                        if (typeof Inventory !== 'undefined') Inventory.loadFromServer(st);
                                     }
                                 }).catch(() => { });
                             }
@@ -286,25 +287,53 @@ const Shop = {
 
             if (typeof Game !== 'undefined' && Game.applyServerState) {
                 Game.applyServerState(resp);
+                if (typeof Inventory !== 'undefined') Inventory.loadFromServer(resp);
             }
-            alert('Case purchased successfully!');
+
+            if (targetElement) {
+                const rect = targetElement.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                for (let i = 0; i < 30; i++) {
+                    const p = document.createElement('div');
+                    p.style.position = 'fixed';
+                    p.style.left = `${centerX + (Math.random() - 0.5) * rect.width * 0.4}px`;
+                    p.style.top = `${centerY + (Math.random() - 0.5) * rect.height * 0.4}px`;
+                    p.style.width = '6px';
+                    p.style.height = '6px';
+                    p.style.borderRadius = '50%';
+                    let colors = ['#ffd54f', '#4fc3f7', '#dc3545'];
+                    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    p.style.zIndex = '100';
+                    p.style.transition = 'all 0.8s ease-out';
+                    p.style.opacity = '1';
+                    document.body.appendChild(p);
+                    setTimeout(() => {
+                        p.style.transform = `translate(${(Math.random() - 0.5) * 150}px, ${(Math.random() - 0.5) * 150}px) scale(0)`;
+                        p.style.opacity = '0';
+                    }, 50);
+                    setTimeout(() => p.remove(), 1000);
+                }
+            }
         };
+
+        const targetCard = document.querySelector(`.case-item[data-id="${caseId}"]`);
 
         if (caseItem.currency === 'ton') {
             if (typeof window.buyTonCase === 'function') {
                 window.buyTonCase(caseItem.price, caseId)
-                    .then(processResponse)
+                    .then(resp => processResponse(resp, targetCard))
                     .catch(e => console.error('Buy ton case failed:', e));
             } else {
-                alert('Wallet integration not ready');
+                if (window.showToast) window.showToast('Wallet integration not ready', 'error');
             }
         } else {
             if (caseItem.currency === 'lucu' && typeof Game !== 'undefined' && Game.getCoinCount() < caseItem.price) {
-                alert('Not enough coins!');
+                if (window.showToast) window.showToast('Not enough coins!', 'error');
                 return;
             }
             API.call('/api/buy-case', { caseId: caseId })
-                .then(processResponse)
+                .then(resp => processResponse(resp, targetCard))
                 .catch(err => {
                     console.error('Buy case failed:', err);
                 });
@@ -329,14 +358,28 @@ const Shop = {
             card.dataset.id = caseItem.id;
 
             const imgDiv = document.createElement('div');
-            imgDiv.className = 'case-image';
+            imgDiv.className = 'case-image-container';
+            imgDiv.style.width = '72px';
+            imgDiv.style.height = '72px';
+            imgDiv.style.minWidth = '72px';
+            imgDiv.style.display = 'flex';
+            imgDiv.style.alignItems = 'center';
+            imgDiv.style.justifyContent = 'center';
+            imgDiv.style.position = 'relative';
+
             if (caseItem.imageUrl) {
                 const img = document.createElement('img');
                 img.src = caseItem.imageUrl;
                 img.alt = caseItem.name;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'contain';
+                img.style.position = 'absolute';
+                img.style.top = '0';
+                img.style.left = '0';
                 imgDiv.appendChild(img);
             } else {
-                imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
+                imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
             }
             card.appendChild(imgDiv);
 
