@@ -86,6 +86,24 @@ function loadScript(src) {
     });
 }
 
+async function loadScriptWithRetry(src, retries = 2) {
+    for (let i = 0; i <= retries; i++) {
+        const success = await loadScript(i > 0 ? src.split('?')[0] + '?retry=' + Date.now() : src);
+        if (success) return true;
+        await new Promise(r => setTimeout(r, 1000));
+    }
+    return false;
+}
+
+async function loadTGSWithRetry(path, retries = 2) {
+    for (let i = 0; i <= retries; i++) {
+        const data = await loadTGS(i > 0 ? path + '?retry=' + Date.now() : path);
+        if (data) return data;
+        await new Promise(r => setTimeout(r, 1000));
+    }
+    return null;
+}
+
 function preloadImage(src) {
     return new Promise((resolve) => {
         const img = new Image();
@@ -255,7 +273,7 @@ async function preload() {
     await new Promise(resolve => setTimeout(resolve, 300));
 
     // Load API separately since we need it for API calls
-    await loadScript('scr/js/api.js?v=' + Date.now());
+    await loadScriptWithRetry('scr/js/api.js?v=' + Date.now());
     loadedCount++;
     updateLoadingText();
 
@@ -277,7 +295,7 @@ async function preload() {
     for (let i = 0; i < SCRIPTS_TO_LOAD.length; i++) {
         if (skipRequested) break;
         if (SCRIPTS_TO_LOAD[i] === 'scr/js/api.js') continue;
-        await loadScript(SCRIPTS_TO_LOAD[i] + '?v=' + Date.now());
+        await loadScriptWithRetry(SCRIPTS_TO_LOAD[i] + '?v=' + Date.now());
         loadedCount++;
         updateLoadingText();
     }
@@ -288,7 +306,7 @@ async function preload() {
         const batch = tgsAssets.slice(i, i + TGS_BATCH_SIZE);
         await Promise.all(batch.map(async (asset) => {
             const name = asset.replace('.tgs', '');
-            const data = await loadTGS(CONFIG.assetsPath + asset);
+            const data = await loadTGSWithRetry(CONFIG.assetsPath + asset);
             if (data) animationCache[name] = data;
             loadedCount++;
             updateLoadingText();
