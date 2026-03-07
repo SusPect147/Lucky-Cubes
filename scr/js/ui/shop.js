@@ -380,6 +380,7 @@ const Shop = {
             imgDiv.style.alignItems = 'center';
             imgDiv.style.justifyContent = 'center';
             imgDiv.style.position = 'relative';
+            imgDiv.style.background = 'transparent';
 
             if (caseItem.imageUrl) {
                 const img = document.createElement('img');
@@ -391,6 +392,7 @@ const Shop = {
                 img.style.position = 'absolute';
                 img.style.top = '0';
                 img.style.left = '0';
+                img.style.background = 'transparent';
                 imgDiv.appendChild(img);
             } else {
                 imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
