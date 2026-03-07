@@ -61,18 +61,6 @@ const Leaderboard = {
 
     getPlaceHTML: function (index) {
         const rank = index + 1;
-        if (rank <= 3) {
-            const imgs = [
-                'assets/UI/images/1-last.png',
-                'assets/UI/images/2-last.png',
-                'assets/UI/images/3-last.png',
-            ];
-            return `<div class="leaderboard-place-cell">
-                <div class="leaderboard-place-cube rank-${rank}">
-                    <img class="leaderboard-place-img" src="${imgs[rank - 1]}" alt="#${rank}">
-                </div>
-            </div>`;
-        }
         return `<div class="leaderboard-place-cell">
             <div class="leaderboard-place-badge">
                 <img class="leaderboard-badge-img" src="assets/UI/images/badge-n.webp" alt="">

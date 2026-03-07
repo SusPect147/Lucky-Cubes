@@ -342,8 +342,8 @@ const Squads = {
 
                     const mAvatar = document.createElement('div');
                     mAvatar.className = 'leaderboard-avatar';
-                    mAvatar.style.width = '36px';
-                    mAvatar.style.height = '36px';
+                    mAvatar.style.width = '30px';
+                    mAvatar.style.height = '30px';
                     mAvatar.style.borderRadius = '50%';
                     mAvatar.style.flexShrink = '0';
                     if (member.photo_url) {
@@ -621,15 +621,13 @@ const Squads = {
             const row = document.createElement('div');
             row.className = 'leaderboard-row';
 
-            // Highlight player's current squad
+            let isMe = false;
             if (this.squadData && squad.id === this.squadData.id) {
                 row.classList.add('leaderboard-row-me');
-                row.style.border = '1px solid rgba(255,255,255,0.35)';
-                row.style.background = 'rgba(255,255,255,0.08)';
+                isMe = true;
             } else if (!this.squadData && typeof Game !== 'undefined' && Game.state && Game.state.squad === squad.id) {
                 row.classList.add('leaderboard-row-me');
-                row.style.border = '1px solid rgba(255,255,255,0.35)';
-                row.style.background = 'rgba(255,255,255,0.08)';
+                isMe = true;
             }
 
             // Rank
@@ -637,16 +635,29 @@ const Squads = {
             placeCell.className = 'leaderboard-place-cell';
             const placeBadge = document.createElement('div');
             placeBadge.className = 'leaderboard-place-badge';
+
+            const badgeImg = document.createElement('img');
+            badgeImg.className = 'leaderboard-badge-img';
+            badgeImg.src = 'assets/UI/images/badge-n.webp';
+            badgeImg.alt = '';
+            placeBadge.appendChild(badgeImg);
+
             const badgeNum = document.createElement('div');
             badgeNum.className = 'leaderboard-badge-num';
             badgeNum.textContent = index + 1;
             placeBadge.appendChild(badgeNum);
+
             placeCell.appendChild(placeBadge);
             row.appendChild(placeCell);
 
             // Bar
             const bar = document.createElement('div');
             bar.className = 'leaderboard-row-bar';
+
+            if (isMe) {
+                bar.style.border = '1px solid rgba(255,255,255,0.35)';
+                bar.style.background = 'rgba(255,255,255,0.08)';
+            }
 
             // Avatar
             const avatar = document.createElement('div');
@@ -661,8 +672,6 @@ const Squads = {
             avatar.style.background = `linear-gradient(135deg, ${color}cc, ${color}80)`;
             avatar.style.borderRadius = '50%';
             avatar.style.aspectRatio = '1/1';
-            avatar.style.width = '28px';
-            avatar.style.height = '28px';
             avatar.style.display = 'flex';
             avatar.style.alignItems = 'center';
             avatar.style.justifyContent = 'center';
