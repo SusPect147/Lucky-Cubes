@@ -1,0 +1,58 @@
+.onboarding-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: auto;
+    background: transparent;
+    transition: opacity 0.4s;
+}
+
+.onboarding-highlight-hole {
+    position: absolute;
+    box-shadow: 0 0 0 9999px rgba(6, 4, 12, 0.85);
+    /* Dark background matching game theme */
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none;
+}
+
+.onboarding-tooltip {
+    position: absolute;
+    background: rgba(28, 28, 32, 0.95);
+    border: 1px solid var(--accent);
+    padding: 16px;
+    border-radius: 12px;
+    color: white;
+    width: 250px;
+    text-align: center;
+    box-shadow: var(--shadow-modal);
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    opacity: 0;
+}
+
+.onboarding-tooltip.visible {
+    opacity: 1;
+}
+
+.onboarding-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    color: var(--text-primary);
+}
+
+.onboarding-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.onboarding-btn:hover {
+    background: #ff5247;
+}

@@ -204,7 +204,10 @@
 
 .bottom-menu .menu-item:hover {
     background: rgba(255, 255, 255, 0.06);
+}
 
+.bottom-menu .menu-item:active {
+    transform: scale(0.92);
 }
 
 .bottom-menu .menu-item svg {

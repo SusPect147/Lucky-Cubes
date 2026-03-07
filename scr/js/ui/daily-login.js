@@ -90,20 +90,21 @@ const DailyLogin = {
 
     renderCalendar: function () {
         const grid = document.getElementById('daily-login-grid');
-        if (!grid) return;
+        const container = document.getElementById('daily-login-roulette-container');
+        if (!grid || !container) return;
         grid.innerHTML = '';
+        grid.style.transition = 'none';
 
-        const currentDay = this.claimedToday ? this.streak : this.streak + 1;
+        const currentDayStr = this.claimedToday ? this.streak : this.streak + 1;
 
+        // Populate items
+        const numItems = this.REWARDS.length;
         this.REWARDS.forEach(reward => {
             const cell = document.createElement('div');
             cell.className = 'daily-day-cell';
+            cell.dataset.day = reward.day;
 
-            if (reward.day < currentDay) {
-                cell.classList.add('claimed');
-            } else if (reward.day === currentDay && !this.claimedToday) {
-                cell.classList.add('current');
-            } else if (reward.day === currentDay && this.claimedToday) {
+            if (reward.day < currentDayStr || (reward.day === currentDayStr && this.claimedToday)) {
                 cell.classList.add('claimed');
             }
 
@@ -122,15 +123,11 @@ const DailyLogin = {
             xpLabel.textContent = `+${reward.xp} XP`;
             cell.appendChild(xpLabel);
 
-            if (reward.day < currentDay || (reward.day === currentDay && this.claimedToday)) {
-                const check = document.createElement('div');
-                check.className = 'daily-day-check';
-                check.textContent = '✓';
-                cell.appendChild(check);
-            }
-
             grid.appendChild(cell);
         });
+
+        // Center on correct day immediately
+        this.centerOnDay(currentDayStr, false);
 
         const claimBtn = document.getElementById('daily-login-claim-btn');
         if (claimBtn) {
@@ -146,11 +143,51 @@ const DailyLogin = {
         }
     },
 
+    centerOnDay: function (targetDay, animate = true) {
+        const grid = document.getElementById('daily-login-grid');
+        const container = document.getElementById('daily-login-roulette-container');
+        if (!grid || !container) return;
+
+        const cells = Array.from(grid.children);
+        const itemWidth = 90; // min-width from CSS
+        const gap = 16;
+        const totalItemWidth = itemWidth + gap;
+        const containerWidth = container.offsetWidth;
+
+        const targetIndex = this.REWARDS.findIndex(r => r.day === targetDay) !== -1 ? this.REWARDS.findIndex(r => r.day === targetDay) : 0;
+
+        // Offset to align center of cell with middle line
+        const offset = (containerWidth / 2) - ((targetIndex * totalItemWidth) + (itemWidth / 2));
+
+        cells.forEach(c => c.classList.remove('active-spin'));
+
+        if (animate) {
+            grid.style.transition = 'transform 3s cubic-bezier(0.15, 0.85, 0.35, 1)';
+            // Adding a little extra spin visual effect by backing up heavily
+            grid.style.transform = `translateX(${offset + 800}px)`; // Spin starting point
+            setTimeout(() => {
+                grid.style.transform = `translateX(${offset}px)`;
+            }, 50);
+        } else {
+            grid.style.transition = 'none';
+            grid.style.transform = `translateX(${offset}px)`;
+            if (cells[targetIndex]) cells[targetIndex].classList.add('active-spin');
+        }
+
+        if (animate) {
+            setTimeout(() => {
+                if (cells[targetIndex]) {
+                    cells[targetIndex].classList.add('active-spin');
+                    cells[targetIndex].classList.add('claimed');
+                }
+            }, 3050);
+        }
+    },
+
     claimReward: function () {
         if (this.claimedToday || this.isClaiming) return;
 
         this.isClaiming = true;
-
         const claimBtn = document.getElementById('daily-login-claim-btn');
         if (claimBtn) {
             claimBtn.style.opacity = '0.5';
@@ -169,19 +206,25 @@ const DailyLogin = {
                     return;
                 }
 
-                this.claimedToday = true;
-                this.streak = resp.streak || this.streak;
-
-                if (typeof Game !== 'undefined' && Game.applyServerState) {
-                    Game.applyServerState(resp);
-                }
-
-                this.renderCalendar();
+                // Play animation first before closing
+                const targetDay = this.streak + 1;
+                this.centerOnDay(targetDay, true);
 
                 setTimeout(() => {
-                    this.close();
-                    this.isClaiming = false;
-                }, 1500);
+                    this.claimedToday = true;
+                    this.streak = resp.streak || this.streak;
+
+                    if (typeof Game !== 'undefined' && Game.applyServerState) {
+                        Game.applyServerState(resp);
+                    }
+
+                    this.renderCalendar();
+
+                    setTimeout(() => {
+                        this.close();
+                        this.isClaiming = false;
+                    }, 1000);
+                }, 3100); // 3s spin + small buffer
             })
             .catch(() => {
                 if (claimBtn) {
