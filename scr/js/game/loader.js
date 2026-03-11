@@ -2,6 +2,7 @@ const animationCache = {};
 let loadedCount = 0;
 let totalAssets = 0;
 let serverState = null;
+let dataLoaded = false; // Track when coins + min are loaded
 
 const SCRIPTS_TO_LOAD = [
     'scr/js/backend.js',
@@ -119,23 +120,47 @@ const gameContent = document.getElementById('game-content');
 
 function updateLoadingText(banned = false) {
     const mainText = document.getElementById('loading-text-main');
-    const progressFill = document.getElementById('loading-progress-fill');
+    const fillMy = document.getElementById('loading-progress-fill-my');
+    const fillCubes = document.getElementById('loading-progress-fill-cubes');
 
     if (mainText) {
         if (banned) {
             mainText.innerHTML = "BANNED";
-            if (progressFill) progressFill.style.width = '0%';
+            if (fillMy) fillMy.style.width = '0%';
+            if (fillCubes) fillCubes.style.width = '0%';
             return;
         }
         const rawText = i18n.t('loading', { loaded: loadedCount, total: totalAssets });
-
         mainText.innerHTML = rawText.toUpperCase();
 
-        if (progressFill && totalAssets > 0) {
+        if (totalAssets > 0) {
             const percentage = Math.min((loadedCount / totalAssets) * 100, 100);
-            progressFill.style.width = `${percentage}%`;
+
+            // "My" fills from 0% to 26%, then "CUBES" fills from 26% to 100%
+            if (percentage <= 26) {
+                // Map 0-26% overall to 0-100% of "My"
+                const myPct = (percentage / 26) * 100;
+                if (fillMy) fillMy.style.width = myPct + '%';
+                if (fillCubes) fillCubes.style.width = '0%';
+            } else {
+                // "My" is fully filled
+                if (fillMy) fillMy.style.width = '100%';
+                // Map 26-100% overall to 0-100% of "CUBES"
+                const cubesPct = ((percentage - 26) / 74) * 100;
+                if (fillCubes) fillCubes.style.width = cubesPct + '%';
+            }
         }
     }
+}
+
+function updateFooterInfo(appVersion) {
+    const versionEl = document.getElementById('loading-app-version');
+    const appLangEl = document.getElementById('loading-app-lang');
+    const sysLangEl = document.getElementById('loading-sys-lang');
+
+    if (versionEl) versionEl.textContent = 'v' + (appVersion || '—');
+    if (appLangEl && typeof i18n !== 'undefined') appLangEl.textContent = (i18n.getLang() || '—').toUpperCase();
+    if (sysLangEl) sysLangEl.textContent = (navigator.language || '—').toUpperCase();
 }
 
 
@@ -179,12 +204,16 @@ animateTilt();
 async function preload() {
     i18n.init();
 
+    // Show footer info immediately
+    updateFooterInfo(null);
+
     const langBtn = document.getElementById('loading-lang-btn');
     if (langBtn) {
         langBtn.style.display = 'block';
         langBtn.addEventListener('click', () => {
             const current = i18n.getLang();
             i18n.setLang(current === 'en' ? 'ru' : 'en');
+            updateFooterInfo(null);
         });
     }
 
@@ -231,12 +260,6 @@ async function preload() {
     }
 
     if (skipBtn) {
-        setTimeout(() => {
-            if (!isExiting && loadingScreen.style.display !== 'none') {
-                skipBtn.style.display = 'block';
-            }
-        }, 7000);
-
         skipBtn.addEventListener('click', async () => {
             skipRequested = true;
             skipBtn.style.display = 'none';
@@ -258,7 +281,7 @@ async function preload() {
 
     const tgsAssets = CONFIG.assets || [];
 
-    // +1 for the server state fetch (last step)
+    // +1 for the server state fetch
     totalAssets = SCRIPTS_TO_LOAD.length + tgsAssets.length + IMAGES_TO_LOAD.length + 1;
     loadedCount = 0;
     updateLoadingText();
@@ -272,6 +295,8 @@ async function preload() {
 
     await new Promise(resolve => setTimeout(resolve, 300));
 
+    // ---- PHASE 1: SCRIPTS (DATA) ----
+
     // Load API separately since we need it for API calls
     await loadScriptWithRetry('scr/js/backend.js?v=' + Date.now());
     loadedCount++;
@@ -281,7 +306,6 @@ async function preload() {
     let lbPromise = null;
     try {
         if (typeof API !== 'undefined') {
-            // This will resolve instantly if the server injected the state during login via backend.js improvements
             statePromise = API.call('/api/state', null).catch(e => {
                 console.error('Failed to fetch server state:', e);
                 return null;
@@ -300,7 +324,57 @@ async function preload() {
         updateLoadingText();
     }
 
-    // Load TGS assets in parallel batches of 4 for speed
+    // ---- PHASE 2: AWAIT SERVER STATE (coins, min, etc.) ----
+    try {
+        if (statePromise) {
+            serverState = await fetchWithTimeout(statePromise, 5000);
+            if (serverState && serverState.isBanned) {
+                updateLoadingText(true);
+                return;
+            }
+        }
+    } catch (e) {
+        console.error('Failed awaiting statePromise:', e);
+    }
+
+    // Fast retries: 2 attempts with 1s delay
+    if (!serverState && !skipRequested) {
+        const maxRetries = 2;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            if (skipRequested) break;
+            await new Promise(r => setTimeout(r, 1000));
+            try {
+                if (typeof API !== 'undefined') {
+                    serverState = await fetchWithTimeout(
+                        API.call('/api/state', null),
+                        4000
+                    );
+                    if (serverState && serverState.isBanned) {
+                        updateLoadingText(true);
+                        return;
+                    }
+                    if (serverState) break;
+                }
+            } catch (e) {
+                console.error('Retry ' + attempt + ' failed:', e);
+            }
+        }
+    }
+
+    // Count the server state step as loaded
+    loadedCount++;
+    updateLoadingText();
+    dataLoaded = true;
+
+    // Update footer with real version from server
+    updateFooterInfo(serverState ? serverState.appVersion : null);
+
+    // Show skip button NOW (data is loaded — coins + min available)
+    if (skipBtn && !isExiting && loadingScreen.style.display !== 'none') {
+        skipBtn.style.display = 'block';
+    }
+
+    // ---- PHASE 3: TGS ASSETS (images/animations) ----
     const TGS_BATCH_SIZE = 4;
     for (let i = 0; i < tgsAssets.length && !skipRequested; i += TGS_BATCH_SIZE) {
         const batch = tgsAssets.slice(i, i + TGS_BATCH_SIZE);
@@ -313,6 +387,7 @@ async function preload() {
         }));
     }
 
+    // ---- PHASE 4: IMAGES ----
     for (let i = 0; i < IMAGES_TO_LOAD.length; i++) {
         if (skipRequested) break;
         await preloadImage(IMAGES_TO_LOAD[i]);
@@ -370,49 +445,6 @@ async function preload() {
         }
     } catch (e) { console.error('Error loading avatar:', e); }
 
-    // Await server state with a 5s timeout — this is the last counted asset
-    try {
-        if (statePromise) {
-            serverState = await fetchWithTimeout(statePromise, 5000);
-            if (serverState && serverState.isBanned) {
-                updateLoadingText(true);
-                return;
-            }
-        }
-    } catch (e) {
-        console.error('Failed awaiting statePromise:', e);
-    }
-
-    // Fast retries: 2 attempts with 1s delay
-    if (!serverState && !skipRequested) {
-        const maxRetries = 2;
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            if (skipRequested) break;
-            await new Promise(r => setTimeout(r, 1000));
-            try {
-                if (typeof API !== 'undefined') {
-                    serverState = await fetchWithTimeout(
-                        API.call('/api/state', null),
-                        4000
-                    );
-                    if (serverState && serverState.isBanned) {
-                        updateLoadingText(true);
-                        return;
-                    }
-                    if (serverState) break;
-                }
-            } catch (e) {
-                console.error('Retry ' + attempt + ' failed:', e);
-            }
-        }
-    }
-
-    // Count the server state step as loaded regardless of outcome
-    loadedCount++;
-    updateLoadingText();
-
-    // Proceed to game even if server state is unavailable
-    // (Game.init handles null serverState gracefully)
-
+    // Proceed to game
     await performExitTransition();
 }

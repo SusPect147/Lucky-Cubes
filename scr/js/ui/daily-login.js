@@ -1,12 +1,12 @@
 const DailyLogin = {
     REWARDS: [
-        { day: 1, lucu: 100, xp: 200 },
-        { day: 2, lucu: 200, xp: 400 },
-        { day: 3, lucu: 300, xp: 600 },
-        { day: 4, lucu: 400, xp: 800 },
-        { day: 5, lucu: 500, xp: 1000 },
-        { day: 6, lucu: 600, xp: 1200 },
-        { day: 7, lucu: 700, xp: 1400 },
+        { day: 1, lucu: 15, xp: 50 },
+        { day: 2, lucu: 25, xp: 80 },
+        { day: 3, lucu: 40, xp: 120 },
+        { day: 4, lucu: 60, xp: 180 },
+        { day: 5, lucu: 80, xp: 250 },
+        { day: 6, lucu: 100, xp: 350 },
+        { day: 7, lucu: 150, xp: 500 },
     ],
 
     streak: 0,
@@ -97,8 +97,6 @@ const DailyLogin = {
 
         const currentDayStr = this.claimedToday ? this.streak : this.streak + 1;
 
-        // Populate items
-        const numItems = this.REWARDS.length;
         this.REWARDS.forEach(reward => {
             const cell = document.createElement('div');
             cell.className = 'daily-day-cell';
@@ -149,38 +147,41 @@ const DailyLogin = {
         if (!grid || !container) return;
 
         const cells = Array.from(grid.children);
-        const itemWidth = 90; // min-width from CSS
+        const itemWidth = 90;
         const gap = 16;
         const totalItemWidth = itemWidth + gap;
         const containerWidth = container.offsetWidth;
 
         const targetIndex = this.REWARDS.findIndex(r => r.day === targetDay) !== -1 ? this.REWARDS.findIndex(r => r.day === targetDay) : 0;
 
-        // Offset to align center of cell with middle line
         const offset = (containerWidth / 2) - ((targetIndex * totalItemWidth) + (itemWidth / 2));
 
         cells.forEach(c => c.classList.remove('active-spin'));
 
         if (animate) {
-            grid.style.transition = 'transform 3s cubic-bezier(0.15, 0.85, 0.35, 1)';
-            // Adding a little extra spin visual effect by backing up heavily
-            grid.style.transform = `translateX(${offset + 800}px)`; // Spin starting point
-            setTimeout(() => {
-                grid.style.transform = `translateX(${offset}px)`;
-            }, 50);
-        } else {
+            // Start from far right for spin effect
             grid.style.transition = 'none';
-            grid.style.transform = `translateX(${offset}px)`;
-            if (cells[targetIndex]) cells[targetIndex].classList.add('active-spin');
-        }
+            grid.style.transform = `translateX(${offset + 600}px)`;
 
-        if (animate) {
+            // Use requestAnimationFrame to ensure the starting position renders first
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    grid.style.transition = 'transform 2.5s cubic-bezier(0.15, 0.85, 0.35, 1)';
+                    grid.style.transform = `translateX(${offset}px)`;
+                });
+            });
+
+            // Mark active after animation completes
             setTimeout(() => {
                 if (cells[targetIndex]) {
                     cells[targetIndex].classList.add('active-spin');
                     cells[targetIndex].classList.add('claimed');
                 }
-            }, 3050);
+            }, 2600);
+        } else {
+            grid.style.transition = 'none';
+            grid.style.transform = `translateX(${offset}px)`;
+            if (cells[targetIndex]) cells[targetIndex].classList.add('active-spin');
         }
     },
 
@@ -201,7 +202,11 @@ const DailyLogin = {
                         claimBtn.style.opacity = '1';
                         claimBtn.style.pointerEvents = 'auto';
                     }
-                    alert(resp ? resp.error : 'Failed to claim reward');
+                    if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+                        Squads.openCustomModal(resp ? resp.error : 'Failed to claim reward');
+                    } else if (window.showToast) {
+                        window.showToast(resp ? resp.error : 'Failed to claim reward', 'error');
+                    }
                     this.isClaiming = false;
                     return;
                 }
@@ -224,7 +229,7 @@ const DailyLogin = {
                         this.close();
                         this.isClaiming = false;
                     }, 1000);
-                }, 3100); // 3s spin + small buffer
+                }, 2700); // Match animation duration (2.5s) + buffer
             })
             .catch(() => {
                 if (claimBtn) {

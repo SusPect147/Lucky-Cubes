@@ -38,9 +38,17 @@
 
     <div id="loading-screen">
         <div class="mega-minimal-loader" id="interactive-cube-wrapper">
-            <div class="lucu-text-bg">LUCU</div>
-            <div id="loading-progress-fill">
-                <div class="lucu-text-fg">LUCU</div>
+            <div class="loading-text-line loading-text-line-my">
+                <div class="lucu-text-bg">My</div>
+                <div class="loading-progress-fill-line" id="loading-progress-fill-my">
+                    <div class="lucu-text-fg">My</div>
+                </div>
+            </div>
+            <div class="loading-text-line loading-text-line-cubes">
+                <div class="lucu-text-bg">CUBES</div>
+                <div class="loading-progress-fill-line" id="loading-progress-fill-cubes">
+                    <div class="lucu-text-fg">CUBES</div>
+                </div>
             </div>
         </div>
 
@@ -53,6 +61,14 @@
             <button id="loading-skip-btn" class="loading-lang-btn" data-i18n="skip_loading" style="display: none;">
                 Пропустить &gt;&gt;
             </button>
+        </div>
+
+        <div class="loading-footer-info" id="loading-footer-info">
+            <span id="loading-app-version">v—</span>
+            <span class="loading-footer-sep">·</span>
+            <span id="loading-app-lang">—</span>
+            <span class="loading-footer-sep">·</span>
+            <span id="loading-sys-lang">—</span>
         </div>
     </div>
 

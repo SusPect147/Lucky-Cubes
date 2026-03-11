@@ -2,7 +2,6 @@
     position: fixed;
     inset: 0;
     background: #040308;
-    /* Extremely dark, premium black hole aesthetic */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -20,19 +19,36 @@
     left: 50%;
     transform: translate(-50%, -50%);
     transform-style: preserve-3d;
-    font-size: clamp(2rem, 6vw, 4rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+}
+
+.loading-text-line {
+    position: relative;
+    text-transform: uppercase;
     font-weight: 300;
+    white-space: nowrap;
+}
+
+.loading-text-line-my {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    letter-spacing: 0.8rem;
+    margin-right: -0.8rem;
+}
+
+.loading-text-line-cubes {
+    font-size: clamp(2.5rem, 7vw, 5rem);
     letter-spacing: 1.5rem;
     margin-right: -1.5rem;
-    /* Compensate for the last letter spacing to center correctly */
-    text-transform: uppercase;
 }
 
 .lucu-text-bg {
     color: rgba(255, 255, 255, 0.04);
 }
 
-#loading-progress-fill {
+.loading-progress-fill-line {
     position: absolute;
     top: 0;
     left: 0;
@@ -55,7 +71,6 @@
     font-size: 0.65rem;
     font-weight: 500;
     letter-spacing: 0.5em;
-    /* Extremely wide tracking for luxury feel */
     color: rgba(255, 255, 255, 0.15);
     text-transform: uppercase;
     margin-right: -0.5em;
@@ -63,15 +78,8 @@
 }
 
 @keyframes pulseText {
-
-    0%,
-    100% {
-        opacity: 0.4;
-    }
-
-    50% {
-        opacity: 0.8;
-    }
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
 }
 
 .loading-actions {
@@ -109,7 +117,28 @@
     transform: translateY(-1px);
 }
 
-/* Maintain exit glitch logic if needed or just let it fade */
+.loading-footer-info {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    color: rgba(255, 255, 255, 0.12);
+    font-family: 'Inter', monospace, sans-serif;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.loading-footer-sep {
+    color: rgba(255, 255, 255, 0.08);
+}
+
+/* Exit animation */
 #loading-screen.glitch-exit .mega-minimal-loader,
 #loading-screen.glitch-exit .minimal-percentage {
     animation: loadingFadeOut 0.8s ease-out forwards;
@@ -120,11 +149,9 @@
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
     }
-
     100% {
         opacity: 0;
         transform: translate(-50%, -50%) scale(1.05);
-        /* Slight sophisticated zoom out */
         filter: blur(4px);
     }
 }

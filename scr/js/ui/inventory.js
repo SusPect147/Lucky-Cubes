@@ -237,10 +237,32 @@ const Inventory = {
     openCase: function (caseId, targetElement) {
         if (!this.cases[caseId] || this.cases[caseId] <= 0) return;
 
+        const caseDef = Shop.cases.find(c => c.id === caseId);
+        const caseName = caseDef ? (i18n.t(caseDef.name) || caseDef.name) : caseId;
+
+        const confirmMsg = (i18n.t('confirm_open_case') || 'Are you sure you want to open {name}?')
+            .replace('{name}', caseName);
+
+        if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+            Squads.openCustomModal(confirmMsg, () => {
+                this._executeOpenCase(caseId, targetElement);
+            }, true);
+        } else {
+            this._executeOpenCase(caseId, targetElement);
+        }
+    },
+
+    _executeOpenCase: function (caseId, targetElement) {
+        if (!this.cases[caseId] || this.cases[caseId] <= 0) return;
+
         API.call('/api/open-case', { caseId: caseId })
             .then(resp => {
                 if (!resp || resp.error) {
-                    if (window.showToast) window.showToast(resp ? resp.error : 'Failed to open case', 'error');
+                    if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+                        Squads.openCustomModal(resp ? resp.error : 'Failed to open case');
+                    } else if (window.showToast) {
+                        window.showToast(resp ? resp.error : 'Failed to open case', 'error');
+                    }
                     return;
                 }
 
@@ -284,11 +306,24 @@ const Inventory = {
                         }
                     }
 
+                    // Show reward in a styled popup
                     setTimeout(() => {
-                        if (window.showToast) {
+                        const rewardMsg = `
+                            <div style="text-align:center;">
+                                <div style="font-size:2rem; margin-bottom:8px;">🎉</div>
+                                <div style="font-size:1rem; font-weight:600; margin-bottom:12px;">${i18n.t('case_reward_title') || 'You unboxed:'}</div>
+                                <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:14px 18px; display:inline-block;">
+                                    <div style="font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#ffd54f,#ff9800); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                                        ${resp.reward.amount}
+                                    </div>
+                                    <div style="font-size:0.8rem; color:rgba(255,255,255,0.5); margin-top:4px;">${typeStr}</div>
+                                </div>
+                            </div>
+                        `;
+                        if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+                            Squads.openCustomModal(rewardMsg);
+                        } else if (window.showToast) {
                             window.showToast(`Unboxed: ${resp.reward.amount} ${typeStr}!`, 'success');
-                        } else {
-                            alert(`Unboxed: ${resp.reward.amount} ${typeStr}!`);
                         }
                     }, 400);
                 }

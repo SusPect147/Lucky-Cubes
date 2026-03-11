@@ -4,63 +4,63 @@ const Shop = {
             id: 'extra_cube',
             name: 'Extra Cube Boost',
             description: 'Get an extra cube for 30-100 seconds',
-            price: 35,
+            price: 12,
             icon: 'dice'
         },
         {
             id: 'double_cube',
             name: '+2 Cubes Boost',
             description: 'Get +2 cubes for 30-100 seconds',
-            price: 60,
+            price: 20,
             icon: 'dice'
         },
         {
             id: 'rainbow_mode',
             name: 'Rainbow Mode Boost',
             description: 'Activate Rainbow Mode for 30-100 seconds',
-            price: 80,
+            price: 28,
             icon: 'star'
         },
         {
             id: 'coin_surge',
             name: 'Coin Surge',
             description: 'Multiply coins earned for 2-6 minutes',
-            price: 50,
+            price: 18,
             icon: 'coin'
         },
         {
             id: 'crit_roll',
             name: 'Crit Roll',
             description: 'Rare critical rolls give 3-10x XP and coins (2-6 min)',
-            price: 70,
+            price: 25,
             icon: 'crit'
         },
         {
             id: 'auto_roll',
             name: 'AutoRoll',
             description: 'Automatic rolls every second for 1-5 minutes',
-            price: 45,
+            price: 15,
             icon: 'auto'
         },
         {
             id: 'lucky_streak',
             name: 'Lucky Streak',
             description: 'Progressive bonuses for consecutive rolls (3-8 min)',
-            price: 110,
+            price: 40,
             icon: 'streak'
         },
         {
             id: 'time_freeze',
             name: 'Time Freeze',
             description: 'Quest timers slow down or stop (2-5 min)',
-            price: 90,
+            price: 30,
             icon: 'freeze'
         },
         {
             id: 'hypertap',
             name: 'HyperTap',
             description: 'Faster cube response for 5-15 seconds',
-            price: 15,
+            price: 5,
             icon: 'tap'
         }
     ],
@@ -69,23 +69,26 @@ const Shop = {
         {
             id: 'starter_case',
             name: 'Starter Case',
-            price: 200,
+            price: 50,
             currency: 'lucu',
-            imageUrl: 'assets/UI/images/cases/1-case.webp'
+            imageUrl: 'assets/UI/images/cases/1-case.webp',
+            drops: { min: 30, max: 250, type: '$LUCU' }
         },
         {
             id: 'lucky_case',
             name: 'Lucky Case',
             price: 20,
             currency: 'stars',
-            imageUrl: 'assets/UI/images/cases/2-case.webp'
+            imageUrl: 'assets/UI/images/cases/2-case.webp',
+            drops: { min: 200, max: 800, type: '$LUCU' }
         },
         {
             id: 'premium_case',
             name: 'Premium Case',
             price: 0.6,
             currency: 'ton',
-            imageUrl: 'assets/UI/images/cases/3-case.webp'
+            imageUrl: 'assets/UI/images/cases/3-case.webp',
+            drops: { min: 800, max: 4000, type: '$LUCU' }
         }
     ],
 
@@ -201,7 +204,11 @@ const Shop = {
 
         const currentCoins = Game.getCoinCount();
         if (currentCoins < boost.price) {
-            alert('Not enough coins!');
+            if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+                Squads.openCustomModal(i18n.t('not_enough_coins') || 'Not enough coins!');
+            } else if (window.showToast) {
+                window.showToast('Not enough coins!', 'error');
+            }
             return;
         }
 
@@ -211,7 +218,11 @@ const Shop = {
         API.call('/api/buy-boost', { boostId: boostId })
             .then(resp => {
                 if (!resp || resp.error) {
-                    alert(resp ? resp.error : 'Request failed');
+                    if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+                        Squads.openCustomModal(resp ? resp.error : 'Request failed');
+                    } else if (window.showToast) {
+                        window.showToast(resp ? resp.error : 'Request failed', 'error');
+                    }
                     return;
                 }
 
@@ -254,13 +265,64 @@ const Shop = {
             });
     },
 
+    showCaseInfo: function (caseItem) {
+        if (!caseItem || !caseItem.drops) return;
+        const dropInfo = caseItem.drops;
+        const title = i18n.t(caseItem.name) || caseItem.name;
+        const message = `
+            <div style="text-align:center;">
+                <div style="font-size:1.1rem; font-weight:700; margin-bottom:12px;">${title}</div>
+                <div style="font-size:0.85rem; color:rgba(255,255,255,0.6); margin-bottom:16px;">
+                    ${i18n.t('case_drop_info') || 'Possible drops:'}
+                </div>
+                <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:14px 18px; display:inline-block;">
+                    <div style="font-size:1.5rem; font-weight:800; background:linear-gradient(135deg,#ffd54f,#ff9800); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                        ${dropInfo.min} — ${dropInfo.max}
+                    </div>
+                    <div style="font-size:0.8rem; color:rgba(255,255,255,0.5); margin-top:4px;">${dropInfo.type}</div>
+                </div>
+            </div>
+        `;
+        if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+            Squads.openCustomModal(message);
+        }
+    },
+
     buyCase: function (caseId) {
+        const caseItem = this.cases.find(c => c.id === caseId);
+        if (!caseItem) return;
+
+        // Build confirmation message
+        let priceStr = '';
+        if (caseItem.currency === 'lucu') priceStr = caseItem.price + ' $LUCU';
+        else if (caseItem.currency === 'stars') priceStr = '⭐ ' + caseItem.price + ' Stars';
+        else if (caseItem.currency === 'ton') priceStr = caseItem.price + ' TON';
+
+        const caseName = i18n.t(caseItem.name) || caseItem.name;
+        const confirmMsg = (i18n.t('confirm_buy_case') || 'Are you sure you want to buy {name} for {price}?')
+            .replace('{name}', caseName)
+            .replace('{price}', priceStr);
+
+        if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+            Squads.openCustomModal(confirmMsg, () => {
+                this._executeBuyCase(caseId);
+            }, true);
+        } else {
+            this._executeBuyCase(caseId);
+        }
+    },
+
+    _executeBuyCase: function (caseId) {
         const caseItem = this.cases.find(c => c.id === caseId);
         if (!caseItem) return;
 
         const processResponse = (resp, targetElement) => {
             if (!resp || resp.error) {
-                if (window.showToast) window.showToast(resp ? resp.error : 'Request failed', 'error');
+                if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+                    Squads.openCustomModal(resp ? resp.error : 'Request failed');
+                } else if (window.showToast) {
+                    window.showToast(resp ? resp.error : 'Request failed', 'error');
+                }
                 return;
             }
 
@@ -340,7 +402,11 @@ const Shop = {
             }
         } else {
             if (caseItem.currency === 'lucu' && typeof Game !== 'undefined' && Game.getCoinCount() < caseItem.price) {
-                if (window.showToast) window.showToast('Not enough coins!', 'error');
+                if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+                    Squads.openCustomModal(i18n.t('not_enough_coins') || 'Not enough coins!');
+                } else if (window.showToast) {
+                    window.showToast('Not enough coins!', 'error');
+                }
                 return;
             }
             API.call('/api/buy-case', { caseId: caseId })
@@ -421,6 +487,17 @@ const Shop = {
             infoDiv.appendChild(priceDiv);
 
             card.appendChild(infoDiv);
+
+            // "?" Info button on the right
+            const infoBtn = document.createElement('button');
+            infoBtn.className = 'case-info-btn';
+            infoBtn.textContent = '?';
+            infoBtn.title = i18n.t('case_drop_info') || 'Drop info';
+            infoBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.showCaseInfo(caseItem);
+            });
+            card.appendChild(infoBtn);
 
             card.addEventListener('click', () => {
                 this.buyCase(caseItem.id);
