@@ -537,7 +537,14 @@ const Squads = {
                         this.openCustomModal(resp ? resp.error : `Failed to kick ${memberName}`);
                         return;
                     }
-                    // Refresh squad info to reflect kicked member
+                    // Remove kicked member from local data immediately
+                    if (this.squadData && this.squadData.memberDetails) {
+                        this.squadData.memberDetails = this.squadData.memberDetails.filter(m => m.id !== targetUserId);
+                        if (this.squadData.memberCount) this.squadData.memberCount--;
+                    }
+                    // Re-render immediately with updated local data
+                    this.renderSquadInfo();
+                    // Also refresh from server in background
                     this.loadSquadInfo(this.squadData.id);
                 })
                 .catch(() => {
@@ -697,7 +704,8 @@ const Squads = {
             bar.appendChild(valueEl);
 
             // Make clickable for non-members — open apply confirm modal
-            const canApply = !this.squadData && typeof Game !== 'undefined' && Game.state && !Game.state.squad;
+            const playerHasSquad = (typeof Game !== 'undefined' && Game.state && Game.state.squad);
+            const canApply = !playerHasSquad && !isMe;
             if (canApply) {
                 bar.style.cursor = 'pointer';
                 row.addEventListener('click', () => {

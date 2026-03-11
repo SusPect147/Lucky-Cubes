@@ -1,16 +1,17 @@
 .daily-login-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(6, 4, 12, 0.8);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 70;
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     justify-content: center;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 20px;
 }
 
 .daily-login-overlay.visible {
@@ -19,36 +20,34 @@
 }
 
 .daily-login-popup {
-    width: 100%;
-    max-width: 420px;
-    background: rgba(28, 28, 32, 0.96);
-    backdrop-filter: var(--blur-medium);
-    -webkit-backdrop-filter: var(--blur-medium);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    padding: 12px 24px 32px 24px;
-    color: var(--text-primary);
-    box-shadow: var(--shadow-modal);
-    border: 1px solid var(--border-subtle);
-    border-bottom: none;
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 92%;
+    max-width: 380px;
+    background: #141418;
+    border-radius: 20px;
+    padding: 28px 24px 24px;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+    transform: scale(0.92) translateY(20px);
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 24px;
 }
 
 .daily-login-overlay.visible .daily-login-popup {
-    transform: translateY(0);
+    transform: scale(1) translateY(0);
+    opacity: 1;
 }
 
 .daily-login-drag-handle {
-    width: 36px;
-    height: 4px;
+    width: 32px;
+    height: 3px;
     border-radius: 2px;
-    background: rgba(255, 255, 255, 0.15);
-    margin: 0 auto;
-    margin-bottom: -8px;
+    background: rgba(255, 255, 255, 0.12);
+    margin: -8px auto 0;
 }
 
 .daily-login-header {
@@ -59,146 +58,170 @@
 }
 
 .daily-login-title {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
     font-weight: 700;
+    letter-spacing: -0.3px;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .daily-login-close-btn {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
     border: none;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--text-primary);
-    font-size: 1.1rem;
-    transition: background 0.2s;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.95rem;
+    transition: all 0.2s;
 }
 
 .daily-login-close-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
 }
 
+/* --- Roulette Container --- */
 .daily-login-roulette-container {
     width: 100%;
     overflow: hidden;
     position: relative;
-    padding: 24px 0;
-    margin: 10px 0;
-    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    padding: 12px 0;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
 .daily-login-roulette-container::after {
     content: '';
     position: absolute;
-    top: 5px;
-    bottom: 5px;
+    top: 0;
+    bottom: 0;
     left: 50%;
-    width: 2px;
-    background: var(--accent);
+    width: 1.5px;
+    background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     transform: translateX(-50%);
     z-index: 10;
-    box-shadow: 0 0 12px var(--accent);
-    border-radius: 2px;
 }
 
 .daily-login-roulette-track {
     display: flex;
-    gap: 16px;
-    transition: transform 3s cubic-bezier(0.15, 0.85, 0.35, 1);
+    gap: 10px;
+    transition: transform 2.5s cubic-bezier(0.15, 0.85, 0.35, 1);
     transform: translateX(0);
     width: max-content;
 }
 
+/* --- Day Cells --- */
 .daily-day-cell {
-    min-width: 90px;
+    min-width: 80px;
     flex-shrink: 0;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius-md);
-    padding: 18px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 16px 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     position: relative;
-    transition: all 0.3s ease;
-    opacity: 0.4;
-    transform: scale(0.9);
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity: 0.35;
+    transform: scale(0.88);
 }
 
 .daily-day-cell.active-spin {
     opacity: 1;
-    transform: scale(1.1);
-    border-color: var(--accent);
-    background: rgba(255, 59, 48, 0.08);
-    box-shadow: 0 0 15px rgba(255, 59, 48, 0.3);
+    transform: scale(1.08);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 24px rgba(255, 255, 255, 0.06);
     z-index: 5;
 }
 
 .daily-day-cell.claimed {
-    opacity: 0.5;
-    transform: scale(0.95);
-    border-style: dashed;
+    opacity: 0.25;
+    transform: scale(0.88);
+}
+
+.daily-day-cell.claimed::after {
+    content: '✓';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 16px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    font-weight: 800;
 }
 
 .daily-day-label {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: rgba(255, 255, 255, 0.35);
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .daily-day-reward {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--accent);
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.3px;
 }
 
 .daily-lucu {
-    font-size: 1.05rem;
+    font-size: 1.1rem;
 }
 
 .daily-day-xp {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     font-weight: 500;
-    color: var(--text-tertiary);
+    color: rgba(255, 255, 255, 0.25);
 }
 
 .daily-day-check {
     position: absolute;
     top: -6px;
     right: -6px;
-    width: 20px;
-    height: 20px;
-    background: var(--success);
-    color: #fff;
+    width: 18px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
+    font-size: 0.6rem;
     font-weight: 800;
-    box-shadow: 0 0 0 2px var(--bg-elevated);
 }
 
+/* --- Claim Button --- */
 .daily-login-claim-btn {
-    background: var(--accent);
+    background: #fff;
     color: #000;
     border: none;
     width: 100%;
-    padding: 16px;
-    border-radius: var(--radius-md);
-    font-size: 1.15rem;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
-    transition: opacity 0.2s, transform 0.1s;
-    font-family: 'Inter', sans-serif;
-    box-shadow: var(--shadow-card);
+    transition: all 0.2s ease;
+    font-family: 'Inter', -apple-system, sans-serif;
+    letter-spacing: -0.2px;
+}
+
+.daily-login-claim-btn:hover {
+    background: rgba(255, 255, 255, 0.9);
 }
 
 .daily-login-claim-btn:active {

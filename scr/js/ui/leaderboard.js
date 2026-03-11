@@ -125,7 +125,8 @@ const Leaderboard = {
             }
         }
 
-        listEl.innerHTML = '';
+        // Build all rows in a DocumentFragment to avoid per-row reflows
+        const fragment = document.createDocumentFragment();
         list.forEach((entry, i) => {
             const isMe = entry.id === this.myId;
             const row = document.createElement('div');
@@ -141,26 +142,20 @@ const Leaderboard = {
                 rowBar.style.background = 'rgba(255,255,255,0.08)';
             }
 
-            const avatarContainer = document.createElement('div');
-
-            let avatarHTMLStr = this.getAvatarHTML(entry);
-            const tempAvatarDiv = document.createElement('div');
-            avatarContainer.appendChild(tempAvatarDiv);
-
             if (entry.photo_url) {
                 const img = document.createElement('img');
                 img.className = 'leaderboard-avatar';
                 img.src = entry.photo_url;
                 img.alt = '';
                 img.style.objectFit = 'cover';
+                img.loading = 'lazy';
                 img.onerror = function () { this.style.display = 'none'; };
-                avatarContainer.replaceChild(img, tempAvatarDiv);
+                rowBar.appendChild(img);
             } else {
-                tempAvatarDiv.className = 'leaderboard-avatar';
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'leaderboard-avatar';
+                rowBar.appendChild(avatarDiv);
             }
-
-            const avatarEl = avatarContainer.firstElementChild;
-            if (avatarEl) rowBar.appendChild(avatarEl);
 
             const nicknameDiv = document.createElement('div');
             nicknameDiv.className = 'leaderboard-nickname';
@@ -174,7 +169,11 @@ const Leaderboard = {
 
             row.appendChild(placeCell.firstElementChild || placeCell);
             row.appendChild(rowBar);
-            listEl.appendChild(row);
+            fragment.appendChild(row);
         });
+        
+        // Single DOM operation: clear and append
+        listEl.textContent = '';
+        listEl.appendChild(fragment);
     },
 };
