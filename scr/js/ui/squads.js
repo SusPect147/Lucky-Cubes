@@ -557,24 +557,17 @@ const Squads = {
             });
     },
 
-    applyToSquad: function (squadId, btn) {
-        if (btn) {
-            btn.style.opacity = '0.5';
-            btn.style.pointerEvents = 'none';
-        }
+    applyToSquad: function (squadId) {
         API.call('/api/squad-request-join', { squadId: squadId })
             .then(resp => {
                 if (!resp || resp.error) {
                     this.openCustomModal(resp ? resp.error : 'Error sending application');
-                    if (btn) {
-                        btn.style.opacity = '1';
-                        btn.style.pointerEvents = 'auto';
-                    }
                     return;
                 }
-                if (btn) {
-                    btn.textContent = 'Sent';
-                }
+                this.openCustomModal(i18n.t('squad_apply_sent') || '✅ Application sent! The squad owner will receive your request.');
+            })
+            .catch(() => {
+                this.openCustomModal('Error sending application');
             });
     },
 
@@ -701,26 +694,20 @@ const Squads = {
             }
             valueEl.appendChild(vWrap);
 
-            // Add apply button if player is not in a squad
-            if (!this.squadData && typeof Game !== 'undefined' && Game.state && !Game.state.squad) {
-                const applyBtn = document.createElement('button');
-                applyBtn.textContent = i18n.t('squad_apply') || 'Apply';
-                applyBtn.style.background = 'rgba(255,255,255,0.1)';
-                applyBtn.style.border = 'none';
-                applyBtn.style.color = '#fff';
-                applyBtn.style.fontSize = '0.7rem';
-                applyBtn.style.padding = '4px 8px';
-                applyBtn.style.borderRadius = '6px';
-                applyBtn.style.cursor = 'pointer';
-                applyBtn.style.marginTop = '4px';
-                applyBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.applyToSquad(squad.id, applyBtn);
-                });
-                vWrap.appendChild(applyBtn);
-            }
-
             bar.appendChild(valueEl);
+
+            // Make clickable for non-members — open apply confirm modal
+            const canApply = !this.squadData && typeof Game !== 'undefined' && Game.state && !Game.state.squad;
+            if (canApply) {
+                bar.style.cursor = 'pointer';
+                row.addEventListener('click', () => {
+                    const squadName = squad.name || 'this squad';
+                    const confirmMsg = (i18n.t('confirm_apply_squad') || 'Do you want to apply to join <b>{name}</b>?').replace('{name}', squadName);
+                    this.openCustomModal(confirmMsg, () => {
+                        this.applyToSquad(squad.id);
+                    }, true);
+                });
+            }
 
             row.appendChild(bar);
             listEl.appendChild(row);
