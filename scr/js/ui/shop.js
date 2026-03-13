@@ -92,6 +92,49 @@ const Shop = {
         }
     ],
 
+    skins: [
+        {
+            id: 'default',
+            name: 'Default',
+            bonus: 'None',
+            price: 0,
+            currency: 'lucu',
+            imageUrl: 'assets/UI/images/skins/1-cubic.webp'
+        },
+        {
+            id: 'gold_skin',
+            name: 'Golden Touch',
+            bonus: '+15% Coins',
+            price: 2500,
+            currency: 'lucu',
+            imageUrl: 'assets/UI/images/skins/2-cubic.webp'
+        },
+        {
+            id: 'lucky_skin',
+            name: 'Lucky Glow',
+            bonus: 'Extra Luck (Min reductions)',
+            price: 4000,
+            currency: 'lucu',
+            imageUrl: 'assets/UI/images/skins/3-cubic.webp'
+        },
+        {
+            id: 'rainbow_skin',
+            name: 'Rainbow Charm',
+            bonus: 'Chance for Random Rainbow Roll',
+            price: 500,
+            currency: 'stars',
+            imageUrl: 'assets/UI/images/skins/4-cubic.webp'
+        },
+        {
+            id: 'ton_skin',
+            name: 'TON Premium',
+            bonus: 'Permanent Min Reduction (-10%)',
+            price: 2,
+            currency: 'ton',
+            imageUrl: 'assets/UI/images/skins/5-cubic.webp'
+        }
+    ],
+
     getIconSVG: function (iconType) {
         if (iconType === 'dice') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg>';
         if (iconType === 'star') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>';
@@ -110,9 +153,15 @@ const Shop = {
         const casesList = document.getElementById('shop-cases-list');
 
         if (tab === 'skins') {
-            if (skinsEmpty) skinsEmpty.style.display = 'flex';
+            if (skinsEmpty) skinsEmpty.style.display = 'none';
             if (boostsList) boostsList.style.display = 'none';
             if (casesList) casesList.style.display = 'none';
+            
+            let skinsList = document.getElementById('shop-skins-list');
+            if (skinsList) {
+                skinsList.style.display = 'flex';
+            }
+            this.renderSkins();
         } else if (tab === 'boosts') {
             if (skinsEmpty) skinsEmpty.style.display = 'none';
             if (boostsList) {
@@ -505,5 +554,180 @@ const Shop = {
 
             casesList.appendChild(card);
         });
+    },
+
+    renderSkins: function () {
+        let skinsList = document.getElementById('shop-skins-list');
+        if (!skinsList) {
+            const content = document.querySelector('.shop-content');
+            if (!content) return;
+            skinsList = document.createElement('div');
+            skinsList.id = 'shop-skins-list';
+            skinsList.className = 'shop-cases-list'; // Reuse case list layout
+            content.appendChild(skinsList);
+        }
+        
+        skinsList.innerHTML = '';
+        skinsList.style.display = 'flex';
+
+        this.skins.forEach(skin => {
+            const card = document.createElement('div');
+            card.className = 'skin-item';
+            card.dataset.id = skin.id;
+
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'skin-image-container';
+            if (skin.imageUrl) {
+                const img = document.createElement('img');
+                img.src = skin.imageUrl;
+                img.alt = skin.name;
+                imgDiv.appendChild(img);
+            }
+            card.appendChild(imgDiv);
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'skin-info';
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'skin-name';
+            nameDiv.textContent = i18n.t(skin.name) || skin.name;
+            infoDiv.appendChild(nameDiv);
+
+            const bonusDiv = document.createElement('div');
+            bonusDiv.className = 'skin-bonus';
+            bonusDiv.textContent = skin.bonus;
+            infoDiv.appendChild(bonusDiv);
+
+            const isOwned = (typeof Inventory !== 'undefined' && Inventory.ownedSkins && Inventory.ownedSkins.includes(skin.id));
+            const isEquipped = (typeof Inventory !== 'undefined' && Inventory.equippedSkin === skin.id);
+
+            const priceDiv = document.createElement('div');
+            priceDiv.className = 'skin-prices';
+            
+            if (isEquipped) {
+                priceDiv.innerHTML = `<button class="skin-btn skin-equipped-btn">Equipped</button>`;
+            } else if (isOwned) {
+                priceDiv.innerHTML = `<button class="skin-btn skin-equip-btn" onclick="Shop.equipSkin('${skin.id}', event)">Equip</button>`;
+            } else {
+                let priceText = '';
+                if (skin.currency === 'lucu') priceText = `${skin.price} $LUCU`;
+                else if (skin.currency === 'stars') priceText = `⭐ ${skin.price} Stars`;
+                else if (skin.currency === 'ton') priceText = `${skin.price} TON`;
+                
+                priceDiv.innerHTML = `<button class="skin-btn skin-buy-btn" onclick="Shop.buySkin('${skin.id}', event)">${priceText}</button>`;
+            }
+            infoDiv.appendChild(priceDiv);
+            card.appendChild(infoDiv);
+            skinsList.appendChild(card);
+        });
+    },
+
+    buySkin: function (skinId, event) {
+        if (event) event.stopPropagation();
+        
+        const skinItem = this.skins.find(s => s.id === skinId);
+        if (!skinItem) return;
+
+        let priceStr = '';
+        if (skinItem.currency === 'lucu') priceStr = skinItem.price + ' $LUCU';
+        else if (skinItem.currency === 'stars') priceStr = '⭐ ' + skinItem.price + ' Stars';
+        else if (skinItem.currency === 'ton') priceStr = skinItem.price + ' TON';
+
+        const confirmMsg = (i18n.t('confirm_buy_skin') || 'Are you sure you want to buy {name} for {price}?')
+            .replace('{name}', skinItem.name)
+            .replace('{price}', priceStr);
+
+        if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+            Squads.openCustomModal(confirmMsg, () => {
+                this._executeBuySkin(skinId);
+            }, true);
+        } else {
+            this._executeBuySkin(skinId);
+        }
+    },
+
+    _executeBuySkin: function (skinId) {
+        const skinItem = this.skins.find(s => s.id === skinId);
+        if (!skinItem) return;
+
+        const processResponse = (resp) => {
+            if (!resp || resp.error) {
+                if (typeof window.showToast !== 'undefined') {
+                    window.showToast(resp ? resp.error : 'Request failed', 'error');
+                }
+                return;
+            }
+
+            if (resp.invoiceUrl) {
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openInvoice) {
+                    window.Telegram.WebApp.openInvoice(resp.invoiceUrl, function (status) {
+                        if (status === 'paid') {
+                            if (window.showToast) window.showToast('Success! Skin purchased.', 'success');
+                            setTimeout(() => {
+                                if (window.API && window.API.call) {
+                                    window.API.call('/api/state', null).then(st => {
+                                        if (st && window.Game && window.Game.applyServerState) {
+                                            window.Game.applyServerState(st);
+                                            if (typeof Inventory !== 'undefined') Inventory.loadFromServer(st);
+                                            Shop.renderSkins();
+                                        }
+                                    }).catch(() => { });
+                                }
+                            }, 2000);
+                        }
+                    });
+                }
+                return;
+            }
+
+            if (typeof Game !== 'undefined' && Game.applyServerState) {
+                Game.applyServerState(resp);
+            }
+            if (typeof Inventory !== 'undefined') {
+                if (!Inventory.ownedSkins) Inventory.ownedSkins = [];
+                if (!Inventory.ownedSkins.includes(skinId)) Inventory.ownedSkins.push(skinId);
+                Inventory.equippedSkin = skinId;
+                Inventory.render();
+            }
+            this.renderSkins();
+        };
+
+        if (skinItem.currency === 'ton') {
+            if (typeof window.showToast !== 'undefined') {
+                 window.showToast('TON wallet not implemented', 'error');
+            }
+        } else {
+            API.call('/api/buy-skin', { skinId: skinId })
+                .then(resp => processResponse(resp))
+                .catch(err => {
+                    console.error('Buy skin failed:', err);
+                });
+        }
+    },
+
+    equipSkin: function (skinId, event) {
+        if (event) event.stopPropagation();
+        
+        API.call('/api/equip-skin', { skinId: skinId })
+            .then(resp => {
+                if (!resp || resp.error) {
+                    if (typeof window.showToast !== 'undefined') {
+                        window.showToast(resp ? resp.error : 'Request failed', 'error');
+                    }
+                    return;
+                }
+                
+                if (typeof Game !== 'undefined' && Game.applyServerState) {
+                    Game.applyServerState(resp);
+                }
+                if (typeof Inventory !== 'undefined') {
+                    Inventory.equippedSkin = skinId;
+                }
+                this.renderSkins();
+                if (typeof window.showToast !== 'undefined') {
+                    window.showToast('Skin equipped!', 'success');
+                }
+            })
+            .catch(err => console.error('Equip skin failed', err));
     }
 };

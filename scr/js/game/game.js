@@ -136,6 +136,101 @@ window.Game = (function () {
         });
     }
 
+    let animationCache = {};
+
+    let _rollQueue = 0;
+    let _batchTimer = null;
+    function enqueueRoll(count) {
+        _rollQueue += count;
+        if (!_batchTimer) {
+            _batchTimer = setTimeout(flushRollQueue, 600);
+        }
+    }
+    
+    function flushRollQueue() {
+        if (_rollQueue <= 0) {
+            _batchTimer = null;
+            return;
+        }
+        
+        const countToSend = Math.min(_rollQueue, 35); // Server limit
+        _rollQueue -= countToSend;
+        
+        const boostIds = activeBoosts.map(b => b.id);
+        
+        apiCall('/api/roll-multi', {
+            initData: getInitData(),
+            activeBoosts: boostIds,
+            cubeCount: countToSend
+        }).then(result => {
+            if (!result || result.error) {
+                console.error('Server batch roll failed:', result);
+            } else {
+                applyServerResult(result);
+            }
+        }).catch(err => {
+            console.error('Batch roll API error:', err);
+        }).finally(() => {
+            if (_rollQueue > 0) {
+                _batchTimer = setTimeout(flushRollQueue, 600);
+            } else {
+                _batchTimer = null;
+            }
+        });
+    }
+    
+    function applyServerResult(serverResult) {
+        const rainbowFill = document.getElementById('rainbow-progress-fill');
+        const rainbowText = document.getElementById('rainbow-text');
+        const rainbowOverlay = document.getElementById('rainbow-overlay');
+
+        if (serverResult.totalCoins !== undefined) coinCount = serverResult.totalCoins;
+        if (serverResult.currentMin !== undefined) currentMin = serverResult.currentMin;
+        if (serverResult.totalXP !== undefined) {
+            totalXP = serverResult.totalXP;
+            updateLevel(totalXP);
+        }
+
+        if (serverResult.rollsToRainbow !== undefined) rollsToRainbow = serverResult.rollsToRainbow;
+        if (serverResult.targetRainbow !== undefined) targetRainbow = serverResult.targetRainbow;
+
+        if (serverResult.rainbowTriggered) {
+            isRainbow = true;
+            isRainbowFromBoost = false;
+            if (rainbowText) rainbowText.textContent = i18n.t('rainbow_active');
+            if (rainbowOverlay) rainbowOverlay.classList.add('active');
+            const rf = document.getElementById('rainbow-progress-fill');
+            if (rf) {
+                rf.style.width = '100%';
+                rf.classList.add('rainbow-active');
+            }
+            showIdleCube();
+            if (extraCubes > 0) Game.updateCubeLayout();
+        } else if (!isRainbow) {
+            const percent = (rollsToRainbow / targetRainbow) * 100;
+            if (rainbowFill) rainbowFill.style.width = percent + '%';
+            if (rainbowText) rainbowText.textContent = i18n.t('rainbow_progress', { current: rollsToRainbow, target: targetRainbow });
+        } else if (isRainbow && !isRainbowFromBoost) {
+            isRainbow = false;
+            if (rainbowOverlay) rainbowOverlay.classList.remove('active');
+            const rf = document.getElementById('rainbow-progress-fill');
+            if (rf) rf.classList.remove('rainbow-active');
+            newRainbowTarget();
+            showIdleCube();
+        }
+
+        updateUI(coinCount, currentMin);
+
+        // Story Share: trigger popup if new min < 0.9
+        if (serverResult.newMin && serverResult.currentMin > 0 && serverResult.currentMin < 0.9) {
+            Game.showStorySharePopup(serverResult.currentMin);
+        }
+
+        if (serverResult.quests) {
+            syncQuestsFromServer(serverResult.quests);
+        }
+    }
+
     function showIdleCube() {
         if (extraCubes > 0) {
             const name = isRainbow ? 'super-first-cubic' : 'first-cubic';
@@ -194,20 +289,14 @@ window.Game = (function () {
     }
 
     function rollCube() {
-        const hypertapBoost = activeBoosts.find(b => b.id === 'hypertap');
-        if (isRolling && !hypertapBoost) return;
-
-        if (isRolling && hypertapBoost) {
-            return;
-        }
-
+        if (isRolling) return;
+        
         if (extraCubes > 0) {
             Game.rollExtraCubes();
             return;
         }
 
         isRolling = true;
-
 
         const localRoll = Math.floor(Math.random() * 6) + 1;
         const animData = animationCache[localRoll + '-cubic'];
@@ -216,31 +305,40 @@ window.Game = (function () {
             return;
         }
 
-
-        const boostIds = activeBoosts.map(b => b.id);
-        let serverResult = null;
-        let serverError = false;
-        const serverPromise = apiCall('/api/roll', {
-            initData: getInitData(),
-            activeBoosts: boostIds,
-        }).then(result => {
-            if (!result || result.error) {
-                console.error('Server roll failed:', result);
-                serverError = true;
-                return;
+        // --- PREDICTIVE UI UPDATES ---
+        let reward = localRoll / 10;
+        let isLocalRainbow = isRainbow;
+        
+        if (typeof Inventory !== 'undefined' && Inventory.equippedSkin) {
+            let sBonus = 'none';
+            if (Shop && Shop.skins) {
+                const s = Shop.skins.find(sk => sk.id === Inventory.equippedSkin);
+                if (s) sBonus = s.bonus;
             }
-            serverResult = result;
-        }).catch(err => {
-            console.error('Roll API error:', err);
-            serverError = true;
-        });
+            if (sBonus === 'rainbow_chance' && Math.random() < 0.25) isLocalRainbow = true;
+            if (sBonus === 'extra_coins') reward *= 1.15;
+            if (sBonus === 'extra_luck' && Math.random() < 0.2) { /* min update via server */ }
+            if (sBonus === 'min_reduction') { /* min update via server */ }
+        }
 
-        const safetyTimeout = setTimeout(() => {
-            if (isRolling) {
-                isRolling = false;
-            }
-        }, 10000);
+        if (isLocalRainbow) reward *= 2;
+        const surgeBoost = activeBoosts.find(b => b.id === 'coin_surge');
+        if (surgeBoost) reward *= 2;
 
+        let critMultiplier = 1.0;
+        const critBoost = activeBoosts.find(b => b.id === 'crit_roll');
+        if (critBoost && Math.random() < 0.1) critMultiplier = 3.0; // Estimate
+        reward *= critMultiplier;
+        
+        // Cap local pred
+        if (reward > 30.0) reward = 30.0;
+        
+        coinCount += reward;
+        updateUI(coinCount, currentMin);
+        enqueueRoll(1);
+        // -----------------------------
+
+        const hypertapBoost = activeBoosts.find(b => b.id === 'hypertap');
         const animationSpeed = hypertapBoost ? 2.0 : 1.0;
 
         if (currentAnim) currentAnim.destroy();
@@ -261,74 +359,7 @@ window.Game = (function () {
 
         currentAnim.addEventListener('complete', function handler() {
             currentAnim.removeEventListener('complete', handler);
-            clearTimeout(safetyTimeout);
-
-
-            const applyResult = () => {
-                if (serverError) {
-                    isRolling = false;
-                    return;
-                }
-
-                const rainbowFill = document.getElementById('rainbow-progress-fill');
-                const rainbowText = document.getElementById('rainbow-text');
-                const rainbowOverlay = document.getElementById('rainbow-overlay');
-
-
-                coinCount = serverResult.totalCoins;
-                currentMin = serverResult.currentMin;
-                totalXP = serverResult.totalXP;
-                updateLevel(totalXP);
-
-                rollsToRainbow = serverResult.rollsToRainbow;
-                targetRainbow = serverResult.targetRainbow;
-
-                if (serverResult.rainbowTriggered) {
-                    isRainbow = true;
-                    isRainbowFromBoost = false;
-                    if (rainbowText) rainbowText.textContent = i18n.t('rainbow_active');
-                    if (rainbowOverlay) rainbowOverlay.classList.add('active');
-                    const rf = document.getElementById('rainbow-progress-fill');
-                    if (rf) {
-                        rf.style.width = '100%';
-                        rf.classList.add('rainbow-active');
-                    }
-                    showIdleCube();
-                    if (extraCubes > 0) Game.updateCubeLayout();
-                } else if (!isRainbow) {
-                    const percent = (rollsToRainbow / targetRainbow) * 100;
-                    if (rainbowFill) rainbowFill.style.width = percent + '%';
-                    if (rainbowText) rainbowText.textContent = i18n.t('rainbow_progress', { current: rollsToRainbow, target: targetRainbow });
-                } else if (isRainbow && !isRainbowFromBoost) {
-                    isRainbow = false;
-                    if (rainbowOverlay) rainbowOverlay.classList.remove('active');
-                    const rf = document.getElementById('rainbow-progress-fill');
-                    if (rf) rf.classList.remove('rainbow-active');
-                    newRainbowTarget();
-                    showIdleCube();
-                }
-
-                updateUI(coinCount, currentMin);
-
-                // Story Share: trigger popup if new min < 0.9
-                if (serverResult.newMin && serverResult.currentMin > 0 && serverResult.currentMin < 0.9) {
-                    Game.showStorySharePopup(serverResult.currentMin);
-                }
-
-                if (serverResult.quests) {
-                    syncQuestsFromServer(serverResult.quests);
-                }
-                isRolling = false;
-            };
-
-            if (serverResult) {
-                applyResult();
-            } else if (serverError) {
-                isRolling = false;
-            } else {
-
-                serverPromise.then(() => applyResult());
-            }
+            isRolling = false;
         });
     }
 
