@@ -232,9 +232,19 @@ window.Game = (function () {
     }
 
     function showIdleCube() {
+        let baseName = 'first-cubic';
+        if (typeof Inventory !== 'undefined' && Inventory.equippedSkin && Inventory.equippedSkin !== 'default') {
+            const equipped = Inventory.equippedSkin;
+            if (equipped === 'gold_skin') baseName = '2-cubic';
+            else if (equipped === 'lucky_skin') baseName = '6-cubic';
+            else if (equipped === 'rainbow_skin') baseName = '7-cubic';
+            else if (equipped === 'ton_skin') baseName = '4-cubic'; // Arbitrary mappings to available tgs files
+            else baseName = equipped; 
+        }
+
         if (extraCubes > 0) {
-            const name = isRainbow ? 'super-first-cubic' : 'first-cubic';
-            const data = animationCache[name];
+            const name = isRainbow ? 'super-first-cubic' : baseName;
+            const data = animationCache[name] || animationCache['first-cubic'];
             const cubeAnimationContainer = document.getElementById('cube-animation');
             if (isRainbow && data && cubeAnimationContainer) {
                 if (currentAnim) currentAnim.destroy();
@@ -274,8 +284,9 @@ window.Game = (function () {
             }
             return;
         }
-        const name = isRainbow ? 'super-first-cubic' : 'first-cubic';
-        const data = animationCache[name];
+        
+        const name = isRainbow ? 'super-first-cubic' : baseName;
+        const data = animationCache[name] || animationCache['first-cubic'];
         if (!data) return;
 
         if (currentAnim) currentAnim.destroy();
