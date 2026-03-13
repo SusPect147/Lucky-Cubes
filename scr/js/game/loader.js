@@ -327,7 +327,7 @@ async function preload() {
     // ---- PHASE 2: AWAIT SERVER STATE (coins, min, etc.) ----
     try {
         if (statePromise) {
-            serverState = await fetchWithTimeout(statePromise, 5000);
+            serverState = await fetchWithTimeout(statePromise, 15000);
             if (serverState && serverState.isBanned) {
                 updateLoadingText(true);
                 return;
@@ -347,7 +347,7 @@ async function preload() {
                 if (typeof API !== 'undefined') {
                     serverState = await fetchWithTimeout(
                         API.call('/api/state', null),
-                        4000
+                        10000
                     );
                     if (serverState && serverState.isBanned) {
                         updateLoadingText(true);
