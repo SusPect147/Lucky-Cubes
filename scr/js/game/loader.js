@@ -1,4 +1,16 @@
 const animationCache = {};
+
+window.getAnimData = function(name) {
+    let skinPrefix = 'classic_skins/';
+    if (typeof Inventory !== 'undefined' && Inventory.equippedSkin && typeof Shop !== 'undefined' && Shop.skins) {
+        const equipped = Shop.skins.find(s => s.id === Inventory.equippedSkin);
+        if (equipped && equipped.folder) {
+            skinPrefix = equipped.folder + '/';
+        }
+    }
+    return animationCache[skinPrefix + name] || animationCache['classic_skins/' + name];
+};
+
 let loadedCount = 0;
 let totalAssets = 0;
 let serverState = null;
