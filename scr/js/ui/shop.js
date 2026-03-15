@@ -99,7 +99,7 @@ const Shop = {
             bonus: 'None',
             price: 0,
             currency: 'lucu',
-            imageUrl: 'assets/UI/images/skins/1-cubic.webp'
+            imageUrl: 'assets/UI/images/skins/default.webp'
         },
         {
             id: 'gold_skin',
@@ -107,7 +107,7 @@ const Shop = {
             bonus: '+15% Coins',
             price: 2500,
             currency: 'lucu',
-            imageUrl: 'assets/UI/images/skins/2-cubic.webp'
+            imageUrl: 'assets/UI/images/skins/gold_skin.webp'
         },
         {
             id: 'lucky_skin',
@@ -115,7 +115,7 @@ const Shop = {
             bonus: 'Extra Luck (Min reductions)',
             price: 4000,
             currency: 'lucu',
-            imageUrl: 'assets/UI/images/skins/3-cubic.webp'
+            imageUrl: 'assets/UI/images/skins/lucky_skin.webp'
         },
         {
             id: 'rainbow_skin',
@@ -123,7 +123,7 @@ const Shop = {
             bonus: 'Chance for Random Rainbow Roll',
             price: 500,
             currency: 'stars',
-            imageUrl: 'assets/UI/images/skins/4-cubic.webp'
+            imageUrl: 'assets/UI/images/skins/rainbow_skin.webp'
         },
         {
             id: 'ton_skin',
@@ -131,7 +131,7 @@ const Shop = {
             bonus: 'Permanent Min Reduction (-10%)',
             price: 2,
             currency: 'ton',
-            imageUrl: 'assets/UI/images/skins/5-cubic.webp'
+            imageUrl: 'assets/UI/images/skins/ton_skin.webp'
         }
     ],
 

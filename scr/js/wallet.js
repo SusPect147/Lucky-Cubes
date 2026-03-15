@@ -1,6 +1,15 @@
 (function () {
     'use strict';
 
+    // TON SDK Telemetry Interceptor to prevent 400 Errors on analytics spam
+    const originalFetch = window.fetch;
+    window.fetch = async function () {
+        if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('analytics.ton.org')) {
+            return new Response(JSON.stringify({}), { status: 200, statusText: 'OK' });
+        }
+        return originalFetch.apply(this, arguments);
+    };
+
     let tonConnectUI = null;
     let isInitialized = false;
 

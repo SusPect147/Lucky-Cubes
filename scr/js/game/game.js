@@ -236,9 +236,9 @@ window.Game = (function () {
         if (typeof Inventory !== 'undefined' && Inventory.equippedSkin && Inventory.equippedSkin !== 'default') {
             const equipped = Inventory.equippedSkin;
             if (equipped === 'gold_skin') baseName = '2-cubic';
-            else if (equipped === 'lucky_skin') baseName = '6-cubic';
-            else if (equipped === 'rainbow_skin') baseName = '7-cubic';
-            else if (equipped === 'ton_skin') baseName = '4-cubic'; // Arbitrary mappings to available tgs files
+            else if (equipped === 'lucky_skin') baseName = '3-cubic';
+            else if (equipped === 'rainbow_skin') baseName = '4-cubic';
+            else if (equipped === 'ton_skin') baseName = '5-cubic'; 
             else baseName = equipped; 
         }
 
