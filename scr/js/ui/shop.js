@@ -151,19 +151,20 @@ const Shop = {
         const skinsEmpty = document.getElementById('shop-skins-empty');
         const boostsList = document.getElementById('shop-boosts-list');
         const casesList = document.getElementById('shop-cases-list');
+        const skinsList = document.getElementById('shop-skins-list');
 
         if (tab === 'skins') {
             if (skinsEmpty) skinsEmpty.style.display = 'none';
             if (boostsList) boostsList.style.display = 'none';
             if (casesList) casesList.style.display = 'none';
             
-            let skinsList = document.getElementById('shop-skins-list');
             if (skinsList) {
                 skinsList.style.display = 'flex';
             }
             this.renderSkins();
         } else if (tab === 'boosts') {
             if (skinsEmpty) skinsEmpty.style.display = 'none';
+            if (skinsList) skinsList.style.display = 'none';
             if (boostsList) {
                 boostsList.style.display = 'grid';
                 this.renderBoosts();
@@ -171,6 +172,7 @@ const Shop = {
             if (casesList) casesList.style.display = 'none';
         } else if (tab === 'cases') {
             if (skinsEmpty) skinsEmpty.style.display = 'none';
+            if (skinsList) skinsList.style.display = 'none';
             if (boostsList) boostsList.style.display = 'none';
             if (casesList) {
                 casesList.style.display = 'flex';
