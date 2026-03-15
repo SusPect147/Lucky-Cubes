@@ -233,6 +233,8 @@ window.Game = (function () {
     function showIdleCube() {
         const baseName = isRainbow ? 'super-first-cubic' : 'first-cubic';
 
+        isRolling = false; // Reset rolling state when returning to idle
+
         if (extraCubes > 0) {
             const data = getAnimData(baseName);
             const cubeAnimationContainer = document.getElementById('cube-animation');

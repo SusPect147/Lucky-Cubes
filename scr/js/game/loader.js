@@ -445,7 +445,6 @@ async function preload() {
                     const fallbackHTML = avatarContainer.innerHTML;
                     avatarContainer.style.background = 'transparent';
                     const img = document.createElement('img');
-                    img.crossOrigin = "Anonymous";
                     img.src = user.photo_url;
                     img.alt = 'Avatar';
                     img.style.width = '100%';

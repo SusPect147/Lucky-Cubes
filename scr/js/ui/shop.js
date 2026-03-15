@@ -95,7 +95,7 @@ const Shop = {
     skins: [
         {
             id: 'default',
-            name: 'classic_skins',
+            name: 'Classic',
             bonus: 'None',
             price: 0,
             currency: 'lucu',
@@ -103,7 +103,7 @@ const Shop = {
         },
         {
             id: 'gold_skin',
-            name: 'negative_skins',
+            name: 'Negative Glow',
             bonus: '+15% Coins',
             price: 2500,
             currency: 'lucu',
@@ -111,7 +111,7 @@ const Shop = {
         },
         {
             id: 'lucky_skin',
-            name: 'scary_skins',
+            name: 'Scary Shadow',
             bonus: 'Extra Luck (Min reductions)',
             price: 4000,
             currency: 'lucu',
@@ -119,7 +119,7 @@ const Shop = {
         },
         {
             id: 'rainbow_skin',
-            name: 'scratch_skins',
+            name: 'Scratch Master',
             bonus: 'Chance for Random Rainbow Roll',
             price: 500,
             currency: 'stars',
@@ -127,7 +127,7 @@ const Shop = {
         },
         {
             id: 'ton_skin',
-            name: 'toxic_skins',
+            name: 'Toxic Waste',
             bonus: 'Permanent Min Reduction (-10%)',
             price: 2,
             currency: 'ton',
@@ -135,7 +135,7 @@ const Shop = {
         },
         {
             id: 'woman_skin',
-            name: 'woman_skins',
+            name: 'Mysterious Lady',
             bonus: 'Mysterious Aura',
             price: 5000,
             currency: 'lucu',
