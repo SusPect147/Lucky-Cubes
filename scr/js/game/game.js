@@ -102,7 +102,7 @@ window.Game = (function () {
             if (currentAnim) currentAnim.destroy();
             currentAnim = lottie.loadAnimation({
                 container: cubeAnimationContainer,
-                renderer: 'svg',
+                renderer: 'canvas',
                 loop: false,
                 autoplay: false,
                 animationData: mainData
@@ -122,7 +122,7 @@ window.Game = (function () {
             if (anim) anim.destroy();
             const newAnim = lottie.loadAnimation({
                 container: container,
-                renderer: 'svg',
+                renderer: 'canvas',
                 loop: false,
                 autoplay: false,
                 animationData: animData
@@ -240,7 +240,7 @@ window.Game = (function () {
                 if (currentAnim) currentAnim.destroy();
                 currentAnim = lottie.loadAnimation({
                     container: cubeAnimationContainer,
-                    renderer: 'svg',
+                    renderer: 'canvas',
                     loop: true,
                     autoplay: true,
                     animationData: data
@@ -251,7 +251,7 @@ window.Game = (function () {
                     if (anim) anim.destroy();
                     const newAnim = lottie.loadAnimation({
                         container: container,
-                        renderer: 'svg',
+                        renderer: 'canvas',
                         loop: true,
                         autoplay: true,
                         animationData: data
@@ -265,7 +265,7 @@ window.Game = (function () {
                     if (currentAnim) currentAnim.destroy();
                     currentAnim = lottie.loadAnimation({
                         container: cubeAnimationContainer,
-                        renderer: 'svg',
+                        renderer: 'canvas',
                         loop: true,
                         autoplay: true,
                         animationData: data
@@ -281,7 +281,7 @@ window.Game = (function () {
         if (currentAnim) currentAnim.destroy();
         currentAnim = lottie.loadAnimation({
             container: document.getElementById('cube-animation'),
-            renderer: 'svg',
+            renderer: 'canvas',
             loop: true,
             autoplay: true,
             animationData: data
@@ -344,7 +344,7 @@ window.Game = (function () {
         if (currentAnim) currentAnim.destroy();
         currentAnim = lottie.loadAnimation({
             container: document.getElementById('cube-animation'),
-            renderer: 'svg',
+            renderer: 'canvas',
             loop: false,
             autoplay: true,
             animationData: animData,
@@ -1054,7 +1054,7 @@ window.Game = (function () {
                     if (data) {
                         const anim = lottie.loadAnimation({
                             container: animContainer,
-                            renderer: 'svg',
+                            renderer: 'canvas',
                             loop: true,
                             autoplay: true,
                             animationData: data
@@ -1117,7 +1117,7 @@ window.Game = (function () {
             if (data) {
                 const anim = lottie.loadAnimation({
                     container: animContainer,
-                    renderer: 'svg',
+                    renderer: 'canvas',
                     loop: true,
                     autoplay: true,
                     animationData: data
@@ -1282,7 +1282,7 @@ window.Game = (function () {
                 }
                 currentAnim = lottie.loadAnimation({
                     container: cubeAnimationContainer,
-                    renderer: 'svg',
+                    renderer: 'canvas',
                     loop: false,
                     autoplay: true,
                     animationData: mainAnimData
@@ -1309,7 +1309,7 @@ window.Game = (function () {
                     if (anim) anim.destroy();
                     const newAnim = lottie.loadAnimation({
                         container: container,
-                        renderer: 'svg',
+                        renderer: 'canvas',
                         loop: false,
                         autoplay: true,
                         animationData: animData

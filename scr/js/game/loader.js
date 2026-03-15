@@ -442,14 +442,19 @@ async function preload() {
             if (user.photo_url) {
                 const avatarContainer = document.getElementById('player-avatar-container');
                 if (avatarContainer) {
+                    const fallbackHTML = avatarContainer.innerHTML;
                     avatarContainer.style.background = 'transparent';
                     const img = document.createElement('img');
+                    img.crossOrigin = "Anonymous";
                     img.src = user.photo_url;
                     img.alt = 'Avatar';
                     img.style.width = '100%';
                     img.style.height = '100%';
                     img.style.borderRadius = '50%';
                     img.style.objectFit = 'cover';
+                    img.onerror = () => {
+                         avatarContainer.innerHTML = fallbackHTML;
+                    };
                     avatarContainer.innerHTML = '';
                     avatarContainer.appendChild(img);
                 }

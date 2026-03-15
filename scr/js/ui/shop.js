@@ -95,7 +95,7 @@ const Shop = {
     skins: [
         {
             id: 'default',
-            name: 'Default',
+            name: 'classic_skins',
             bonus: 'None',
             price: 0,
             currency: 'lucu',
@@ -103,7 +103,7 @@ const Shop = {
         },
         {
             id: 'gold_skin',
-            name: 'Golden Touch',
+            name: 'negative_skins',
             bonus: '+15% Coins',
             price: 2500,
             currency: 'lucu',
@@ -111,7 +111,7 @@ const Shop = {
         },
         {
             id: 'lucky_skin',
-            name: 'Lucky Glow',
+            name: 'scary_skins',
             bonus: 'Extra Luck (Min reductions)',
             price: 4000,
             currency: 'lucu',
@@ -119,7 +119,7 @@ const Shop = {
         },
         {
             id: 'rainbow_skin',
-            name: 'Rainbow Charm',
+            name: 'scratch_skins',
             bonus: 'Chance for Random Rainbow Roll',
             price: 500,
             currency: 'stars',
@@ -127,7 +127,7 @@ const Shop = {
         },
         {
             id: 'ton_skin',
-            name: 'TON Premium',
+            name: 'toxic_skins',
             bonus: 'Permanent Min Reduction (-10%)',
             price: 2,
             currency: 'ton',
@@ -135,7 +135,7 @@ const Shop = {
         },
         {
             id: 'woman_skin',
-            name: 'Mystery Edge',
+            name: 'woman_skins',
             bonus: 'Mysterious Aura',
             price: 5000,
             currency: 'lucu',
@@ -607,7 +607,7 @@ const Shop = {
                         if (data && animContainer.parentNode) {
                             lottie.loadAnimation({
                                 container: animContainer,
-                                renderer: 'svg',
+                                renderer: 'canvas',
                                 loop: true,
                                 autoplay: true,
                                 animationData: data
@@ -677,6 +677,15 @@ const Shop = {
         const confirmMsg = (i18n.t('confirm_buy_skin') || 'Are you sure you want to buy {name} for {price}?')
             .replace('{name}', skinItem.name)
             .replace('{price}', priceStr);
+
+        if (skinItem.currency === 'lucu' && typeof Game !== 'undefined' && Game.getCoinCount() < skinItem.price) {
+            if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
+                Squads.openCustomModal(i18n.t('not_enough_coins') || 'Not enough coins!');
+            } else if (window.showToast) {
+                window.showToast('Not enough coins!', 'error');
+            }
+            return;
+        }
 
         if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
             Squads.openCustomModal(confirmMsg, () => {
