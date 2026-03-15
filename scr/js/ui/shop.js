@@ -99,7 +99,7 @@ const Shop = {
             bonus: 'None',
             price: 0,
             currency: 'lucu',
-            imageUrl: 'assets/UI/images/skins/default.webp'
+            folder: 'classic_skins'
         },
         {
             id: 'gold_skin',
@@ -107,7 +107,7 @@ const Shop = {
             bonus: '+15% Coins',
             price: 2500,
             currency: 'lucu',
-            imageUrl: 'assets/UI/images/skins/gold_skin.webp'
+            folder: 'negative_skins'
         },
         {
             id: 'lucky_skin',
@@ -115,7 +115,7 @@ const Shop = {
             bonus: 'Extra Luck (Min reductions)',
             price: 4000,
             currency: 'lucu',
-            imageUrl: 'assets/UI/images/skins/lucky_skin.webp'
+            folder: 'scary_skins'
         },
         {
             id: 'rainbow_skin',
@@ -123,7 +123,7 @@ const Shop = {
             bonus: 'Chance for Random Rainbow Roll',
             price: 500,
             currency: 'stars',
-            imageUrl: 'assets/UI/images/skins/rainbow_skin.webp'
+            folder: 'scratch_skins'
         },
         {
             id: 'ton_skin',
@@ -131,7 +131,15 @@ const Shop = {
             bonus: 'Permanent Min Reduction (-10%)',
             price: 2,
             currency: 'ton',
-            imageUrl: 'assets/UI/images/skins/ton_skin.webp'
+            folder: 'toxic_skins'
+        },
+        {
+            id: 'woman_skin',
+            name: 'Mystery Edge',
+            bonus: 'Mysterious Aura',
+            price: 5000,
+            currency: 'lucu',
+            folder: 'woman_skins'
         }
     ],
 
@@ -579,10 +587,41 @@ const Shop = {
 
             const imgDiv = document.createElement('div');
             imgDiv.className = 'skin-image-container';
-            if (skin.imageUrl) {
+            imgDiv.style.width = '100px';
+            imgDiv.style.height = '100px';
+            imgDiv.style.margin = '0 auto';
+            imgDiv.style.display = 'flex';
+            imgDiv.style.justifyContent = 'center';
+            imgDiv.style.alignItems = 'center';
+
+            if (skin.folder) {
+                const animContainer = document.createElement('div');
+                animContainer.className = 'lottie-cube';
+                animContainer.style.width = '100px';
+                animContainer.style.height = '100px';
+                imgDiv.appendChild(animContainer);
+                
+                const tgsPath = CONFIG.assetsPath + skin.folder + '/first-cubic.tgs';
+                if (typeof loadTGS !== 'undefined') {
+                    loadTGS(tgsPath).then(data => {
+                        if (data && animContainer.parentNode) {
+                            lottie.loadAnimation({
+                                container: animContainer,
+                                renderer: 'svg',
+                                loop: true,
+                                autoplay: true,
+                                animationData: data
+                            });
+                        }
+                    });
+                }
+            } else if (skin.imageUrl) {
                 const img = document.createElement('img');
                 img.src = skin.imageUrl;
                 img.alt = skin.name;
+                img.style.objectFit = 'contain';
+                img.style.width = '100%';
+                img.style.height = '100%';
                 imgDiv.appendChild(img);
             }
             card.appendChild(imgDiv);

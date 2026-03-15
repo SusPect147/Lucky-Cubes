@@ -380,8 +380,8 @@ async function preload() {
         const batch = tgsAssets.slice(i, i + TGS_BATCH_SIZE);
         await Promise.all(batch.map(async (asset) => {
             const name = asset.replace('.tgs', '');
-            const data = await loadTGSWithRetry(CONFIG.assetsPath + asset);
-            if (data) animationCache[name] = data;
+            const data = await loadTGSWithRetry(CONFIG.assetsPath + 'classic_skins/' + asset);
+            if (data) animationCache['classic_skins/' + name] = data;
             loadedCount++;
             updateLoadingText();
         }));

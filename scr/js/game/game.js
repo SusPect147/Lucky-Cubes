@@ -96,7 +96,7 @@ window.Game = (function () {
     function showLastFrameCubes(rolls) {
         if (!rolls || rolls.length === 0) return;
         const mainRoll = rolls[rolls.length - 1];
-        const mainData = animationCache[mainRoll + '-cubic'];
+        const mainData = getAnimData(mainRoll + '-cubic');
         const cubeAnimationContainer = document.getElementById('cube-animation');
         if (mainData && cubeAnimationContainer) {
             if (currentAnim) currentAnim.destroy();
@@ -116,7 +116,7 @@ window.Game = (function () {
         extraCubeAnims.forEach(({ anim, element }, index) => {
             if (index >= rolls.length - 1) return;
             const roll = rolls[index];
-            const animData = animationCache[roll + '-cubic'];
+            const animData = getAnimData(roll + '-cubic');
             const container = element && element.querySelector('.lottie-cube');
             if (!animData || !container) return;
             if (anim) anim.destroy();
@@ -232,19 +232,10 @@ window.Game = (function () {
     }
 
     function showIdleCube() {
-        let baseName = 'first-cubic';
-        if (typeof Inventory !== 'undefined' && Inventory.equippedSkin && Inventory.equippedSkin !== 'default') {
-            const equipped = Inventory.equippedSkin;
-            if (equipped === 'gold_skin') baseName = '2-cubic';
-            else if (equipped === 'lucky_skin') baseName = '3-cubic';
-            else if (equipped === 'rainbow_skin') baseName = '4-cubic';
-            else if (equipped === 'ton_skin') baseName = '5-cubic'; 
-            else baseName = equipped; 
-        }
+        const baseName = isRainbow ? 'super-first-cubic' : 'first-cubic';
 
         if (extraCubes > 0) {
-            const name = isRainbow ? 'super-first-cubic' : baseName;
-            const data = animationCache[name] || animationCache['first-cubic'];
+            const data = getAnimData(baseName);
             const cubeAnimationContainer = document.getElementById('cube-animation');
             if (isRainbow && data && cubeAnimationContainer) {
                 if (currentAnim) currentAnim.destroy();
@@ -285,8 +276,7 @@ window.Game = (function () {
             return;
         }
         
-        const name = isRainbow ? 'super-first-cubic' : baseName;
-        const data = animationCache[name] || animationCache['first-cubic'];
+        const data = getAnimData(baseName);
         if (!data) return;
 
         if (currentAnim) currentAnim.destroy();
@@ -310,7 +300,7 @@ window.Game = (function () {
         isRolling = true;
 
         const localRoll = Math.floor(Math.random() * 6) + 1;
-        const animData = animationCache[localRoll + '-cubic'];
+        const animData = getAnimData(localRoll + '-cubic');
         if (!animData) {
             isRolling = false;
             return;
@@ -1061,7 +1051,7 @@ window.Game = (function () {
                     animContainer.innerHTML = '';
 
                     const name = isRainbow ? 'super-first-cubic' : 'first-cubic';
-                    const data = animationCache[name];
+                    const data = getAnimData(name);
                     if (data) {
                         const anim = lottie.loadAnimation({
                             container: animContainer,
@@ -1124,7 +1114,7 @@ window.Game = (function () {
             centerGif.parentElement.appendChild(cube);
 
             const name = isRainbow ? 'super-first-cubic' : 'first-cubic';
-            const data = animationCache[name];
+            const data = getAnimData(name);
             if (data) {
                 const anim = lottie.loadAnimation({
                     container: animContainer,
@@ -1273,7 +1263,7 @@ window.Game = (function () {
                 const hypertapBoost = activeBoosts.find(b => b.id === 'hypertap');
                 const animationSpeed = hypertapBoost ? 2.0 : 1.0;
 
-                const mainAnimData = animationCache[mainRoll + '-cubic'];
+                const mainAnimData = getAnimData(mainRoll + '-cubic');
                 const cubeAnimationContainer = document.getElementById('cube-animation');
 
                 if (!mainAnimData || !cubeAnimationContainer) {
@@ -1306,7 +1296,7 @@ window.Game = (function () {
                 extraCubeAnims.forEach(({ anim, element }, index) => {
                     if (index < rolls.length - 1) {
                         const roll = rolls[index];
-                        const animData = animationCache[roll + '-cubic'];
+                        const animData = getAnimData(roll + '-cubic');
                         if (animData && anim && element) {
                             const container = element.querySelector('.lottie-cube');
                             if (container) {
