@@ -135,8 +135,7 @@ window.Game = (function () {
             if (newAnim.totalFrames) newAnim.goToAndStop(Math.max(0, newAnim.totalFrames - 1), true);
         });
     }
-
-    let animationCache = {};
+    const getAnimData = window.getAnimData;
 
     let _rollQueue = 0;
     let _batchTimer = null;
