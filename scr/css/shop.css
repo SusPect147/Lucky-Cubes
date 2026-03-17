@@ -845,6 +845,7 @@
 /* --- Skin Cards --- */
 .skin-item {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 14px;
     background: var(--bg-elevated);
@@ -854,6 +855,18 @@
     transition: all 0.2s ease;
     box-shadow: var(--shadow-subtle);
     width: 100%;
+    cursor: pointer;
+}
+
+.skin-variations {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 4px;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 14px;
 }
 
 .skin-item:hover {

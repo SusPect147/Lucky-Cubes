@@ -272,49 +272,16 @@ const Inventory = {
                 this.loadFromServer(resp);
 
                 if (resp.reward) {
-                    const typeStr = resp.reward.type === 'coins' ? '$LUCU' : resp.reward.type;
-
-                    if (targetElement) {
-                        const rect = targetElement.getBoundingClientRect();
-                        const centerX = rect.left + rect.width / 2;
-                        const centerY = rect.top + rect.height / 2;
-                        for (let i = 0; i < 40; i++) {
-                            const p = document.createElement('div');
-                            p.style.position = 'fixed';
-                            p.style.left = `${centerX}px`;
-                            p.style.top = `${centerY}px`;
-                            p.style.width = '8px';
-                            p.style.height = '8px';
-                            p.style.borderRadius = '50%';
-                            let pColor = '#ffffff';
-                            if (caseId === 'starter_case') pColor = '#dc3545';
-                            if (caseId === 'lucky_case') pColor = '#ffd54f';
-                            if (caseId === 'premium_case') pColor = '#4fc3f7';
-                            p.style.background = pColor;
-                            p.style.zIndex = '100';
-                            p.style.transition = 'all 1s cubic-bezier(0.1, 0.8, 0.2, 1)';
-                            p.style.opacity = '1';
-                            document.body.appendChild(p);
-
-                            setTimeout(() => {
-                                const angle = Math.random() * Math.PI * 2;
-                                const distance = 100 + Math.random() * 100;
-                                p.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`;
-                                p.style.opacity = '0';
-                            }, 50);
-                            setTimeout(() => p.remove(), 1100);
-                        }
-                    }
-
-                    // Show reward in a styled popup
-                    setTimeout(() => {
+                    const typeStr = resp.reward.type === 'coins' ? '$LUCU' : (resp.reward.type === 'skin' ? 'Skin' : 'Case');
+                    
+                    this.showRoulette(resp.reward, caseId, () => {
                         const rewardMsg = `
                             <div style="text-align:center;">
                                 <div style="font-size:2rem; margin-bottom:8px;">🎉</div>
                                 <div style="font-size:1rem; font-weight:600; margin-bottom:12px;">${i18n.t('case_reward_title') || 'You unboxed:'}</div>
                                 <div style="background:rgba(255,255,255,0.05); border-radius:12px; padding:14px 18px; display:inline-block;">
                                     <div style="font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#ffd54f,#ff9800); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
-                                        ${resp.reward.amount}
+                                        ${resp.reward.amount || resp.reward.id || ''}
                                     </div>
                                     <div style="font-size:0.8rem; color:rgba(255,255,255,0.5); margin-top:4px;">${typeStr}</div>
                                 </div>
@@ -323,13 +290,140 @@ const Inventory = {
                         if (typeof Squads !== 'undefined' && Squads.openCustomModal) {
                             Squads.openCustomModal(rewardMsg);
                         } else if (window.showToast) {
-                            window.showToast(`Unboxed: ${resp.reward.amount} ${typeStr}!`, 'success');
+                            window.showToast(`Unboxed: ${resp.reward.amount || resp.reward.id} ${typeStr}!`, 'success');
                         }
-                    }, 400);
+                    });
                 }
             })
             .catch(err => {
                 console.error('Open case failed:', err);
             });
+    },
+
+    showRoulette: function(reward, caseId, callback) {
+        const overlay = document.createElement('div');
+        Object.assign(overlay.style, {
+            position: 'fixed', inset: '0', background: 'rgba(5, 5, 8, 0.95)',
+            zIndex: '9999', display: 'flex', flexDirection: 'column', 
+            alignItems: 'center', justifyContent: 'center', opacity: '0',
+            transition: 'opacity 0.3s ease'
+        });
+
+        const title = document.createElement('div');
+        title.innerHTML = `<h3>${i18n.t('opening_case') || 'Opening Case...'}</h3>`;
+        title.style.color = '#fff';
+        title.style.marginBottom = '40px';
+        title.style.fontFamily = 'Inter, sans-serif';
+        overlay.appendChild(title);
+
+        const rouletteContainer = document.createElement('div');
+        Object.assign(rouletteContainer.style, {
+            width: '90%', maxWidth: '600px', height: '140px', background: '#1c1c20',
+            border: '2px solid rgba(255,255,255,0.1)', borderRadius: '16px',
+            position: 'relative', overflow: 'hidden', boxShadow: '0 0 30px rgba(0,0,0,0.5)'
+        });
+
+        const centerLine = document.createElement('div');
+        Object.assign(centerLine.style, {
+            position: 'absolute', top: '0', bottom: '0', left: '50%', width: '4px',
+            background: '#ffca28', transform: 'translateX(-50%)', zIndex: '10',
+            boxShadow: '0 0 10px #ffca28'
+        });
+        rouletteContainer.appendChild(centerLine);
+
+        const track = document.createElement('div');
+        Object.assign(track.style, {
+            display: 'flex', height: '100%', alignItems: 'center',
+            position: 'absolute', left: '0', top: '0',
+            transition: 'transform 6.5s cubic-bezier(0.1, 0.85, 0.15, 1)'
+        });
+        
+        const totalItems = 65;
+        const winIndex = 55; 
+        const itemWidth = 120;
+        
+        for (let i = 0; i < totalItems; i++) {
+            const item = document.createElement('div');
+            Object.assign(item.style, {
+                width: `${itemWidth}px`, height: '100%', flexShrink: '0',
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                justifyContent: 'center', borderRight: '1px solid rgba(255,255,255,0.05)',
+                padding: '10px', boxSizing: 'border-box'
+            });
+
+            let isWinner = (i === winIndex);
+            let imgSrc = '';
+            let text = '';
+            
+            if (isWinner) {
+                if (reward.type === 'coins') {
+                    imgSrc = 'assets/UI/images/lucu.webp';
+                    text = reward.amount + ' $LUCU';
+                } else if (reward.type === 'skin') {
+                    const s = Shop.skins.find(sk => sk.id === reward.id);
+                    if (s && s.imageUrl) {
+                        imgSrc = s.imageUrl;
+                    } else {
+                        imgSrc = 'assets/UI/images/cubes_cubes.png'; 
+                    }
+                    text = s ? s.name : 'Skin';
+                } else if (reward.type === 'case') {
+                    const c = Shop.cases.find(cc => cc.id === reward.id);
+                    if (c && c.imageUrl) imgSrc = c.imageUrl;
+                    text = c ? c.name : 'Case';
+                }
+            } else {
+                const rand = Math.random();
+                if (rand < 0.6) {
+                    imgSrc = 'assets/UI/images/lucu.webp';
+                    text = Math.floor(Math.random() * 500 + 50) + ' $LUCU';
+                } else if (rand < 0.8) {
+                    imgSrc = 'assets/UI/images/cases/1-case.webp';
+                    text = 'Case';
+                } else {
+                    imgSrc = 'assets/UI/images/cubes_cubes.png';
+                    text = 'Skin';
+                }
+            }
+            
+            item.innerHTML = `
+                <div style="width: 60px; height: 60px; display: flex; align-items:center; justify-content:center; margin-bottom:12px;">
+                    <img src="${imgSrc}" style="max-width:100%; max-height:100%; object-fit:contain;" />
+                </div>
+                <div style="font-size: 0.85rem; color:#fff; font-weight:bold; white-space:nowrap;">${text}</div>
+            `;
+            track.appendChild(item);
+        }
+        
+        rouletteContainer.appendChild(track);
+        overlay.appendChild(rouletteContainer);
+        document.body.appendChild(overlay);
+
+        requestAnimationFrame(() => {
+            overlay.style.opacity = '1';
+        });
+
+        setTimeout(() => {
+            const containerWidth = rouletteContainer.offsetWidth;
+            const stopPos = (winIndex * itemWidth) + (itemWidth / 2) - (containerWidth / 2);
+            const randOffset = (Math.random() - 0.5) * (itemWidth * 0.8);
+            track.style.transform = `translateX(-${stopPos + randOffset}px)`;
+        }, 100);
+
+        setTimeout(() => {
+            const flash = document.createElement('div');
+            Object.assign(flash.style, {
+                position: 'absolute', inset: '0', background: '#fff', opacity: '0.8',
+                transition: 'opacity 0.5s ease', zIndex: '20', pointerEvents: 'none'
+            });
+            rouletteContainer.appendChild(flash);
+            requestAnimationFrame(() => { flash.style.opacity = '0'; });
+
+            setTimeout(() => {
+                if (callback) callback();
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 300);
+            }, 1200);
+        }, 6600);
     }
 };

@@ -193,6 +193,7 @@ window.Game = (function () {
         if (serverResult.rollsToRainbow !== undefined) rollsToRainbow = serverResult.rollsToRainbow;
         if (serverResult.targetRainbow !== undefined) targetRainbow = serverResult.targetRainbow;
 
+        let needsIdleUpdate = false;
         if (serverResult.rainbowTriggered) {
             isRainbow = true;
             isRainbowFromBoost = false;
@@ -203,8 +204,7 @@ window.Game = (function () {
                 rf.style.width = '100%';
                 rf.classList.add('rainbow-active');
             }
-            showIdleCube();
-            if (extraCubes > 0) Game.updateCubeLayout();
+            needsIdleUpdate = true;
         } else if (!isRainbow) {
             const percent = (rollsToRainbow / targetRainbow) * 100;
             if (rainbowFill) rainbowFill.style.width = percent + '%';
@@ -215,7 +215,17 @@ window.Game = (function () {
             const rf = document.getElementById('rainbow-progress-fill');
             if (rf) rf.classList.remove('rainbow-active');
             newRainbowTarget();
-            showIdleCube();
+            needsIdleUpdate = true;
+        }
+
+        if (needsIdleUpdate) {
+            if (isRolling) {
+                window._pendingIdleUpdate = true;
+                if (extraCubes > 0) window._pendingLayoutUpdate = true;
+            } else {
+                showIdleCube();
+                if (extraCubes > 0) Game.updateCubeLayout();
+            }
         }
 
         updateUI(coinCount, currentMin);
@@ -362,6 +372,16 @@ window.Game = (function () {
         currentAnim.addEventListener('complete', function handler() {
             currentAnim.removeEventListener('complete', handler);
             isRolling = false;
+            if (window._pendingIdleUpdate) {
+                window._pendingIdleUpdate = false;
+                showIdleCube();
+                if (window._pendingLayoutUpdate) {
+                    window._pendingLayoutUpdate = false;
+                    if (extraCubes > 0 && Game.updateCubeLayout) {
+                        Game.updateCubeLayout();
+                    }
+                }
+            }
         });
     }
 

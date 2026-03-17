@@ -94,14 +94,6 @@ const Shop = {
 
     skins: [
         {
-            id: 'default',
-            name: 'Classic',
-            bonus: 'None',
-            price: 0,
-            currency: 'lucu',
-            folder: 'classic_skins'
-        },
-        {
             id: 'gold_skin',
             name: 'Negative Glow',
             bonus: '+15% Coins',
@@ -640,15 +632,12 @@ const Shop = {
             infoDiv.appendChild(bonusDiv);
 
             const isOwned = (typeof Inventory !== 'undefined' && Inventory.ownedSkins && Inventory.ownedSkins.includes(skin.id));
-            const isEquipped = (typeof Inventory !== 'undefined' && Inventory.equippedSkin === skin.id);
 
             const priceDiv = document.createElement('div');
             priceDiv.className = 'skin-prices';
             
-            if (isEquipped) {
-                priceDiv.innerHTML = `<button class="skin-btn skin-equipped-btn">Equipped</button>`;
-            } else if (isOwned) {
-                priceDiv.innerHTML = `<button class="skin-btn skin-equip-btn" onclick="Shop.equipSkin('${skin.id}', event)">Equip</button>`;
+            if (isOwned) {
+                priceDiv.innerHTML = `<button class="skin-btn skin-equipped-btn" style="opacity:0.6; cursor:default;" onclick="event.stopPropagation()">Куплено</button>`;
             } else {
                 let priceText = '';
                 if (skin.currency === 'lucu') priceText = `${skin.price} $LUCU`;
@@ -659,8 +648,50 @@ const Shop = {
             }
             infoDiv.appendChild(priceDiv);
             card.appendChild(infoDiv);
+            card.onclick = () => Shop.toggleSkinExpand(card, skin.id);
             skinsList.appendChild(card);
         });
+    },
+
+    toggleSkinExpand: function (card, skinId) {
+        if (card.classList.contains('expanded')) {
+            card.classList.remove('expanded');
+            const vars = card.querySelector('.skin-variations');
+            if (vars) vars.remove();
+        } else {
+            card.classList.add('expanded');
+            const skin = this.skins.find(s => s.id === skinId);
+            if (!skin) return;
+
+            const varsContainer = document.createElement('div');
+            varsContainer.className = 'skin-variations';
+            
+            const anims = ['first-cubic', 'super-first-cubic', '1-cubic', '2-cubic', '3-cubic', '4-cubic', '5-cubic', '6-cubic'];
+            
+            anims.forEach(anim => {
+                const item = document.createElement('div');
+                item.className = 'skin-var-item lottie-cube';
+                item.style.width = '60px';
+                item.style.height = '60px';
+                varsContainer.appendChild(item);
+                
+                if (skin.folder && typeof loadTGS !== 'undefined') {
+                    const tgsPath = CONFIG.assetsPath + skin.folder + '/' + anim + '.tgs';
+                    loadTGS(tgsPath).then(data => {
+                        if (data && item.parentNode) {
+                            lottie.loadAnimation({
+                                container: item,
+                                renderer: 'canvas',
+                                loop: true,
+                                autoplay: true,
+                                animationData: data
+                            });
+                        }
+                    });
+                }
+            });
+            card.appendChild(varsContainer);
+        }
     },
 
     buySkin: function (skinId, event) {
