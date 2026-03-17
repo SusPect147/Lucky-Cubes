@@ -808,12 +808,24 @@ const Shop = {
                     Inventory.equippedSkin = skinId;
                     if (Inventory.render) Inventory.render();
                 }
-                if (typeof Game !== 'undefined' && Game.onSkinEquipped) {
-                    Game.onSkinEquipped();
-                }
-                this.renderSkins();
-                if (typeof window.showToast !== 'undefined') {
-                    window.showToast('Skin equipped!', 'success');
+
+                const skinDef = this.skins.find(s => s.id === skinId);
+                const folder = skinDef && skinDef.folder ? skinDef.folder : null;
+
+                const finishEquip = () => {
+                    if (typeof Game !== 'undefined' && Game.onSkinEquipped) {
+                        Game.onSkinEquipped();
+                    }
+                    this.renderSkins();
+                    if (typeof window.showToast !== 'undefined') {
+                        window.showToast('Skin equipped!', 'success');
+                    }
+                };
+
+                if (folder && typeof window.loadSkinAssets === 'function') {
+                    window.loadSkinAssets(folder).then(finishEquip).catch(finishEquip);
+                } else {
+                    finishEquip();
                 }
             })
             .catch(err => console.error('Equip skin failed', err));

@@ -11,6 +11,17 @@ window.getAnimData = function(name) {
     return animationCache[skinPrefix + name] || animationCache['classic_skins/' + name];
 };
 
+window.loadSkinAssets = async function(skinFolder) {
+    const assetNames = CONFIG.assets || [];
+    await Promise.all(assetNames.map(async (asset) => {
+        const name = asset.replace('.tgs', '');
+        const key = skinFolder + '/' + name;
+        if (animationCache[key]) return;
+        const data = await loadTGSWithRetry(CONFIG.assetsPath + skinFolder + '/' + asset);
+        if (data) animationCache[key] = data;
+    }));
+};
+
 let loadedCount = 0;
 let totalAssets = 0;
 let serverState = null;

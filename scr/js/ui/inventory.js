@@ -406,6 +406,8 @@ const Inventory = {
         const totalItems = 65;
         const winIndex = 55; 
         const itemWidth = 120;
+        const itemMargin = 4; // margin on each side
+        const totalItemWidth = itemWidth + itemMargin * 2; // 128px actual occupied width
         
         for (let i = 0; i < totalItems; i++) {
             const item = document.createElement('div');
@@ -413,7 +415,7 @@ const Inventory = {
                 width: `${itemWidth}px`, height: '90%', flexShrink: '0',
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', boxSizing: 'border-box',
-                background: 'rgba(255,255,255,0.03)', margin: '0 4px',
+                background: 'rgba(255,255,255,0.03)', margin: `0 ${itemMargin}px`,
                 borderRadius: '16px', transition: 'transform 0.2s ease'
             });
 
@@ -471,7 +473,7 @@ const Inventory = {
 
         setTimeout(() => {
             const containerWidth = rouletteContainer.offsetWidth;
-            const stopPos = (winIndex * itemWidth) + (itemWidth / 2) - (containerWidth / 2);
+            const stopPos = (winIndex * totalItemWidth) + (totalItemWidth / 2) - (containerWidth / 2);
             track.style.transform = `translateX(-${stopPos}px)`;
         }, 100);
 
