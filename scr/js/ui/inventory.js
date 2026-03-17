@@ -472,8 +472,7 @@ const Inventory = {
         setTimeout(() => {
             const containerWidth = rouletteContainer.offsetWidth;
             const stopPos = (winIndex * itemWidth) + (itemWidth / 2) - (containerWidth / 2);
-            const randOffset = (Math.random() - 0.5) * (itemWidth * 0.8);
-            track.style.transform = `translateX(-${stopPos + randOffset}px)`;
+            track.style.transform = `translateX(-${stopPos}px)`;
         }, 100);
 
         setTimeout(() => {

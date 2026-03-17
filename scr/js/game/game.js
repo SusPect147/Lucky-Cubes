@@ -15,7 +15,7 @@ window.Game = (function () {
     let autoRollInterval = null;
     let consecutiveRolls = 0;
     let lastRollTime = 0;
-
+    let lastSingleRoll = 1;
 
     function apiCall(endpoint, body) {
         return API.call(endpoint, body);
@@ -311,6 +311,8 @@ window.Game = (function () {
         isRolling = true;
 
         const localRoll = Math.floor(Math.random() * 6) + 1;
+        lastSingleRoll = localRoll;
+        
         const animData = getAnimData(localRoll + '-cubic');
         if (!animData) {
             isRolling = false;
@@ -372,6 +374,14 @@ window.Game = (function () {
         currentAnim.addEventListener('complete', function handler() {
             currentAnim.removeEventListener('complete', handler);
             isRolling = false;
+            
+            if (window._pendingSkinEquip) {
+                window._pendingSkinEquip = false;
+                if (typeof Game.onSkinEquipped === 'function') {
+                    Game.onSkinEquipped();
+                }
+            }
+
             if (window._pendingIdleUpdate) {
                 window._pendingIdleUpdate = false;
                 showIdleCube();
@@ -560,6 +570,39 @@ window.Game = (function () {
         },
         claimQuest: claimQuest,
         rollCube: rollCube,
+        onSkinEquipped: function () {
+            if (isRolling) {
+                window._pendingSkinEquip = true;
+                return;
+            }
+            if (isRainbow) {
+                showIdleCube();
+            } else {
+                if (extraCubes > 0) {
+                    showIdleCube();
+                } else {
+                    const animData = getAnimData(lastSingleRoll + '-cubic');
+                    const cubeAnimationContainer = document.getElementById('cube-animation');
+                    if (animData && cubeAnimationContainer) {
+                        if (currentAnim) currentAnim.destroy();
+                        currentAnim = lottie.loadAnimation({
+                            container: cubeAnimationContainer,
+                            renderer: 'canvas',
+                            loop: false,
+                            autoplay: false,
+                            animationData: animData,
+                            rendererSettings: { preserveAspectRatio: 'xMidYMid meet' }
+                        });
+                        currentAnim.addEventListener('DOMLoaded', function () {
+                            const lastFrame = Math.max(0, (currentAnim.totalFrames || 1) - 1);
+                            currentAnim.goToAndStop(lastFrame, true);
+                        });
+                        if (currentAnim.totalFrames) currentAnim.goToAndStop(Math.max(0, currentAnim.totalFrames - 1), true);
+                    }
+                }
+            }
+            if (extraCubes > 0 && Game.updateCubeLayout) Game.updateCubeLayout();
+        },
         applyServerState: function (resp) {
             if (resp.totalCoins !== undefined) {
                 coinCount = resp.totalCoins;

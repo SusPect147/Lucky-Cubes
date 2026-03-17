@@ -770,6 +770,9 @@ const Shop = {
                 Inventory.equippedSkin = skinId;
                 Inventory.render();
             }
+            if (typeof Game !== 'undefined' && Game.onSkinEquipped) {
+                Game.onSkinEquipped();
+            }
             this.renderSkins();
         };
 
@@ -803,6 +806,10 @@ const Shop = {
                 }
                 if (typeof Inventory !== 'undefined') {
                     Inventory.equippedSkin = skinId;
+                    if (Inventory.render) Inventory.render();
+                }
+                if (typeof Game !== 'undefined' && Game.onSkinEquipped) {
+                    Game.onSkinEquipped();
                 }
                 this.renderSkins();
                 if (typeof window.showToast !== 'undefined') {
