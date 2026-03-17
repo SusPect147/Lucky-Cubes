@@ -47,7 +47,7 @@ const Inventory = {
 
         if (!activeTab || activeTab.dataset.tab === 'skins') {
             const owned = this.ownedSkins || ['default'];
-            const displaySkins = owned.filter(id => id !== 'default');
+            const displaySkins = owned;
             
             if (displaySkins.length === 0) {
                 const divState = document.createElement('div');
@@ -62,6 +62,8 @@ const Inventory = {
 
             const skinsList = document.createElement('div');
             skinsList.className = 'shop-skins-list';
+            skinsList.style.display = 'grid';
+            skinsList.style.gap = '12px';
 
             displaySkins.forEach(skinId => {
                 const skinDef = Shop.skins.find(s => s.id === skinId);
@@ -193,7 +195,7 @@ const Inventory = {
 
                 const useBtn = document.createElement('button');
                 useBtn.className = 'boost-use-btn case-use-btn';
-                useBtn.textContent = 'Open';
+                useBtn.textContent = i18n.t('open_btn') || 'Open';
                 infoDiv.appendChild(useBtn);
 
                 item.appendChild(infoDiv);

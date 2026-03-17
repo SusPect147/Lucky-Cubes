@@ -98,41 +98,58 @@ window.Game = (function () {
         const mainRoll = rolls[rolls.length - 1];
         const mainData = getAnimData(mainRoll + '-cubic');
         const cubeAnimationContainer = document.getElementById('cube-animation');
+        
         if (mainData && cubeAnimationContainer) {
-            if (currentAnim) currentAnim.destroy();
-            currentAnim = lottie.loadAnimation({
-                container: cubeAnimationContainer,
-                renderer: 'canvas',
-                loop: false,
-                autoplay: false,
-                animationData: mainData
-            });
-            currentAnim.addEventListener('DOMLoaded', function () {
+            if (currentAnim && currentAnim._lastData === mainData) {
+                // Re-use same instance, skip destroy
                 const lastFrame = Math.max(0, (currentAnim.totalFrames || 1) - 1);
                 currentAnim.goToAndStop(lastFrame, true);
-            });
-            if (currentAnim.totalFrames) currentAnim.goToAndStop(Math.max(0, currentAnim.totalFrames - 1), true);
+            } else {
+                if (currentAnim) currentAnim.destroy();
+                currentAnim = lottie.loadAnimation({
+                    container: cubeAnimationContainer,
+                    renderer: 'canvas',
+                    loop: false,
+                    autoplay: false,
+                    animationData: mainData
+                });
+                currentAnim._lastData = mainData;
+                currentAnim.addEventListener('DOMLoaded', function () {
+                    const lastFrame = Math.max(0, (currentAnim.totalFrames || 1) - 1);
+                    currentAnim.goToAndStop(lastFrame, true);
+                });
+                if (currentAnim.totalFrames) currentAnim.goToAndStop(Math.max(0, currentAnim.totalFrames - 1), true);
+            }
         }
+        
         extraCubeAnims.forEach(({ anim, element }, index) => {
             if (index >= rolls.length - 1) return;
             const roll = rolls[index];
             const animData = getAnimData(roll + '-cubic');
             const container = element && element.querySelector('.lottie-cube');
             if (!animData || !container) return;
-            if (anim) anim.destroy();
-            const newAnim = lottie.loadAnimation({
-                container: container,
-                renderer: 'canvas',
-                loop: false,
-                autoplay: false,
-                animationData: animData
-            });
-            extraCubeAnims[index].anim = newAnim;
-            newAnim.addEventListener('DOMLoaded', function () {
-                const lastFrame = Math.max(0, (newAnim.totalFrames || 1) - 1);
-                newAnim.goToAndStop(lastFrame, true);
-            });
-            if (newAnim.totalFrames) newAnim.goToAndStop(Math.max(0, newAnim.totalFrames - 1), true);
+            
+            if (anim && anim._lastData === animData) {
+                // Skip destroy/recreate for extra cubes too
+                const lastFrame = Math.max(0, (anim.totalFrames || 1) - 1);
+                anim.goToAndStop(lastFrame, true);
+            } else {
+                if (anim) anim.destroy();
+                const newAnim = lottie.loadAnimation({
+                    container: container,
+                    renderer: 'canvas',
+                    loop: false,
+                    autoplay: false,
+                    animationData: animData
+                });
+                newAnim._lastData = animData;
+                extraCubeAnims[index].anim = newAnim;
+                newAnim.addEventListener('DOMLoaded', function () {
+                    const lastFrame = Math.max(0, (newAnim.totalFrames || 1) - 1);
+                    newAnim.goToAndStop(lastFrame, true);
+                });
+                if (newAnim.totalFrames) newAnim.goToAndStop(Math.max(0, newAnim.totalFrames - 1), true);
+            }
         });
     }
     const getAnimData = window.getAnimData;
@@ -495,6 +512,10 @@ window.Game = (function () {
                 totalXP = state.totalXP || 0;
                 rollsToRainbow = state.rollsToRainbow || 0;
                 targetRainbow = state.targetRainbow || 7;
+
+                if (typeof Inventory !== 'undefined') {
+                    Inventory.equippedSkin = state.equippedSkin || 'default';
+                }
 
 
                 if (state.isRainbow) {

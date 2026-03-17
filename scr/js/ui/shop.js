@@ -570,7 +570,8 @@ const Shop = {
         }
         
         skinsList.innerHTML = '';
-        skinsList.style.display = 'flex';
+        skinsList.style.display = 'grid';
+        skinsList.style.gap = '12px';
 
         this.skins.forEach(skin => {
             const card = document.createElement('div');
@@ -770,10 +771,20 @@ const Shop = {
                 Inventory.equippedSkin = skinId;
                 Inventory.render();
             }
-            if (typeof Game !== 'undefined' && Game.onSkinEquipped) {
-                Game.onSkinEquipped();
+
+            const folder = skinItem && skinItem.folder ? skinItem.folder : null;
+            const finishEquip = () => {
+                if (typeof Game !== 'undefined' && Game.onSkinEquipped) {
+                    Game.onSkinEquipped();
+                }
+                this.renderSkins();
+            };
+
+            if (folder && typeof window.loadSkinAssets === 'function') {
+                window.loadSkinAssets(folder).then(finishEquip).catch(finishEquip);
+            } else {
+                finishEquip();
             }
-            this.renderSkins();
         };
 
         if (skinItem.currency === 'ton') {
