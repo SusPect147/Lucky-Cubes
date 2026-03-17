@@ -10,6 +10,8 @@ const Inventory = {
         if (!serverState) return;
         this.boosts = serverState.inventory || {};
         this.cases = serverState.cases || {};
+        this.ownedSkins = serverState.ownedSkins || ['default'];
+        this.equippedSkin = serverState.equippedSkin || 'default';
         this.render();
     },
 
@@ -44,13 +46,76 @@ const Inventory = {
         content.innerHTML = '';
 
         if (!activeTab || activeTab.dataset.tab === 'skins') {
-            const divState = document.createElement('div');
-            divState.className = 'inventory-empty-state';
-            const divText = document.createElement('div');
-            divText.className = 'inventory-empty-text';
-            divText.textContent = i18n.t('empty_skins');
-            divState.appendChild(divText);
-            content.appendChild(divState);
+            const owned = this.ownedSkins || ['default'];
+            const displaySkins = owned.filter(id => id !== 'default');
+            
+            if (displaySkins.length === 0) {
+                const divState = document.createElement('div');
+                divState.className = 'inventory-empty-state';
+                const divText = document.createElement('div');
+                divText.className = 'inventory-empty-text';
+                divText.textContent = i18n.t('empty_skins');
+                divState.appendChild(divText);
+                content.appendChild(divState);
+                return;
+            }
+
+            const skinsList = document.createElement('div');
+            skinsList.className = 'shop-skins-list';
+
+            displaySkins.forEach(skinId => {
+                const skinDef = Shop.skins.find(s => s.id === skinId);
+                if (!skinDef) return;
+
+                const isEquipped = (this.equippedSkin === skinId);
+
+                const card = document.createElement('div');
+                card.className = 'skin-item';
+                
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'skin-image-container';
+                if (skinDef.imageUrl) {
+                    const img = document.createElement('img');
+                    img.src = skinDef.imageUrl;
+                    imgContainer.appendChild(img);
+                } else {
+                    imgContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';
+                }
+                card.appendChild(imgContainer);
+
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'skin-info';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'skin-name';
+                nameDiv.textContent = skinDef.name;
+                infoDiv.appendChild(nameDiv);
+
+                if (skinDef.bonus && skinDef.bonus !== 'none') {
+                    const bonusDiv = document.createElement('div');
+                    bonusDiv.className = 'skin-bonus';
+                    bonusDiv.textContent = skinDef.bonus;
+                    infoDiv.appendChild(bonusDiv);
+                }
+
+                const priceDiv = document.createElement('div');
+                priceDiv.className = 'skin-prices';
+                
+                if (isEquipped) {
+                    priceDiv.innerHTML = `<button class="skin-btn skin-equipped-btn" onclick="event.stopPropagation()">${i18n.t('equipped') || 'Equipped'}</button>`;
+                } else {
+                    const equipBtn = document.createElement('button');
+                    equipBtn.className = 'skin-btn skin-equip-btn';
+                    equipBtn.textContent = i18n.t('equip') || 'Equip';
+                    equipBtn.onclick = (e) => Shop.equipSkin(skinDef.id, e);
+                    priceDiv.appendChild(equipBtn);
+                }
+                infoDiv.appendChild(priceDiv);
+                card.appendChild(infoDiv);
+                card.onclick = () => Shop.toggleSkinExpand(card, skinDef.id);
+                skinsList.appendChild(card);
+            });
+            content.appendChild(skinsList);
             return;
         }
 
@@ -318,16 +383,16 @@ const Inventory = {
 
         const rouletteContainer = document.createElement('div');
         Object.assign(rouletteContainer.style, {
-            width: '90%', maxWidth: '600px', height: '140px', background: '#1c1c20',
-            border: '2px solid rgba(255,255,255,0.1)', borderRadius: '16px',
-            position: 'relative', overflow: 'hidden', boxShadow: '0 0 30px rgba(0,0,0,0.5)'
+            width: '90%', maxWidth: '600px', height: '140px', background: '#131315',
+            borderRadius: '24px', position: 'relative', overflow: 'hidden', 
+            boxShadow: '0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.02)'
         });
 
         const centerLine = document.createElement('div');
         Object.assign(centerLine.style, {
-            position: 'absolute', top: '0', bottom: '0', left: '50%', width: '4px',
+            position: 'absolute', top: '10px', bottom: '10px', left: '50%', width: '3px',
             background: '#ffca28', transform: 'translateX(-50%)', zIndex: '10',
-            boxShadow: '0 0 10px #ffca28'
+            boxShadow: '0 0 15px 3px rgba(255, 202, 40, 0.4)', borderRadius: '2px'
         });
         rouletteContainer.appendChild(centerLine);
 
@@ -335,7 +400,7 @@ const Inventory = {
         Object.assign(track.style, {
             display: 'flex', height: '100%', alignItems: 'center',
             position: 'absolute', left: '0', top: '0',
-            transition: 'transform 6.5s cubic-bezier(0.1, 0.85, 0.15, 1)'
+            transition: 'transform 6s cubic-bezier(0.15, 0.85, 0.1, 1)'
         });
         
         const totalItems = 65;
@@ -345,10 +410,11 @@ const Inventory = {
         for (let i = 0; i < totalItems; i++) {
             const item = document.createElement('div');
             Object.assign(item.style, {
-                width: `${itemWidth}px`, height: '100%', flexShrink: '0',
+                width: `${itemWidth}px`, height: '90%', flexShrink: '0',
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', borderRight: '1px solid rgba(255,255,255,0.05)',
-                padding: '10px', boxSizing: 'border-box'
+                justifyContent: 'center', boxSizing: 'border-box',
+                background: 'rgba(255,255,255,0.03)', margin: '0 4px',
+                borderRadius: '16px', transition: 'transform 0.2s ease'
             });
 
             let isWinner = (i === winIndex);
@@ -387,10 +453,10 @@ const Inventory = {
             }
             
             item.innerHTML = `
-                <div style="width: 60px; height: 60px; display: flex; align-items:center; justify-content:center; margin-bottom:12px;">
+                <div style="width: 50px; height: 50px; display: flex; align-items:center; justify-content:center; margin-bottom:12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));">
                     <img src="${imgSrc}" style="max-width:100%; max-height:100%; object-fit:contain;" />
                 </div>
-                <div style="font-size: 0.85rem; color:#fff; font-weight:bold; white-space:nowrap;">${text}</div>
+                <div style="font-size: 0.8rem; color:rgba(255,255,255,0.8); font-weight:600; white-space:nowrap; letter-spacing: 0.5px;">${text}</div>
             `;
             track.appendChild(item);
         }
