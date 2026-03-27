@@ -89,3 +89,83 @@ function autoResizeText(element) {
     }
 }
 
+window.renderLevelsList = function() {
+    const levelsList = document.getElementById('levels-list');
+    if (!levelsList || typeof CONFIG === 'undefined' || !CONFIG.levels) return;
+    levelsList.innerHTML = '';
+    
+    let totalXP = typeof Game !== 'undefined' && Game.getTotalXP ? Game.getTotalXP() : 0;
+    
+    let currentLevelIndex = 0;
+    for (let i = 0; i < CONFIG.levels.length; i++) {
+        if (totalXP >= CONFIG.levels[i].xp) {
+            currentLevelIndex = i + 1;
+        } else {
+            break;
+        }
+    }
+    currentLevelIndex = Math.min(currentLevelIndex, CONFIG.levels.length - 1);
+    
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    const avatarUrl = tgUser?.photo_url || '';
+
+    CONFIG.levels.forEach((lvl, index) => {
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.padding = '12px 15px';
+        item.style.borderRadius = '12px';
+        item.style.background = 'rgba(255,255,255,0.03)';
+        item.style.marginBottom = '8px';
+        
+        let isCurrent = (index === currentLevelIndex);
+        if (isCurrent) {
+            item.style.background = 'rgba(255,255,255,0.08)';
+            item.style.border = '1px solid rgba(255,255,255,0.35)';
+        } else {
+            item.style.border = '1px solid transparent';
+        }
+
+        const icon = document.createElement('div');
+        icon.style.width = '32px';
+        icon.style.height = '32px';
+        icon.style.borderRadius = '50%';
+        icon.style.background = 'var(--bg-elevated)';
+        if (isCurrent && avatarUrl) {
+           icon.style.background = `url(${avatarUrl}) center/cover`;
+        }
+        icon.style.display = 'flex';
+        icon.style.alignItems = 'center';
+        icon.style.justifyContent = 'center';
+        icon.style.flexShrink = '0';
+        
+        if (!isCurrent || !avatarUrl) {
+            icon.textContent = '🌟';
+        }
+
+        const info = document.createElement('div');
+        info.style.flex = '1';
+        info.style.display = 'flex';
+        info.style.justifyContent = 'space-between';
+        info.style.alignItems = 'center';
+        info.style.marginLeft = '12px';
+
+        const name = document.createElement('div');
+        name.textContent = typeof i18n !== 'undefined' ? i18n.t(lvl.name) : lvl.name;
+        name.style.fontWeight = '600';
+        name.style.fontSize = '0.9rem';
+
+        const xp = document.createElement('div');
+        xp.textContent = `${lvl.xp} XP`;
+        xp.style.fontSize = '0.8rem';
+        xp.style.opacity = '0.7';
+
+        info.appendChild(name);
+        info.appendChild(xp);
+
+        item.appendChild(icon);
+        item.appendChild(info);
+
+        levelsList.appendChild(item);
+    });
+};

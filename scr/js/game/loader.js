@@ -326,14 +326,12 @@ async function preload() {
     updateLoadingText();
 
     let statePromise = null;
-    let lbPromise = null;
     try {
         if (typeof API !== 'undefined') {
             statePromise = API.call('/api/state', null).catch(e => {
                 console.error('Failed to fetch server state:', e);
                 return null;
             });
-            lbPromise = API.call('/api/leaderboard?limit=50', null).catch(() => null);
         }
     } catch (e) {
         console.error('API call initialization failed:', e);
@@ -438,35 +436,6 @@ async function preload() {
         await preloadImage(IMAGES_TO_LOAD[i]);
         loadedCount++;
         updateLoadingText();
-    }
-
-    if (lbPromise) {
-        try {
-            const lb = await lbPromise;
-            if (lb) {
-                const allEntries = [...(lb.byCoins || []), ...(lb.byMin || [])];
-                const seen = new Set();
-                const lbAvatars = [];
-                for (const p of allEntries) {
-                    if (p.photo_url && !p.photo_url.includes('missing') && !seen.has(p.photo_url)) {
-                        seen.add(p.photo_url);
-                        lbAvatars.push(p.photo_url);
-                    }
-                }
-                if (lbAvatars.length > 0) {
-                    totalAssets += lbAvatars.length;
-                    updateLoadingText();
-                    for (let i = 0; i < lbAvatars.length; i++) {
-                        if (skipRequested) break;
-                        await preloadImage(lbAvatars[i]);
-                        loadedCount++;
-                        updateLoadingText();
-                    }
-                }
-            }
-        } catch (e) {
-            console.error('Error preloading leaderboard:', e);
-        }
     }
 
     try {

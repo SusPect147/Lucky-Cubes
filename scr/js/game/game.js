@@ -1199,7 +1199,11 @@ window.Game = (function () {
             cube.style.cursor = 'pointer';
 
             if (position === 'left') {
-                cube.style.left = 'calc(50% - 140px)';
+                if (extraCubes === 1) {
+                    cube.style.left = 'calc(50% - 90px)';
+                } else {
+                    cube.style.left = 'calc(50% - 140px)';
+                }
             } else {
                 cube.style.left = 'calc(50% + 140px)';
             }

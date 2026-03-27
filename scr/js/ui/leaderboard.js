@@ -34,9 +34,19 @@ const Leaderboard = {
             return;
         }
 
+        const listEl = document.querySelector('.leaderboard-list');
+        if (listEl && !this.data) {
+            listEl.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 40px; color: rgba(255,255,255,0.6);">' +
+                '<div class="spinner" style="border: 3px solid rgba(255,255,255,0.1); border-top-color: #fff; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; margin-bottom: 12px;"></div>' +
+                '<style>@keyframes spin { to { transform: rotate(360deg); } }</style>' +
+                '<span>' + (typeof i18n !== "undefined" ? i18n.t('please_wait') : 'Пожалуйста, подождите...') + '</span>' +
+                '</div>';
+        }
+
         API.call('/api/leaderboard', null)
             .then(data => {
                 if (!data) {
+                    if (listEl) listEl.innerHTML = '<div style="text-align:center; padding: 20px;">Error loading leaderboard</div>';
                     console.error('Leaderboard load failed: no data');
                     return;
                 }
@@ -45,6 +55,7 @@ const Leaderboard = {
                 this.render();
             })
             .catch(err => {
+                if (listEl) listEl.innerHTML = '<div style="text-align:center; padding: 20px;">Error loading leaderboard</div>';
                 console.error('Leaderboard load failed:', err);
             });
     },

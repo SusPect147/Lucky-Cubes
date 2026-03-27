@@ -34,6 +34,37 @@ document.getElementById('quest-menu-overlay').addEventListener('click', function
     }
 });
 
+const rankText = document.getElementById('rank-text');
+if (rankText) {
+    rankText.style.cursor = 'pointer';
+    rankText.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const levelsOverlay = document.getElementById('levels-menu-overlay');
+        if (levelsOverlay) {
+            levelsOverlay.classList.add('visible');
+            if (typeof window.renderLevelsList === 'function') {
+                window.renderLevelsList();
+            }
+        }
+    });
+}
+const levelsCloseBtn = document.getElementById('levels-menu-close-btn');
+if (levelsCloseBtn) {
+    levelsCloseBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const levelsOverlay = document.getElementById('levels-menu-overlay');
+        if (levelsOverlay) levelsOverlay.classList.remove('visible');
+    });
+}
+const levelsOverlay = document.getElementById('levels-menu-overlay');
+if (levelsOverlay) {
+    levelsOverlay.addEventListener('click', function(e) {
+        if (e.target === levelsOverlay) {
+            levelsOverlay.classList.remove('visible');
+        }
+    });
+}
+
 document.getElementById('leaderboard-menu-btn').addEventListener('click', toggleLeaderboardScreen);
 document.getElementById('profile-menu-btn').addEventListener('click', toggleProfileScreen);
 

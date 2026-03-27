@@ -334,11 +334,21 @@ const Squads = {
                     mRow.style.display = 'flex';
                     mRow.style.alignItems = 'center';
                     mRow.style.padding = '10px 12px';
-                    mRow.style.background = 'rgba(255,255,255,0.03)';
                     mRow.style.borderRadius = '12px';
                     mRow.style.gap = '12px';
                     mRow.style.width = '100%';
                     mRow.style.boxSizing = 'border-box';
+                    
+                    if (member.id === this.squadData.owner) {
+                        mRow.style.background = 'rgba(255, 215, 0, 0.2)';
+                        mRow.style.border = '1px solid rgba(255, 215, 0, 0.3)';
+                    } else if (member.id === String(tgUser?.id)) {
+                        mRow.style.background = 'rgba(255,255,255,0.08)';
+                        mRow.style.border = '1px solid rgba(255,255,255,0.35)';
+                    } else {
+                        mRow.style.background = 'rgba(255,255,255,0.03)';
+                        mRow.style.border = '1px solid transparent';
+                    }
 
                     const mAvatar = document.createElement('div');
                     mAvatar.className = 'leaderboard-avatar';
@@ -703,22 +713,151 @@ const Squads = {
 
             bar.appendChild(valueEl);
 
-            // Make clickable for non-members — open apply confirm modal
-            const playerHasSquad = (typeof Game !== 'undefined' && Game.state && Game.state.squad);
-            const canApply = !playerHasSquad && !isMe;
-            if (canApply) {
-                bar.style.cursor = 'pointer';
-                row.addEventListener('click', () => {
-                    const squadName = squad.name || 'this squad';
-                    const confirmMsg = i18n.t('confirm_apply_squad', { name: squadName });
-                    this.openCustomModal(confirmMsg, () => {
-                        this.applyToSquad(squad.id);
-                    }, true);
-                });
-            }
-
             row.appendChild(bar);
+            
+            // Make clickable for EVERYONE to expand
+            row.style.cursor = 'pointer';
+            
+            const expandedContent = document.createElement('div');
+            expandedContent.className = 'squad-expanded-content';
+            expandedContent.style.display = 'none';
+            expandedContent.style.flexDirection = 'column';
+            expandedContent.style.padding = '10px';
+            expandedContent.style.gap = '8px';
+            expandedContent.style.background = 'rgba(0,0,0,0.3)';
+            expandedContent.style.borderBottomLeftRadius = '12px';
+            expandedContent.style.borderBottomRightRadius = '12px';
+            expandedContent.innerHTML = '<div style="text-align:center; color:rgba(255,255,255,0.5); font-size:0.8rem;">' + (i18n.t('loading_members') || 'Loading...') + '</div>';
+            
+            let isExpanded = false;
+            let membersLoaded = false;
+            
+            row.addEventListener('click', () => {
+                isExpanded = !isExpanded;
+                if (isExpanded) {
+                    expandedContent.style.display = 'flex';
+                    row.style.borderBottomLeftRadius = '0';
+                    row.style.borderBottomRightRadius = '0';
+                    
+                    if (!membersLoaded) {
+                        API.call('/api/squad-info', { squadId: squad.id })
+                            .then(resp => {
+                                membersLoaded = true;
+                                if (resp && resp.squad) {
+                                    this.renderExpandedMembers(resp.squad, expandedContent);
+                                } else {
+                                    expandedContent.innerHTML = '<div style="text-align:center; color:rgba(255,255,255,0.5); font-size:0.8rem;">Error loading members</div>';
+                                }
+                            })
+                            .catch(() => {
+                                expandedContent.innerHTML = '<div style="text-align:center; color:rgba(255,255,255,0.5); font-size:0.8rem;">Error loading members</div>';
+                            });
+                    }
+                } else {
+                    expandedContent.style.display = 'none';
+                    row.style.borderBottomLeftRadius = '12px';
+                    row.style.borderBottomRightRadius = '12px';
+                }
+            });
+
             listEl.appendChild(row);
+            listEl.appendChild(expandedContent);
         });
+    },
+
+    renderExpandedMembers: function(squadData, container) {
+        container.innerHTML = '';
+        
+        const membersList = document.createElement('div');
+        membersList.style.display = 'flex';
+        membersList.style.flexDirection = 'column';
+        membersList.style.gap = '6px';
+        membersList.style.maxHeight = '200px';
+        membersList.style.overflowY = 'auto';
+        
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        
+        if (squadData.memberDetails && squadData.memberDetails.length > 0) {
+            squadData.memberDetails.forEach(member => {
+                const mRow = document.createElement('div');
+                mRow.style.display = 'flex';
+                mRow.style.alignItems = 'center';
+                mRow.style.padding = '8px 10px';
+                mRow.style.borderRadius = '8px';
+                mRow.style.gap = '10px';
+                
+                if (member.id === squadData.owner) {
+                    mRow.style.background = 'rgba(255, 215, 0, 0.2)'; // Goldish for leader
+                    mRow.style.border = '1px solid rgba(255, 215, 0, 0.3)';
+                } else if (member.id === String(tgUser?.id)) {
+                    mRow.style.background = 'rgba(255,255,255,0.08)'; // Player white
+                    mRow.style.border = '1px solid rgba(255,255,255,0.35)';
+                } else {
+                    mRow.style.background = 'rgba(255,255,255,0.03)';
+                    mRow.style.border = '1px solid transparent';
+                }
+                
+                const mAvatar = document.createElement('div');
+                mAvatar.className = 'leaderboard-avatar';
+                mAvatar.style.width = '24px';
+                mAvatar.style.height = '24px';
+                mAvatar.style.borderRadius = '50%';
+                mAvatar.style.flexShrink = '0';
+                if (member.photo_url) {
+                    mAvatar.style.backgroundImage = `url(${member.photo_url})`;
+                    mAvatar.style.backgroundSize = 'cover';
+                } else {
+                    mAvatar.style.background = '#444';
+                }
+                mRow.appendChild(mAvatar);
+                
+                const mInfo = document.createElement('div');
+                mInfo.style.flex = '1';
+                mInfo.style.display = 'flex';
+                mInfo.style.justifyContent = 'space-between';
+                mInfo.style.alignItems = 'center';
+                
+                const mName = document.createElement('span');
+                mName.textContent = member.name;
+                mName.style.fontSize = '0.85rem';
+                mName.style.fontWeight = '600';
+                mInfo.appendChild(mName);
+                
+                const mView = document.createElement('span');
+                mView.innerHTML = `${member.coins} <span style="font-size:0.75em; color:rgba(255,255,255,0.5);">$LUCU</span>`;
+                mView.style.fontSize = '0.8rem';
+                mInfo.appendChild(mView);
+                
+                mRow.appendChild(mInfo);
+                membersList.appendChild(mRow);
+            });
+        }
+        
+        container.appendChild(membersList);
+        
+        const playerHasSquad = (typeof Game !== 'undefined' && Game.state && !!Game.state.squad) || (this.squadData && this.squadData.id !== undefined);
+        const canApply = !playerHasSquad;
+        
+        if (canApply) {
+            const applyBtn = document.createElement('button');
+            applyBtn.textContent = i18n.t('squad_apply_btn') || 'Отправить заявку';
+            applyBtn.style.marginTop = '8px';
+            applyBtn.style.padding = '8px';
+            applyBtn.style.background = '#4CAF50';
+            applyBtn.style.color = '#fff';
+            applyBtn.style.border = 'none';
+            applyBtn.style.borderRadius = '8px';
+            applyBtn.style.fontWeight = 'bold';
+            applyBtn.style.cursor = 'pointer';
+            
+            applyBtn.addEventListener('click', () => {
+                const confirmMsg = i18n.t('confirm_apply_squad', { name: squadData.name });
+                this.openCustomModal(confirmMsg, () => {
+                    this.applyToSquad(squadData.id);
+                }, true);
+            });
+            
+            container.appendChild(applyBtn);
+        }
     }
 };
