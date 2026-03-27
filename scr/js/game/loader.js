@@ -399,12 +399,34 @@ async function preload() {
 
     // ---- PHASE 3: TGS ASSETS (images/animations) ----
     const TGS_BATCH_SIZE = 4;
+    // Map of known skins with folders, since Shop hasn't loaded fully
+    const skinFolders = {
+        'default': 'classic_skins',
+        'gold_skin': 'negative_skins',
+        'lucky_skin': 'scary_skins',
+        'rainbow_skin': 'scratch_skins',
+        'ton_skin': 'toxic_skins',
+        'woman_skin': 'woman_skins'
+    };
+    let skinFolder = 'classic_skins';
+    if (serverState && serverState.equippedSkin) {
+        skinFolder = skinFolders[serverState.equippedSkin] || 'classic_skins';
+    }
+
     for (let i = 0; i < tgsAssets.length && !skipRequested; i += TGS_BATCH_SIZE) {
         const batch = tgsAssets.slice(i, i + TGS_BATCH_SIZE);
         await Promise.all(batch.map(async (asset) => {
             const name = asset.replace('.tgs', '');
-            const data = await loadTGSWithRetry(CONFIG.assetsPath + 'classic_skins/' + asset);
-            if (data) animationCache['classic_skins/' + name] = data;
+            
+            // Still always preload classic_skins in background just in case we switch
+            loadTGSWithRetry(CONFIG.assetsPath + 'classic_skins/' + asset).then(data => {
+                if (data && skinFolder !== 'classic_skins') animationCache['classic_skins/' + name] = data;
+            });
+
+            // Preload the equipped skin's folder to ensure it loads before game starts
+            const data = await loadTGSWithRetry(CONFIG.assetsPath + skinFolder + '/' + asset);
+            if (data) animationCache[skinFolder + '/' + name] = data;
+
             loadedCount++;
             updateLoadingText();
         }));

@@ -79,6 +79,9 @@ const Inventory = {
                 if (skinDef.imageUrl) {
                     const img = document.createElement('img');
                     img.src = skinDef.imageUrl;
+                    img.onerror = function () {
+                        imgContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';
+                    };
                     imgContainer.appendChild(img);
                 } else {
                     imgContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';
@@ -170,6 +173,9 @@ const Inventory = {
                     img.style.position = 'absolute';
                     img.style.top = '0';
                     img.style.left = '0';
+                    img.onerror = function () {
+                        imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
+                    };
                     imgDiv.appendChild(img);
                 } else {
                     imgDiv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a4 4 0 0 0-8 0v2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>';
@@ -427,7 +433,7 @@ const Inventory = {
             
             if (isWinner) {
                 if (reward.type === 'coins') {
-                    imgSrc = 'assets/UI/images/lucu.webp';
+                    imgSrc = 'assets/UI/images/cases/lucu.svg';
                     text = reward.amount + ' $LUCU';
                 } else if (reward.type === 'skin') {
                     const s = Shop.skins.find(sk => sk.id === reward.id);
@@ -445,10 +451,10 @@ const Inventory = {
             } else {
                 const rand = Math.random();
                 if (rand < 0.6) {
-                    imgSrc = 'assets/UI/images/lucu.webp';
+                    imgSrc = 'assets/UI/images/cases/lucu.svg';
                     text = Math.floor(Math.random() * 500 + 50) + ' $LUCU';
                 } else if (rand < 0.8) {
-                    imgSrc = 'assets/UI/images/cases/1-case.webp';
+                    imgSrc = 'assets/UI/images/cases/1-case.svg';
                     text = 'Case';
                 } else {
                     imgSrc = 'assets/UI/images/cubes_cubes.png';

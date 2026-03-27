@@ -139,8 +139,8 @@ const Squads = {
         content.innerHTML = `
             <div class="custom-modal-title">${message}</div>
             <div class="custom-modal-actions">
-                ${isConfirmMode ? '<button class="custom-modal-btn custom-modal-btn-cancel" id="custom-modal-cancel">Cancel</button>' : ''}
-                <button class="custom-modal-btn custom-modal-btn-confirm" id="custom-modal-ok">OK</button>
+                ${isConfirmMode ? '<button class="custom-modal-btn custom-modal-btn-cancel" id="custom-modal-cancel">' + i18n.t('cancel_btn') + '</button>' : ''}
+                <button class="custom-modal-btn custom-modal-btn-confirm" id="custom-modal-ok">${i18n.t('ok_btn')}</button>
             </div>
         `;
 
@@ -383,7 +383,7 @@ const Squads = {
 
                     if (isOwner && member.id !== String(tgUser?.id)) {
                         const mKick = document.createElement('button');
-                        mKick.textContent = 'Kick';
+                        mKick.textContent = i18n.t('squad_kick');
                         mKick.style.background = 'rgba(220,53,69,0.2)';
                         mKick.style.color = '#ff4d4f';
                         mKick.style.border = '1px solid rgba(220,53,69,0.3)';
@@ -480,7 +480,7 @@ const Squads = {
     },
 
     deleteSquad: function () {
-        this.openCustomModal('Are you sure you want to delete your squad? This cannot be undone.', () => {
+        this.openCustomModal(i18n.t('squad_delete_confirm'), () => {
             const deleteBtn = document.getElementById('squad-delete-btn');
             if (deleteBtn) deleteBtn.style.opacity = '0.5';
 
@@ -505,7 +505,7 @@ const Squads = {
     },
 
     leaveSquad: function () {
-        this.openCustomModal('Are you sure you want to leave this squad?', () => {
+        this.openCustomModal(i18n.t('squad_leave_confirm'), () => {
             const leaveBtn = document.getElementById('squad-leave-btn');
             if (leaveBtn) leaveBtn.style.opacity = '0.5';
 
@@ -530,7 +530,7 @@ const Squads = {
     },
 
     kickMember: function (targetUserId, memberName) {
-        this.openCustomModal(`Are you sure you want to kick ${memberName} from the squad?`, () => {
+        this.openCustomModal(i18n.t('squad_kick_confirm', { name: memberName }), () => {
             API.call('/api/squad-kick', { targetUserId: targetUserId })
                 .then(resp => {
                     if (!resp || resp.error) {
@@ -571,7 +571,7 @@ const Squads = {
                     this.openCustomModal(resp ? resp.error : 'Error sending application');
                     return;
                 }
-                this.openCustomModal(i18n.t('squad_apply_sent') || '✅ Application sent! The squad owner will receive your request.');
+                this.openCustomModal(i18n.t('squad_apply_sent'));
             })
             .catch(() => {
                 this.openCustomModal('Error sending application');
@@ -584,7 +584,7 @@ const Squads = {
             const tgApp = window.Telegram.WebApp;
             const botUsername = 'my_cubes_bot'; // Replace with actual if known dynamically 
             const inviteLink = `https://t.me/${botUsername}/my_cubes?startapp=squad_${this.squadData.id}`;
-            const text = `Join my squad "${this.squadData.name}" in Lucky Cubes! 🍀🎲`;
+            const text = i18n.t('squad_share_text', { name: this.squadData.name });
 
             const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(text)}`;
             if (typeof tgApp.openTelegramLink === 'function') {
@@ -613,7 +613,7 @@ const Squads = {
         listEl.innerHTML = '';
 
         if (!squads || squads.length === 0) {
-            listEl.innerHTML = '<div style="text-align:center; padding: 20px; color: rgba(255,255,255,0.5); font-size: 0.9rem;">No squads found</div>';
+            listEl.innerHTML = '<div style="text-align:center; padding: 20px; color: rgba(255,255,255,0.5); font-size: 0.9rem;">' + i18n.t('no_squads_found') + '</div>';
             return;
         }
 
@@ -710,7 +710,7 @@ const Squads = {
                 bar.style.cursor = 'pointer';
                 row.addEventListener('click', () => {
                     const squadName = squad.name || 'this squad';
-                    const confirmMsg = (i18n.t('confirm_apply_squad') || 'Do you want to apply to join <b>{name}</b>?').replace('{name}', squadName);
+                    const confirmMsg = i18n.t('confirm_apply_squad', { name: squadName });
                     this.openCustomModal(confirmMsg, () => {
                         this.applyToSquad(squad.id);
                     }, true);

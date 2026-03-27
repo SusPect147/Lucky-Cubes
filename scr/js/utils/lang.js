@@ -141,7 +141,22 @@ const TRANSLATIONS = {
         squad_accept: "Accept",
         squad_reject: "Reject",
         squad_kick: "Kick",
-        last_online: "Last seen: {time}"
+        last_online: "Last seen: {time}",
+        confirm_apply_squad: "Do you want to apply to join <b>{name}</b>?",
+        squad_apply_sent: "✅ Application sent! The squad owner will receive your request.",
+        squad_delete_confirm: "Are you sure you want to delete your squad? This cannot be undone.",
+        squad_leave_confirm: "Are you sure you want to leave this squad?",
+        squad_kick_confirm: "Are you sure you want to kick {name} from the squad?",
+        no_squads_found: "No squads found",
+        skin_equipped_toast: "Skin equipped!",
+        squad_share_text: "Join my squad \"{name}\" in Lucky Cubes! 🍀🎲",
+        cancel_btn: "Cancel",
+        ok_btn: "OK",
+        story_share_skip: "Skip",
+        filter_by_members: "By Members",
+        filter_by_lucu: "By LUCU",
+        search_squads: "Search squads...",
+        "Invite 3 Friends": "Invite 3 Friends"
     },
     ru: {
         loading: '{loaded}/{total} загружено',
@@ -285,6 +300,21 @@ const TRANSLATIONS = {
         squad_accept: "Принять",
         squad_reject: "Отклонить",
         squad_kick: "Исключить",
-        last_online: "В сети: {time} назад"
+        last_online: "В сети: {time} назад",
+        confirm_apply_squad: "Хотите подать заявку в <b>{name}</b>?",
+        squad_apply_sent: "✅ Заявка отправлена! Владелец сквода получит ваш запрос.",
+        squad_delete_confirm: "Вы уверены, что хотите удалить ваш сквод? Это действие нельзя отменить.",
+        squad_leave_confirm: "Вы уверены, что хотите покинуть этот сквод?",
+        squad_kick_confirm: "Вы уверены, что хотите исключить {name} из сквода?",
+        no_squads_found: "Сквады не найдены",
+        skin_equipped_toast: "Скин надет!",
+        squad_share_text: "Вступай в мой сквод \"{name}\" в Lucky Cubes! 🍀🎲",
+        cancel_btn: "Отмена",
+        ok_btn: "OK",
+        story_share_skip: "Пропустить",
+        filter_by_members: "По участникам",
+        filter_by_lucu: "По LUCU",
+        search_squads: "Поиск сквадов...",
+        "Invite 3 Friends": "Пригласить 3 друзей"
     }
 };

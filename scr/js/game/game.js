@@ -537,6 +537,20 @@ window.Game = (function () {
                 currentMin = 0;
                 newRainbowTarget();
             }
+
+            if (state && state.activeBoosts) {
+                const now = Date.now();
+                // activeBoosts is an object like {"boost_id": timestamp}
+                for (const boostId in state.activeBoosts) {
+                    const serverEndTime = state.activeBoosts[boostId] * 1000;
+                    if (serverEndTime > now) {
+                        const durationLeft = serverEndTime - now;
+                        // Avoid re-triggering rainbow boost here if it's already active to prevent double-calls, but just in case, we call useBoost
+                        this.useBoost(boostId, durationLeft);
+                    }
+                }
+            }
+
             updateLevel(totalXP);
             showIdleCube();
             updateUI(coinCount, currentMin);
