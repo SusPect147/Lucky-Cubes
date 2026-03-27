@@ -725,8 +725,9 @@ const Squads = {
             expandedContent.style.padding = '10px';
             expandedContent.style.gap = '8px';
             expandedContent.style.background = 'rgba(0,0,0,0.3)';
-            expandedContent.style.borderBottomLeftRadius = '12px';
-            expandedContent.style.borderBottomRightRadius = '12px';
+            expandedContent.style.borderRadius = '12px';
+            expandedContent.style.marginTop = '-6px'; // Pull up slightly closer to row
+            expandedContent.style.marginBottom = '6px';
             expandedContent.innerHTML = '<div style="text-align:center; color:rgba(255,255,255,0.5); font-size:0.8rem;">' + (i18n.t('loading_members') || 'Loading...') + '</div>';
             
             let isExpanded = false;
@@ -736,8 +737,6 @@ const Squads = {
                 isExpanded = !isExpanded;
                 if (isExpanded) {
                     expandedContent.style.display = 'flex';
-                    row.style.borderBottomLeftRadius = '0';
-                    row.style.borderBottomRightRadius = '0';
                     
                     if (!membersLoaded) {
                         API.call('/api/squad-info', { squadId: squad.id })
@@ -755,8 +754,6 @@ const Squads = {
                     }
                 } else {
                     expandedContent.style.display = 'none';
-                    row.style.borderBottomLeftRadius = '12px';
-                    row.style.borderBottomRightRadius = '12px';
                 }
             });
 
@@ -785,6 +782,7 @@ const Squads = {
                 mRow.style.padding = '8px 10px';
                 mRow.style.borderRadius = '8px';
                 mRow.style.gap = '10px';
+                mRow.style.flexShrink = '0';
                 
                 if (member.id === squadData.owner) {
                     mRow.style.background = 'rgba(255, 215, 0, 0.2)'; // Goldish for leader
@@ -799,10 +797,11 @@ const Squads = {
                 
                 const mAvatar = document.createElement('div');
                 mAvatar.className = 'leaderboard-avatar';
-                mAvatar.style.width = '24px';
-                mAvatar.style.height = '24px';
+                mAvatar.style.width = '28px';
+                mAvatar.style.height = '28px';
                 mAvatar.style.borderRadius = '50%';
                 mAvatar.style.flexShrink = '0';
+                mAvatar.style.backgroundPosition = 'center';
                 if (member.photo_url) {
                     mAvatar.style.backgroundImage = `url(${member.photo_url})`;
                     mAvatar.style.backgroundSize = 'cover';

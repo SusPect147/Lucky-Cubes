@@ -632,7 +632,7 @@ const Shop = {
 
             const bonusDiv = document.createElement('div');
             bonusDiv.className = 'skin-bonus';
-            bonusDiv.textContent = skin.bonus;
+            bonusDiv.textContent = i18n.t(skin.bonus) || skin.bonus;
             infoDiv.appendChild(bonusDiv);
 
             const isOwned = (typeof Inventory !== 'undefined' && Inventory.ownedSkins && Inventory.ownedSkins.includes(skin.id));

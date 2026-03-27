@@ -396,7 +396,6 @@ async function preload() {
     }
 
     // ---- PHASE 3: TGS ASSETS (images/animations) ----
-    const TGS_BATCH_SIZE = 4;
     // Map of known skins with folders, since Shop hasn't loaded fully
     const skinFolders = {
         'default': 'classic_skins',
@@ -411,23 +410,24 @@ async function preload() {
         skinFolder = skinFolders[serverState.equippedSkin] || 'classic_skins';
     }
 
-    for (let i = 0; i < tgsAssets.length && !skipRequested; i += TGS_BATCH_SIZE) {
-        const batch = tgsAssets.slice(i, i + TGS_BATCH_SIZE);
-        await Promise.all(batch.map(async (asset) => {
-            const name = asset.replace('.tgs', '');
+    for (let i = 0; i < tgsAssets.length && !skipRequested; i++) {
+        const asset = tgsAssets[i];
+        const name = asset.replace('.tgs', '');
             
-            // Still always preload classic_skins in background just in case we switch
-            loadTGSWithRetry(CONFIG.assetsPath + 'classic_skins/' + asset).then(data => {
-                if (data && skinFolder !== 'classic_skins') animationCache['classic_skins/' + name] = data;
-            });
+        // Still always preload classic_skins in background just in case we switch
+        loadTGSWithRetry(CONFIG.assetsPath + 'classic_skins/' + asset).then(data => {
+            if (data && skinFolder !== 'classic_skins') animationCache['classic_skins/' + name] = data;
+        });
 
-            // Preload the equipped skin's folder to ensure it loads before game starts
-            const data = await loadTGSWithRetry(CONFIG.assetsPath + skinFolder + '/' + asset);
-            if (data) animationCache[skinFolder + '/' + name] = data;
+        // Preload the equipped skin's folder to ensure it loads before game starts
+        const data = await loadTGSWithRetry(CONFIG.assetsPath + skinFolder + '/' + asset);
+        if (data) animationCache[skinFolder + '/' + name] = data;
 
-            loadedCount++;
-            updateLoadingText();
-        }));
+        loadedCount++;
+        updateLoadingText();
+
+        // Yield to browser main thread to update UI (preventing the 14/27 freeze)
+        await new Promise(r => setTimeout(r, 15));
     }
 
     // ---- PHASE 4: IMAGES ----

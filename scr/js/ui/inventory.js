@@ -76,9 +76,40 @@ const Inventory = {
                 
                 const imgContainer = document.createElement('div');
                 imgContainer.className = 'skin-image-container';
-                if (skinDef.imageUrl) {
+                imgContainer.style.width = '100px';
+                imgContainer.style.height = '100px';
+                imgContainer.style.margin = '0 auto';
+                imgContainer.style.display = 'flex';
+                imgContainer.style.justifyContent = 'center';
+                imgContainer.style.alignItems = 'center';
+
+                if (skinDef.folder) {
+                    const animContainer = document.createElement('div');
+                    animContainer.className = 'lottie-cube';
+                    animContainer.style.width = '100px';
+                    animContainer.style.height = '100px';
+                    imgContainer.appendChild(animContainer);
+                    
+                    const tgsPath = CONFIG.assetsPath + skinDef.folder + '/first-cubic.tgs';
+                    if (typeof loadTGS !== 'undefined') {
+                        loadTGS(tgsPath).then(data => {
+                            if (data && animContainer.parentNode) {
+                                lottie.loadAnimation({
+                                    container: animContainer,
+                                    renderer: 'canvas',
+                                    loop: true,
+                                    autoplay: true,
+                                    animationData: data
+                                });
+                            }
+                        });
+                    }
+                } else if (skinDef.imageUrl) {
                     const img = document.createElement('img');
                     img.src = skinDef.imageUrl;
+                    img.style.objectFit = 'contain';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
                     img.onerror = function () {
                         imgContainer.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;stroke:var(--text-tertiary);"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';
                     };
@@ -93,13 +124,13 @@ const Inventory = {
                 
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'skin-name';
-                nameDiv.textContent = skinDef.name;
+                nameDiv.textContent = i18n.t(skinDef.name) || skinDef.name;
                 infoDiv.appendChild(nameDiv);
 
                 if (skinDef.bonus && skinDef.bonus !== 'none') {
                     const bonusDiv = document.createElement('div');
                     bonusDiv.className = 'skin-bonus';
-                    bonusDiv.textContent = skinDef.bonus;
+                    bonusDiv.textContent = i18n.t(skinDef.bonus) || skinDef.bonus;
                     infoDiv.appendChild(bonusDiv);
                 }
 

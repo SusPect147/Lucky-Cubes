@@ -156,7 +156,18 @@ const TRANSLATIONS = {
         filter_by_members: "By Members",
         filter_by_lucu: "By LUCU",
         search_squads: "Search squads...",
-        "Invite 3 Friends": "Invite 3 Friends"
+        "Invite 3 Friends": "Invite 3 Friends",
+        "Negative Glow": "Negative Glow",
+        "+15% Coins": "+15% Coins",
+        "Scary Shadow": "Scary Shadow",
+        "Extra Luck (Min reductions)": "Extra Luck (Min reductions)",
+        "Scratch Master": "Scratch Master",
+        "Chance for Random Rainbow Roll": "Chance for Random Rainbow Roll",
+        "Toxic Waste": "Toxic Waste",
+        "Permanent Min Reduction (-10%)": "Permanent Min Reduction (-10%)",
+        "Mysterious Lady": "Mysterious Lady",
+        "Mysterious Aura": "Mysterious Aura",
+        "Default Cube": "Default Cube"
     },
     ru: {
         loading: '{loaded}/{total} загружено',
@@ -315,6 +326,17 @@ const TRANSLATIONS = {
         filter_by_members: "По участникам",
         filter_by_lucu: "По LUCU",
         search_squads: "Поиск сквадов...",
-        "Invite 3 Friends": "Пригласить 3 друзей"
+        "Invite 3 Friends": "Пригласить 3 друзей",
+        "Negative Glow": "Негативное Свечение",
+        "+15% Coins": "+15% к монетам",
+        "Scary Shadow": "Жуткая Тень",
+        "Extra Luck (Min reductions)": "Удача (Снижает МИН)",
+        "Scratch Master": "Мастер Царапин",
+        "Chance for Random Rainbow Roll": "Шанс на случайную Радугу",
+        "Toxic Waste": "Токсичные Отходы",
+        "Permanent Min Reduction (-10%)": "Снижение МИН навсегда (-10%)",
+        "Mysterious Lady": "Таинственная Леди",
+        "Mysterious Aura": "Таинственная аура",
+        "Default Cube": "Обычный Кубик"
     }
 };
